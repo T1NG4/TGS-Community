@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Chaves - TGS Launcher</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="view-keys-container">
+        <div class="view-keys-card">
+            <div class="view-keys-header">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <span>TGS</span>
+                </div>
+                <h1>Minhas Chaves de Acesso</h1>
+                <p>Suas chaves ativas do TGS Launcher</p>
+            </div>
+
+            <div id="loadingState" class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Carregando suas chaves...</p>
+            </div>
+
+            <div id="errorState" class="error-state" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Link Inválido</h3>
+                <p id="errorMessage">Este link é inválido ou expirou.</p>
+            </div>
+
+            <div id="keysContainer" class="keys-container" style="display: none;">
+                <!-- Keys will be loaded dynamically -->
+            </div>
+
+            <div class="launcher-info">
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <h4>Como usar suas chaves:</h4>
+                        <p>Copie suas chaves acima e use-as no aplicativo TGS Launcher.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script-new.js"></script>
+    <script>
+        // Verificar token e carregar chaves
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
+                showError('Token não fornecido.');
+                return;
+            }
+
+            try {
+                // Buscar chaves via API
+                const response = await fetch(`http://localhost:3002/api/view-keys/${token}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showKeys(data.keys);
+                } else {
+                    showError(data.message || 'Não foi possível carregar suas chaves.');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar chaves:', error);
+                showError('Erro ao conectar com o servidor. Tente novamente.');
+            }
+        });
+
+        // Mostrar erro
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('keysContainer').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // Mostrar chaves
+        function showKeys(keys) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            
+            const container = document.getElementById('keysContainer');
+            
+            if (!keys || keys.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-key"></i>
+                        <h3>Nenhuma Chave Encontrada</h3>
+                        <p>Você não possui chaves ativas no momento.</p>
+                    </div>
+                `;
+            } else {
+                const keysHTML = keys.map(key => {
+                    const typeClass = getKeyTypeClass(key.type);
+                    const typeIcon = getKeyTypeIcon(key.type);
+                    const expiryInfo = getExpiryInfo(key);
+                    
+                    return `
+                        <div class="key-card ${typeClass}">
+                            <div class="key-header">
+                                <div class="key-type">
+                                    <i class="fas ${typeIcon}"></i>
+                                    <span>${key.type.toUpperCase()}</span>
+                                </div>
+                                <div class="key-status ${key.status}">
+                                    <i class="fas fa-circle"></i>
+                                    ${key.status === 'active' ? 'Ativa' : 'Inativa'}
+                                </div>
+                            </div>
+                            
+                            <div class="key-code">
+                                <code>${key.code}</code>
+                                <button onclick="copyToClipboard('${key.code}', this)" class="copy-btn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="key-details">
+                                <div class="key-info">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Compra: ${formatDate(key.purchase_date)}</span>
+                                </div>
+                                ${expiryInfo}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = keysHTML;
+            }
+            
+            container.style.display = 'block';
+        }
+
+        // Funções auxiliares
+        function getKeyTypeClass(type) {
+            const classes = {
+                'admin': 'key-admin',
+                'creator': 'key-creator', 
+                'standard': 'key-standard'
+            };
+            return classes[type] || 'key-default';
+        }
+
+        function getKeyTypeIcon(type) {
+            const icons = {
+                'admin': 'fa-crown',
+                'creator': 'fa-hammer',
+                'standard': 'fa-star'
+            };
+            return icons[type] || 'fa-key';
+        }
+
+        function getExpiryInfo(key) {
+            if (key.is_lifetime) {
+                return `
+                    <div class="key-info">
+                        <i class="fas fa-infinity"></i>
+                        <span>Vitalícia</span>
+                    </div>
+                `;
+            }
+            
+            if (key.expiry_date) {
+                const expiryDate = new Date(key.expiry_date);
+                const today = new Date();
+                const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                
+                let statusClass = 'expiry-normal';
+                if (daysUntilExpiry <= 7) statusClass = 'expiry-warning';
+                if (daysUntilExpiry <= 3) statusClass = 'expiry-danger';
+                
+                return `
+                    <div class="key-info ${statusClass}">
+                        <i class="fas fa-clock"></i>
+                        <span>Expira: ${formatDate(key.expiry_date)} (${daysUntilExpiry} dias)</span>
+                    </div>
+                `;
+            }
+            
+            return '';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function copyToClipboard(text, buttonElement) {
+            console.log('Tentando copiar:', text);
+            
+            // Tentar usar a API do Electron primeiro
+            try {
+                if (typeof require === 'function') {
+                    const { ipcRenderer } = require('electron');
+                    if (ipcRenderer) {
+                        ipcRenderer.invoke('write-to-clipboard', text).then((result) => {
+                            console.log('Resultado do Electron:', result);
+                            if (result && result.success) {
+                                showCopySuccess(buttonElement);
+                            } else {
+                                fallbackCopy(text, buttonElement);
+                            }
+                        }).catch((error) => {
+                            console.log('Erro no Electron:', error);
+                            fallbackCopy(text, buttonElement);
+                        });
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('Erro ao carregar Electron:', error);
+            }
+            
+            // Fallback direto
+            fallbackCopy(text, buttonElement);
+        }
+        
+        function showCopySuccess(buttonElement) {
+            const originalHTML = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="fas fa-check"></i>';
+            buttonElement.classList.add('success');
+            
+            setTimeout(() => {
+                buttonElement.innerHTML = originalHTML;
+                buttonElement.classList.remove('success');
+            }, 2000);
+        }
+        
+        function fallbackCopy(text, buttonElement) {
+            // Tentar navigator.clipboard primeiro
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess(buttonElement);
+                }).catch(() => {
+                    manualCopy(text, buttonElement);
+                });
+            } else {
+                // Fallback final
+                manualCopy(text, buttonElement);
+            }
+        }
+        
+        function manualCopy(text, buttonElement) {
+            // Método manual que funciona em todos os navegadores
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess(buttonElement);
+                } else {
+                    console.error('Falha ao copiar texto');
+                }
+            } catch (err) {
+                console.error('Erro ao copiar texto:', err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showNotification(message, type = 'info') {
+            // Criar elemento de notificação
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            // Adicionar estilos
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : '#6C63FF'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            // Adicionar ao DOM
+            document.body.appendChild(notification);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Adicionar animações CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

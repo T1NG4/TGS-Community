@@ -1,0 +1,136 @@
+'use strict';
+
+const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
+const path = require('path');
+const os = require('os');
+const { createApp, setPaths, getOutputPath } = require('../server/src/app');
+
+// ─── Configuration ────────────────────────────────────────────────────────────
+const PORT = 3791;
+const isDev = !app.isPackaged;
+
+// Em dev, raiz do projeto = pasta "codigo fonte" (pai de src/), alinhado a app.js do server.
+// Empacotado: incluir `[TGS-Fivem-Pack]` em extraResources do electron-builder → process.resourcesPath
+const ROOT = isDev ? path.join(__dirname, '..', '..') : process.resourcesPath;
+
+const BASE_PATH = path.join(ROOT, '[TGS-Fivem-Pack]');
+const OUTPUT_PATH = path.join(ROOT, 'output');
+const DIST_PATH = path.join(__dirname, '..', 'client', 'dist');
+
+// ─── Express ──────────────────────────────────────────────────────────────────
+function startServer() {
+  // Set up IPC bridge for server to communicate with main process
+  global.electronAPI = {
+    openPacksFolder: async () => {
+      try {
+        await shell.openPath(getOutputPath());
+        return { success: true, message: 'Pasta aberta com sucesso!' };
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+  };
+
+  setPaths(BASE_PATH, OUTPUT_PATH, DIST_PATH);
+  const expressApp = createApp(!isDev); // serve static only in production
+  expressApp.listen(PORT, () =>
+    console.log(`[Backend] Express em http://localhost:${PORT}  |  Output → ${OUTPUT_PATH}`)
+  );
+}
+
+// ─── Window ───────────────────────────────────────────────────────────────────
+let mainWindow;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1100,
+    height: 680,
+    minWidth: 1100,
+    minHeight: 680,
+    title: 'FiveM Car Pack Manager',
+    backgroundColor: '#09090b',
+    frame: false,
+    titleBarStyle: 'hidden',
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+    },
+    show: false,
+  });
+
+  Menu.setApplicationMenu(null);
+
+  const url = isDev ? 'http://localhost:5173' : `http://localhost:${PORT}`;
+  mainWindow.loadURL(url);
+
+  mainWindow.webContents.setWindowOpenHandler(({ url: href }) => {
+    shell.openExternal(href);
+    return { action: 'deny' };
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+    if (isDev) mainWindow.webContents.openDevTools({ mode: 'bottom' });
+  });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+// ─── IPC Handlers ───────────────────────────────────────────────────────────
+ipcMain.handle('open-packs-folder', async () => {
+  try {
+    await shell.openPath(getOutputPath());
+    return { success: true, message: 'Pasta aberta com sucesso!' };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.on('close-window', () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+});
+
+ipcMain.on('minimize-window', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.on('toggle-fullscreen', () => {
+  if (mainWindow) {
+    if (mainWindow.isFullScreen()) {
+      mainWindow.setFullScreen(false);
+    } else {
+      mainWindow.setFullScreen(true);
+    }
+  }
+});
+
+app.whenReady().then(() => {
+  // Request admin permissions for shell operations
+  if (process.platform === 'win32') {
+    const { exec } = require('child_process');
+    exec('net session', (error, stdout, stderr) => {
+      if (error || stderr.includes('Access is denied')) {
+        console.log('[Admin] Running without admin privileges - some features may be limited');
+      } else {
+        console.log('[Admin] Running with admin privileges');
+      }
+    });
+  }
+  
+  startServer();
+  createWindow();
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});

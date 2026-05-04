@@ -1,0 +1,83 @@
+{
+  "users": [
+    {
+      "id": "user-001",
+      "username": "admin",
+      "key": "TGS-2024-PREMIUM-001",
+      "password": "$2a$12$Im4VeOmO9Qq2N7dBIttVyeY0xMoP7snNrOLB3B3w8RylEQCrUgigO",
+      "role": "admin",
+      "active": true,
+      "createdAt": "2025-11-26T13:05:52.558Z",
+      "lastLogin": "2025-11-26T14:09:30.616Z"
+    },
+    {
+      "id": "user-002",
+      "username": "user",
+      "key": "LAUNCHER-2024-STANDARD-002",
+      "password": "$2a$12$rSmirDaTsGE3xFuLE3WxO.koUrdmnw/AcP/q5zCN/9i0yPIQ0by3.",
+      "role": "user",
+      "active": true,
+      "createdAt": "2025-11-26T13:05:52.986Z",
+      "lastLogin": "2025-11-26T14:10:59.554Z"
+    }
+  ],
+  "mods": [
+    {
+      "id": "mod-001",
+      "name": "TGS M4 F82",
+      "category": "veiculos",
+      "description": "BMW M4 F82 com modificações exclusivas TGS",
+      "image": "m4f82.png",
+      "version": "1.0.0",
+      "size": "45MB",
+      "downloads": 1250,
+      "rating": 4.8,
+      "tags": [
+        "esportivo",
+        "bmw",
+        "alemao"
+      ],
+      "enabled": false,
+      "createdAt": "2025-11-26T13:05:52.986Z"
+    },
+    {
+      "id": "mod-002",
+      "name": "TGS Advanced Graphics",
+      "category": "graphics",
+      "subcategory": "Advanced",
+      "description": "Pacote gráfico avançado para visual realista",
+      "image": "TGS_Advanced_logo.png",
+      "version": "2.1.0",
+      "size": "128MB",
+      "downloads": 3420,
+      "rating": 4.9,
+      "tags": [
+        "grafico",
+        "realista",
+        "4k"
+      ],
+      "enabled": false,
+      "createdAt": "2025-11-26T13:05:52.986Z"
+    },
+    {
+      "id": "mod-003",
+      "name": "TGS Realistic Plus",
+      "category": "graphics",
+      "subcategory": "realistic-plus",
+      "description": "Enhanced realistic graphics pack with improved textures",
+      "image": "TGS_RealisticPlus.png",
+      "version": "1.5.0",
+      "size": "89MB",
+      "downloads": 2180,
+      "rating": 4.7,
+      "tags": [
+        "grafico",
+        "texturas",
+        "realismo"
+      ],
+      "enabled": false,
+      "createdAt": "2025-11-26T13:05:52.986Z"
+    }
+  ],
+  "lastUpdated": "2025-11-26T14:10:59.555Z"
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launcher - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+    <!-- Barra de título personalizada -->
+    <div class="title-bar">
+        <div class="title"><img src="midias/TGS/TGS_logo_black.svg" alt="TGS Logo" class="tgs-logo"> Launcher</div>
+        <div class="window-controls">
+            <button id="minimize-btn" class="window-control"><i class="fas fa-window-minimize"></i></button>
+            <button id="fullscreen-btn" class="window-control" title="Tela Cheia"><i class="fas fa-expand"></i></button>
+            <button id="close-btn" class="window-control close"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <div class="logo">
+            <img src="midias/TGS/TGS_logo_black.svg" alt="TGS Logo" class="fivem-logo">
+            <h1>Launcher</h1>
+            <p>Gerenciador de Mods FiveM</p>
+        </div>
+        
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="username" placeholder="Nome de Usuário" required="" style="
+    padding-left: 35px;
+">
+            </div>
+            <div class="form-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="password" placeholder="Senha" required="" style="
+    padding-left: 35px;
+">
+            </div>
+                        
+            <div class="error-message" id="errorMessage" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText"></span>
+            </div>
+            
+            <button type="submit" class="login-button">
+                <i class="fas fa-sign-in-alt"></i> Autenticar
+            </button>
+            
+            <div class="login-footer">
+                <p class="login-hint">
+                    Crie sua conta
+                </p>
+                <p class="forgot-password">
+                    <a href="#" id="forgotPasswordLink">
+                        Esqueceu seu acesso?
+                    </a>
+                </p>
+            </div>
+            
+            <div class="app-version">Versão 1.0.0</div>
+        </form>
+    </div>
+    
+    <!-- Modal de Recuperação de Conta -->
+    <div id="recoveryModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Recuperação de Chave de Acesso</h2>
+                <button class="close-modal" id="closeRecoveryModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="recovery-instructions">
+                    Digite seu email para receber as informações de recuperação.
+                </p>
+                
+                <form id="recoveryForm">
+                    <div class="recovery-type-selector">
+                        <div class="option-group">
+                            <label>
+                                <input type="radio" name="recoveryType" value="key" checked>
+                                <span>Chave de Acesso</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="recoveryType" value="username">
+                                <span><i class="fas fa-user"></i> Nome de Usuário</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="recoveryType" value="password">
+                                <span><i class="fas fa-lock"></i> Senha</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="recoveryInput" placeholder="Digite seu email" required>
+                    </div>
+                    
+                    <div class="form-group captcha-group">
+                        <img src="midias/captcha.svg" alt="CAPTCHA" class="captcha-image" id="captchaImage">
+                        <input type="text" id="captchaInput" placeholder="Digite" required="" style="padding-left: 20px;">
+                        <button type="button" class="refresh-captcha" id="refreshCaptcha">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="recovery-message" id="recoveryMessage" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="recoveryText"></span>
+                    </div>
+                    
+                    <button type="submit" class="recovery-button">
+                        <i class="fas fa-paper-plane"></i> Recuperar Chave
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Criação de Conta -->
+    <div id="signupModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Nova Conta</h2>
+                <button class="close-modal" id="closeSignupModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="signup-instructions">
+                    Preencha os dados abaixo para criar sua conta TGS.
+                </p>
+                
+                <form id="signupForm">
+                    <div class="form-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="signupUsername" placeholder="Nome de Usuário" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="signupEmail" placeholder="Email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="signupPassword" placeholder="Senha" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirmar Senha" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="signupKey" placeholder="Chave de Acesso (opcional)">
+                    </div>
+                    
+                    <div class="form-group captcha-group">
+                        <img src="midias/captcha.svg" alt="CAPTCHA" class="captcha-image" id="signupCaptchaImage">
+                        <input type="text" id="signupCaptchaInput" placeholder="Digite" required="" style="padding-left: 20px;">
+                        <button type="button" class="refresh-captcha" id="refreshSignupCaptcha">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="signup-message" id="signupMessage" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="signupText"></span>
+                    </div>
+                    
+                    <button type="submit" class="signup-button">
+                        Criar Conta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Expor as APIs do Node.js e Electron
+        window.electron = require('electron');
+        window.ipcRenderer = window.electron.ipcRenderer;
+    </script>
+    <script src="script-new.js"></script>
+</body>
+</html>

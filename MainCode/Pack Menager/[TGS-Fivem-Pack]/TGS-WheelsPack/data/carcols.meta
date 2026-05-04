@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CVehicleModelInfoVarGlobal>
+  <Wheels>
+    <Item comment=" VWT_SPORT - Rodas Esportivas ">
+      <!--
+      <Item>
+        <wheelName>wheel_brimsvo_33</wheelName>
+        <wheelVariation/>
+        <modShopLabel>VOSSEN - brimsvo_33</modShopLabel>
+        <rimRadius value="0.3400"/>
+        <rear value="false"/>
+      </Item>
+      -->
+      <!-- add more wheels in VWT_SPORT here -->
+    </Item>
+    <Item comment=" VWT_MUSCLE - Rodas para Carros Muscle "/>
+    <Item comment=" VWT_LOWRIDER - Rodas Lowrider "/>
+    <Item comment=" VWT_SUV - Rodas para SUVs "/>
+    <Item comment=" VWT_OFFROAD - Rodas Offroad "/>
+    <Item comment=" VWT_TUNER - Rodas Tuner "/>
+    <Item comment=" VWT_BIKE - Rodas para Motos "/>
+    <Item comment=" VWT_HIEND - Rodas High-End "/>
+    <Item comment=" VWT_SUPERMOD1 - Benny's Originals "/>
+    <Item comment=" VWT_SUPERMOD2 - Benny's Bespoke "/>
+    <Item comment=" VWT_SUPERMOD3 "/>
+  </Wheels>
+</CVehicleModelInfoVarGlobal>

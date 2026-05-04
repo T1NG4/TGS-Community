@@ -1,0 +1,66 @@
+{
+  "id": "pack-1777921602471",
+  "name": "TGS",
+  "description": "Custom FiveM vehicle pack",
+  "brands": [
+    {
+      "id": "brand-1777921625722",
+      "name": "FORD",
+      "vehicles": [
+        {
+          "id": "veh-1777921637176",
+          "name": "GT",
+          "model": "fgt",
+          "year": "2005",
+          "meta": {
+            "handling": {
+              "fMass": "1500.000000",
+              "fInitialDriveMaxFlatVel": "160.000000",
+              "fDriveBiasFront": "0.500000",
+              "fSteeringLock": "40.000000"
+            },
+            "vehicles": {
+              "audioNameHash": "BULLET"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sharedAudio": [
+    "default_horn",
+    "engine_sport"
+  ],
+  "sharedWheelsBrands": [
+    "VOSSEN"
+  ],
+  "stagedWheels": [
+    {
+      "id": "wheel-1777924649889",
+      "brandName": "VOSSEN",
+      "wheelName": "brimsvo_27",
+      "wheelClass": "VWT_SPORT",
+      "rimRadius": 0.34,
+      "fileName": "wheel_brimsvo_27.ydr",
+      "filePath": "C:\\Users\\Tigas\\Documents\\FiveM\\Projetos\\TGS Launcher\\usuario\\output\\.staging\\pack-1777921602471\\shared\\wheels\\stream\\VOSSEN\\wheel_brimsvo_27.ydr"
+    }
+  ],
+  "audioConfigs": [
+    {
+      "id": "1777924814226",
+      "name": "lg81hcredeye",
+      "gameRel": "lg81hcredeye_game.dat151.rel",
+      "soundsRel": "lg81hcredeye_sounds.dat54.rel",
+      "ampRel": null,
+      "gameNametable": null,
+      "soundsNametable": null,
+      "ampNametable": null,
+      "awcFiles": [
+        "C:\\Users\\Tigas\\Documents\\FiveM\\Projetos\\TGS Launcher\\usuario\\output\\.staging\\pack-1777921602471\\shared\\audio\\sfx\\dlc_lg81hcredeye\\lg81hcredeye.awc",
+        "C:\\Users\\Tigas\\Documents\\FiveM\\Projetos\\TGS Launcher\\usuario\\output\\.staging\\pack-1777921602471\\shared\\audio\\sfx\\dlc_lg81hcredeye\\lg81hcredeye_npc.awc"
+      ],
+      "npcAwc": "lg81hcredeye_npc.awc"
+    }
+  ],
+  "createdAt": "2026-05-04T19:06:42.471Z"
+}

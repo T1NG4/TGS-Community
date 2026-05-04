@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abrir TGS Launcher</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="open-launcher-container">
+        <div class="open-launcher-card">
+            <div class="open-launcher-header">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <span>TGS</span>
+                </div>
+                <h1>Abrir TGS Launcher</h1>
+                <p>Deseja abrir o aplicativo TGS Launcher?</p>
+            </div>
+
+            <div class="launcher-info">
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <h4>Informações:</h4>
+                        <p>O TGS Launcher é um aplicativo desktop que deve ser instalado em seu computador.</p>
+                        <p>Clique abaixo para tentar abrir o aplicativo automaticamente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="open-actions">
+                <button onclick="openLauncher()" class="btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Abrir TGS Launcher
+                </button>
+                <button onclick="window.close()" class="btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+            </div>
+
+            <div class="manual-instructions">
+                <h3><i class="fas fa-cog"></i> Se não abrir automaticamente:</h3>
+                <ol>
+                    <li>Procure o TGS Launcher em seu computador</li>
+                    <li>Duplo clique no ícone do aplicativo</li>
+                    <li>Use as informações que recebeu por email</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openLauncher() {
+            // Tentar abrir via protocolo customizado (se configurado)
+            const protocolUrl = 'tgs-launcher://';
+            
+            // Tentar abrir o protocolo
+            window.location.href = protocolUrl;
+            
+            // Se não funcionar, mostrar instruções após 2 segundos
+            setTimeout(() => {
+                showManualInstructions();
+            }, 2000);
+        }
+
+        function showManualInstructions() {
+            const instructions = document.querySelector('.manual-instructions');
+            const actions = document.querySelector('.open-actions');
+            
+            instructions.style.display = 'block';
+            actions.innerHTML = `
+                <div class="alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>O aplicativo não abriu automaticamente. Siga as instruções abaixo.</p>
+                </div>
+            `;
+        }
+
+        // Tentar abrir automaticamente ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            // Aguardar um pouco antes de tentar abrir
+            setTimeout(() => {
+                const autoOpen = confirm('Deseja abrir o TGS Launcher automaticamente?');
+                if (autoOpen) {
+                    openLauncher();
+                }
+            }, 1000);
+        });
+    </script>
+
+    <style>
+        .open-launcher-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem;
+        }
+
+        .open-launcher-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e1e8ed;
+        }
+
+        .open-launcher-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .open-launcher-header .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #6C63FF;
+            margin-bottom: 1rem;
+        }
+
+        .open-launcher-header .logo i {
+            font-size: 2.2rem;
+        }
+
+        .open-launcher-header h1 {
+            font-size: 1.6rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .open-launcher-header p {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .open-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #6C63FF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a52d5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #6c757d;
+            border: 2px solid #e1e8ed;
+        }
+
+        .btn-secondary:hover {
+            border-color: #6C63FF;
+            color: #6C63FF;
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .manual-instructions {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+        }
+
+        .manual-instructions h3 {
+            color: #ff9800;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .manual-instructions ol {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #6c757d;
+        }
+
+        .manual-instructions li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-warning {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            color: #ff9800;
+            margin-bottom: 1rem;
+        }
+
+        .alert-warning i {
+            font-size: 1.2rem;
+        }
+
+        .alert-warning p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Dark Mode */
+        body.dark-mode .open-launcher-container {
+            background: linear-gradient(135deg, #2D3748, #1A202C);
+        }
+
+        body.dark-mode .open-launcher-card {
+            background: rgba(30, 32, 36, 0.9);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .btn-secondary {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #d0d0d0;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            border-color: rgba(108, 99, 255, 0.5);
+            color: #ffffff;
+        }
+
+        body.dark-mode .manual-instructions {
+            background: rgba(255, 193, 7, 0.05);
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        body.dark-mode .manual-instructions h3 {
+            color: #ffb74d;
+        }
+
+        body.dark-mode .manual-instructions li {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .alert-warning {
+            background: rgba(255, 193, 7, 0.05);
+            border-color: rgba(255, 193, 7, 0.3);
+            color: #ffb74d;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .open-launcher-container {
+                padding: 1rem;
+            }
+            
+            .open-launcher-card {
+                padding: 2rem;
+            }
+            
+            .open-launcher-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</body>
+</html>

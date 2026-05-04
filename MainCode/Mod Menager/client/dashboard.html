@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launcher - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Mercado Pago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body class="dashboard-page">
+    <!-- Botão de menu para mobile -->
+    <button id="menu-toggle" class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay para fechar o menu -->
+    <div id="overlay" class="overlay"></div>
+    
+    <!-- Barra de título personalizada -->
+    <div class="title-bar">
+        <div class="title"><img src="midias/TGS/TGS_logo_black.svg" alt="TGS Logo" class="tgs-logo"> Launcher</div>
+        <div class="window-controls">
+            <button id="minimize-btn" class="window-control" title="Minimizar">
+                <i class="fas fa-window-minimize"></i>
+            </button>
+            <button id="fullscreen-btn" class="window-control" title="Tela Cheia">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button id="close-btn" class="window-control close" title="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="user-info" id="userInfoBtn" style="cursor: pointer;">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-name" id="userName">Usuário</div>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="mods">
+                    <i class="fas fa-th-large"></i> Catálogo de Mods
+                </a>
+                <a href="#" class="nav-item" data-page="enabled">
+                    <i class="fas fa-check-circle"></i> Mods Ativos
+                    <span class="badge" id="enabledCount">0</span>
+                </a>
+                <a href="#" class="nav-item" id="adminMenuBtn" data-page="admin" style="display: none;">
+                    <i class="fas fa-shield-alt"></i> Admin Menu
+                </a>
+                <a href="#" class="nav-item" id="creatorMenuBtn" data-page="creator" style="display: none;">
+                    <i class="fas fa-hammer"></i> Creator Menu
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i> Configurações
+                </a>
+                <a href="#" class="nav-item" data-page="logs">
+                    <i class="fas fa-file-alt"></i> Logs
+                </a>
+                <a href="#" class="nav-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </a>
+            </nav>
+            <div class="app-version">Versão 1.0.0</div>
+        </div>
+
+        <div class="main-content">
+            <!-- CATÁLOGO DE MODS -->
+            <div id="modsPage" class="page-section active">
+                <header class="dashboard-header">
+                    <div class="header-left">
+                        <h1><i class="fas fa-cube"></i> Catálogo de Mods</h1>
+                        <p class="header-subtitle">Selecione e ative os mods que deseja usar no FiveM</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Buscar mods...">
+                        </div>
+                        <button class="toggle-view-btn" id="toggleView" title="Alternar visualização">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </header>
+                
+                <!-- Filtros de Categoria -->
+                <div class="categories-filter">
+                    <button class="category-btn active" data-category="All">
+                        <span class="category-icon">📦</span>
+                        <span>Todos</span>
+                        <span class="category-count" id="count-all">0</span>
+                    </button>
+                </div>
+                
+                <!-- Grid de Mods -->
+                <main class="mods-container" id="modsContainer">
+                    <!-- Os mods serão carregados dinamicamente via JavaScript -->
+                    <div class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando mods...</p>
+                    </div>
+                </main>
+            </div>
+
+            <!-- MODS ATIVOS -->
+            <div id="enabledPage" class="page-section">
+                <div class="page-content-wrapper">
+                    <div class="enabled-mods-header">
+                        <h2><i class="fas fa-check-circle"></i> Mods Ativos</h2>
+                        <span class="enabled-mods-count" id="enabledPageCount">0</span>
+                    </div>
+
+                    <div class="enabled-mods-actions">
+                        <button class="action-button" id="sortByPriority">
+                            <i class="fas fa-sort-numeric-down"></i> Ordenar por Prioridade
+                        </button>
+                    </div>
+
+                    <div class="hierarchy-info">
+                        <div class="priority-legend">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Arraste os mods para reordenar a prioridade de inicialização</span>
+                        </div>
+                    </div>
+
+                    <div class="mods-hierarchy-container" id="enabledModsContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum mod ativo no momento</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONFIGURAÇÕES -->
+            <div id="settingsPage" class="page-section">
+                <div class="page-content-wrapper">
+                    <h2 style="margin-bottom: 2rem;"><i class="fas fa-cog"></i> Configurações</h2>
+                    
+                    <div class="settings-section">
+                        <h3><i class="fas fa-folder"></i> Caminhos do Sistema</h3>
+                        
+                        <div class="settings-option">
+                            <div class="settings-option-info">
+                                <h4>Caminho do FiveM</h4>
+                                <p>Local onde o FiveM está instalado</p>
+                            </div>
+                            <input type="text" class="settings-input" id="fivemPath" placeholder="C:\Program Files\FiveM\FiveM.exe">
+                        </div>
+                        
+                        <div class="settings-option">
+                            <div class="settings-option-info">
+                                <h4>Pasta de Mods</h4>
+                                <p>Diretório onde os mods serão armazenados</p>
+                            </div>
+                            <input type="text" class="settings-input" id="modsPath" placeholder=".\mods">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3><i class="fas fa-palette"></i> Aparência</h3>
+                        
+                        <div class="settings-option">
+                            <div class="settings-option-info">
+                                <h4>Modo Escuro</h4>
+                                <p>Ativar/desativar tema escuro</p>
+                            </div>
+                            <div class="settings-toggle" id="darkModeToggle"></div>
+                        </div>
+                        
+                        <div class="settings-option">
+                            <div class="settings-option-info">
+                                <h4>Animações</h4>
+                                <p>Ativar/desativar animações da interface</p>
+                            </div>
+                            <div class="settings-toggle active" id="animationsToggle"></div>
+                        </div>
+
+                        <div class="settings-option">
+                            <div class="settings-option-info">
+                                <h4>Moeda</h4>
+                                <p>Exibir preços em Real (R$) em vez de Dólar ($)</p>
+                            </div>
+                            <div class="settings-toggle" id="currencyToggle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3><i class="fas fa-shield-alt"></i> Sistema</h3>
+                        
+                        <div class="settings-option">
+                            <div class="settings-option-info">
+                                <h4>Iniciar com Windows</h4>
+                                <p>Abrir o launcher automaticamente ao iniciar o computador</p>
+                            </div>
+                            <div class="settings-toggle" id="startupToggle"></div>
+                        </div>
+                        
+                        <div class="settings-option">
+                            <div class="settings-option-info">
+                                <h4>Minimizar para bandeja</h4>
+                                <p>Manter o aplicativo na bandeja ao fechar</p>
+                            </div>
+                            <div class="settings-toggle" id="trayToggle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERFIL -->
+            <div id="profilePage" class="page-section">
+                <div class="page-content-wrapper">
+                    <h2 style="margin-bottom: 2rem;"><i class="fas fa-id-card"></i> Meu Perfil</h2>
+                    
+                    <div class="profile-info-section">
+                        <div class="profile-header">
+                            <div class="profile-avatar-large">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-details">
+                                <h3 id="profileUsername">Usuário</h3>
+                                <p class="profile-role" id="profileRole">Membro</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3><i class="fas fa-key"></i> Chaves Ativas</h3>
+                        <div id="keysContainer" class="keys-container">
+                            <!-- Keys will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOGS -->
+            <div id="logsPage" class="page-section">
+                <div class="page-content-wrapper">
+                    <div class="logs-header">
+                        <h2><i class="fas fa-file-alt"></i> Logs do Sistema</h2>
+                        <button class="action-button" id="clearLogs">
+                            <i class="fas fa-trash"></i> Limpar Logs
+                        </button>
+                    </div>
+                    
+                    <div class="logs-filters">
+                        <button class="log-filter-btn active" data-filter="all">Todos</button>
+                        <button class="log-filter-btn" data-filter="auth">Autenticação</button>
+                        <button class="log-filter-btn" data-filter="mod">Mods</button>
+                        <button class="log-filter-btn" data-filter="launch">Lançamento</button>
+                        <button class="log-filter-btn" data-filter="error">Erros</button>
+                    </div>
+                    
+                    <div class="logs-container" id="logsContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum log disponível</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN MENU -->
+            <div id="adminPage" class="page-section">
+                <div class="page-content-wrapper">
+                    <div class="admin-header">
+                        <h2><i class="fas fa-shield-alt"></i> Admin Menu</h2>
+                        <div class="admin-actions">
+                            <button class="action-button" id="refreshUsersBtn">
+                                <i class="fas fa-sync"></i> Atualizar Lista
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-users-container">
+                        <div class="users-table-wrapper">
+                            <table class="users-table" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome</th>
+                                        <th>Permissões</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Usuários serão carregados dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="admin-loading" id="adminLoading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando usuários...</p>
+                        </div>
+                        
+                        <div class="admin-empty" id="adminEmpty" style="display: none;">
+                            <i class="fas fa-users"></i>
+                            <p>Nenhum usuário encontrado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CREATOR MENU -->
+            <div id="creatorPage" class="page-section">
+                <div class="page-content-wrapper">
+                    <div class="creator-header">
+                        <h2><i class="fas fa-hammer"></i> Creator Menu</h2>
+                        <div class="creator-actions">
+                            <button class="action-button" id="refreshCreatorModsBtn">
+                                <i class="fas fa-sync"></i> Atualizar Mods
+                            </button>
+                            <button class="action-button primary" id="addNewModBtn">
+                                <i class="fas fa-plus"></i> Adicionar Mod
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="creator-content">
+                        <div class="creator-section">
+                            <h3><i class="fas fa-chart-line"></i> Estatísticas</h3>
+                            <div class="creator-stats">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-cube"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-number" id="totalModsCount">0</div>
+                                        <div class="stat-label">Total de Mods</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-download"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-number" id="totalDownloadsCount">0</div>
+                                        <div class="stat-label">Downloads</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-number" id="activeUsersCount">0</div>
+                                        <div class="stat-label">Usuários Ativos</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="creator-section">
+                            <h3><i class="fas fa-wallet"></i> Carteira de Vendas</h3>
+                            <div class="wallet-dashboard">
+                                <div class="wallet-balance">
+                                    <div class="balance-card">
+                                        <div class="balance-header">
+                                            <h4>Saldo Disponível</h4>
+                                            <span class="balance-currency">USD</span>
+                                        </div>
+                                        <div class="balance-amount" id="availableBalance">$0.00</div>
+                                        <div class="balance-updated">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Atualizado em: <span id="balanceUpdated">--</span></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="balance-card pending">
+                                        <div class="balance-header">
+                                            <h4>Pendente</h4>
+                                            <span class="balance-currency">USD</span>
+                                        </div>
+                                        <div class="balance-amount" id="pendingBalance">$0.00</div>
+                                        <div class="balance-info">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>Valores em processamento (7 dias)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="wallet-summary">
+                                    <div class="summary-item">
+                                        <span class="summary-label">Vendas este mês</span>
+                                        <span class="summary-value" id="monthlySales">$0.00</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Total vendido (lifetime)</span>
+                                        <span class="summary-value" id="lifetimeSales">$0.00</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Taxa da plataforma</span>
+                                        <span class="summary-value negative" id="platformFeeRate">-10%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="wallet-actions">
+                                    <button class="action-button primary" id="requestWithdrawalBtn">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                        Solicitar Saque
+                                    </button>
+                                    <button class="action-button secondary" id="viewTransactionsBtn">
+                                        <i class="fas fa-history"></i>
+                                        Ver Histórico
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="creator-section">
+                            <h3><i class="fas fa-cube"></i> Meus Mods</h3>
+                            <div class="creator-mods-grid" id="creatorModsGrid">
+                                <!-- Mods do creator serão carregados aqui -->
+                            </div>
+                            
+                            <div class="creator-loading" id="creatorLoading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Carregando mods...</p>
+                            </div>
+                            
+                            <div class="creator-empty" id="creatorEmpty" style="display: none;">
+                                <i class="fas fa-cube"></i>
+                                <p>Você ainda não criou nenhum mod</p>
+                                <button class="btn-primary" onclick="showAddModModal()">
+                                    <i class="fas fa-plus"></i> Criar Primeiro Mod
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <!-- MOD DETAILS MODAL -->
+    <div id="modDetailsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content mod-details-content">
+            <button class="close-modal close-mod-details" id="closeModDetailsModal">&times;</button>
+            <div class="mod-details-layout">
+                <div class="mod-details-left">
+                    <div class="mod-main-image">
+                        <img src="" alt="" id="modDetailsImg">
+                    </div>
+
+                    <div class="mod-thumbnails" id="modDetailsThumbnails">
+                        <!-- Thumbnails opcionais -->
+                    </div>
+
+                    <div class="mod-details-header">
+                        <h3 id="modDetailsName">Nome do Mod</h3>
+                        <div class="mod-details-tags" id="modDetailsFeatures">
+                            <!-- Tags de features -->
+                        </div>
+                    </div>
+
+                    <div class="mod-details-description">
+                        <h4>Descrição do mod</h4>
+                        <p id="modDetailsDescription">Descrição completa do mod ficará aqui.</p>
+                        <p id="modDetailsMeta" class="mod-meta-info"></p>
+                    </div>
+                </div>
+
+                <div class="mod-details-right">
+                    <div class="payment-panel">
+                        <h4>Área de pagamento</h4>
+                        <p class="payment-subtitle">Finalize a aquisição deste mod com segurança.</p>
+
+                        <div class="model-selector">
+                            <select id="modelSelect" class="model-select">
+                                <option value="standalone">Standalone</option>
+                            </select>
+                        </div>
+
+                        <div class="friend-gift-section">
+                            <label class="gift-toggle">
+                                <input type="checkbox" id="giftToggle">
+                                <span class="gift-toggle-slider"></span>
+                                <span class="gift-toggle-label">Presentear um amigo</span>
+                            </label>
+                        </div>
+
+                        <div class="gift-email-field" id="giftEmailField" style="display: none;">
+                            <div class="form-group">
+                                <input type="email" id="giftEmail" placeholder="email@amigo.com">
+                            </div>
+                        </div>
+
+                        <div class="payment-price" id="modDetailsPriceWrapper">
+                            <span class="price-label">Valor</span>
+                            <span class="price-value" id="modDetailsPrice">$ 0.00</span>
+                        </div>
+
+                        <!-- SEÇÃO COMENTADA - MercadoPago já fornece os métodos de pagamento
+                        <div class="payment-methods">
+                            <h5>Método de Pagamento</h5>
+                            <div class="payment-options">
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="cartao" checked>
+                                    <div class="payment-option-content">
+                                        <i class="fas fa-credit-card"></i>
+                                        <span>Cartão de Crédito/Débito</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="pix">
+                                    <div class="payment-option-content">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span>Pix</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="payment-form-fields" id="paymentFormFields">
+                             Campos dinâmicos serão inseridos aqui 
+                        </div> -->
+
+                        <button id="modDetailsPurchaseBtn" class="modal-btn primary full-width">
+                            <i class="fas fa-shopping-cart"></i>
+                            Confirmar Compra
+                        </button>
+
+                        <p class="payment-note">Após a compra, sua chave será enviada por email.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCESS DENIED MODAL -->
+    <div id="accessDeniedModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Recurso Indisponível</h3>
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="accessDeniedMessage">Este recurso não está disponível na chave de acesso que você está usando no momento.</p>
+                <p class="modal-subtitle">Adicione uma chave que tenha o acesso ou adquira a chave agora</p>
+            </div>
+            <div class="modal-footer">
+                <button id="purchaseModBtn" class="modal-btn primary">
+                    <i class="fas fa-shopping-cart"></i>
+                    Adquirir Mod
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ADD KEY MODAL -->
+    <div id="addKeyModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-plus"></i>
+                <h3>Adicionar Nova Chave</h3>
+                <button class="close-modal" id="closeAddKeyModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-subtitle">Digite sua chave de acesso para adicionar recursos ao seu perfil.</p>
+                
+                <form id="addKeyForm">
+                    <div class="form-group">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="text" id="newAccessKey" placeholder="Digite sua chave de acesso" required>
+                    </div>
+                    
+                    <div class="key-info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <h4>Onde encontrar sua chave?</h4>
+                            <p>Sua chave foi enviada por email após a compra ou está disponível no seu painel do cliente TGS.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="add-key-message" id="addKeyMessage" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="addKeyText"></span>
+                    </div>
+                    
+                    <button type="submit" class="modal-btn primary">
+                        <i class="fas fa-plus"></i> Adicionar Chave
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- WITHDRAWAL REQUEST MODAL -->
+    <div id="withdrawalModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-hand-holding-usd"></i>
+                <h3>Solicitar Saque</h3>
+                <button class="close-modal" id="closeWithdrawalModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="withdrawal-info">
+                    <div class="balance-summary">
+                        <div class="balance-item">
+                            <span class="balance-label">Saldo disponível:</span>
+                            <span class="balance-value" id="modalAvailableBalance">$0.00</span>
+                        </div>
+                        <div class="balance-item">
+                            <span class="balance-label">Taxa de transferência:</span>
+                            <span class="balance-value negative">-$2.50</span>
+                        </div>
+                        <div class="balance-item total">
+                            <span class="balance-label">Você receberá:</span>
+                            <span class="balance-value" id="modalNetAmount">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="withdrawalForm">
+                    <div class="form-group">
+                        <label for="withdrawalAmount">Valor do saque (USD)</label>
+                        <input type="number" id="withdrawalAmount" placeholder="0.00" step="0.01" min="10" required>
+                        <small class="form-hint">Mínimo: $10.00 USD</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentMethod">Método de pagamento</label>
+                        <select id="paymentMethod" required>
+                            <option value="">Selecione um método</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="bank">Transferência Bancária</option>
+                            <option value="pix">PIX (Brasil)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="paypalFields" style="display: none;">
+                        <label for="paypalEmail">E-mail PayPal</label>
+                        <input type="email" id="paypalEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-group" id="bankFields" style="display: none;">
+                        <label for="bankInfo">Dados bancários</label>
+                        <textarea id="bankInfo" placeholder="Banco, Agência, Conta, etc." rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group" id="pixFields" style="display: none;">
+                        <label for="pixKey">Chave PIX</label>
+                        <input type="text" id="pixKey" placeholder="CPF, CNPJ, Email ou Telefone">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="modal-btn secondary" id="cancelWithdrawalBtn">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="modal-btn primary">
+                            <i class="fas fa-paper-plane"></i> Solicitar Saque
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ADD/EDIT MOD MODAL -->
+    <div id="addEditModModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-cube"></i>
+                <h3 id="modModalTitle">Adicionar Novo Mod</h3>
+                <button class="close-modal" id="closeAddEditModModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addEditModForm">
+                    <div class="form-group">
+                        <label>Imagens do Mod</label>
+                        <div class="images-container">
+                            <div class="image-upload-section">
+                                <input type="file" id="modImageInput" accept="image/*" multiple style="display: none;">
+                                <button type="button" class="modal-btn secondary" onclick="document.getElementById('modImageInput').click()">
+                                    <i class="fas fa-upload"></i> Adicionar Imagens
+                                </button>
+                                <small class="form-hint">Você pode selecionar várias imagens de uma vez</small>
+                            </div>
+                            <div class="images-list" id="imagesList">
+                                <!-- Imagens serão adicionadas dinamicamente aqui -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modName">Nome do Mod</label>
+                        <input type="text" id="modName" placeholder="Digite o nome do mod" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modDescription">Descrição</label>
+                        <textarea id="modDescription" placeholder="Descreva seu mod" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modCategory">Categoria</label>
+                        <select id="modCategory" required>
+                            <option value="">Selecione uma categoria</option>
+                            <option value="Graphics">🎨 Gráficos</option>
+                            <option value="Weapons">🔫 Armas</option>
+                            <option value="Vehicles">🚗 Veículos</option>
+                            <option value="Audio">🔊 Áudio</option>
+                            <option value="Performance">⚡ Performance</option>
+                            <option value="Maps">🗺️ Mapas</option>
+                            <option value="Scripts">💻 Scripts</option>
+                            <option value="General">🎮 Geral</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modPrice">Preço (USD)</label>
+                        <input type="number" id="modPrice" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modStatus">Status</label>
+                        <select id="modStatus" required>
+                            <option value="draft">Rascunho</option>
+                            <option value="published">Publicado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="modFree">
+                            Mod gratuito
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="modal-btn secondary" id="cancelModBtn">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="modal-btn primary">
+                            <i class="fas fa-save"></i> Salvar Mod
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <button id="launchFiveM" class="launch-button" title="Iniciar FiveM com mods selecionados">
+        <img src="midias/FiveM/FiveM_logo.svg" alt="FiveM" class="launch-logo">
+        <span class="launch-text">INICIAR</span>
+    </button>
+    
+    <script>
+        // Expor as APIs do Node.js e Electron quando disponível (Electron) —
+        // Em ambiente de navegador (dev) criamos fallbacks para permitir
+        // inspeção e desenvolvimento sem crashar por 'require' ausente.
+        (function(){
+            try {
+                // Se estivermos no Electron, require funciona
+                if (typeof require === 'function') {
+                    window.electron = require('electron');
+                    window.ipcRenderer = window.electron.ipcRenderer;
+                } else {
+                    throw new Error('require não disponível');
+                }
+            } catch (err) {
+                // Fallback leve para o navegador — mocks que registram chamadas
+                console.warn('Electron não detectado, usando mocks para desenvolvimento web.');
+                window.electron = null;
+                window.ipcRenderer = {
+                    invoke: async (channel, args) => {
+                        console.debug('[ipc.invoke fallback]', channel, args);
+                        // Retornos mínimos usados pelo app
+                        if (channel === 'load-mods') {
+                            try {
+                                const res = await fetch('mods-config.json');
+                                return await res.json();
+                            } catch (e) { return { mods: [], categories: [] }; }
+                        }
+                        if (channel === 'validate-auth') {
+                            // simple local dev auth
+                            return { success: args.username === 'admin' && args.password === 'TGS_pedro2004', role: 'admin' };
+                        }
+                        if (channel === 'toggle-mod') return { success: true };
+                        if (channel === 'launch-fivem-with-mods') return { success: true };
+                        return {};
+                    },
+                    send: (channel, args) => {
+                        console.debug('[ipc.send fallback]', channel, args);
+                    }
+                };
+            }
+        })();
+    </script>
+    <script src="script-new.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Autenticação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: #16213e;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        button {
+            background: #0f3460;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #1e5f8e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Limpar Estado de Autenticação</h1>
+        <p>Clique no botão abaixo para limpar o estado de autenticação e redirecionar para a página de login.</p>
+        <button onclick="clearAuth()">Limpar Autenticação</button>
+    </div>
+
+    <script>
+        function clearAuth() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('accessKey');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('remoteMode');
+            localStorage.removeItem('loginTime');
+            
+            console.log('Estado de autenticação limpo');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

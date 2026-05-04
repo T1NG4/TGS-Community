@@ -1,0 +1,62 @@
+{
+  "name": "tgs-fivem-pack-manager",
+  "version": "2.0.0",
+  "private": true,
+  "author": "TGS",
+  "description": "Gerenciador de car packs FiveM (TGS)",
+  "main": "src/electron/main.js",
+    "scripts": {
+      "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run electron\"",
+      "server": "npm run dev --prefix src/server",
+      "client": "npm run dev --prefix src/client",
+      "electron": "electron .",
+      "test:run": "npm run test:run --prefix src/server",
+      "build:client": "npm run build --prefix src/client",
+      "build:electron": "npm run build:client && electron-builder"
+    },
+    "devDependencies": {
+      "concurrently": "^8.2.2",
+      "electron": "^39.8.9",
+      "electron-builder": "^26.8.1"
+    },
+  "build": {
+    "appId": "com.tgs.fivempackmanager",
+    "productName": "TGS Pack Manager",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "package.json",
+      "src/electron/**/*",
+      "src/server/package.json",
+      "src/server/src/**/*",
+      "src/server/node_modules/**/*",
+      "src/client/dist/**/*",
+      "!**/*.map",
+      "!src/server/node_modules/**/*.md"
+    ],
+    "asar": true,
+    "extraResources": [
+      {
+        "from": "[TGS-Fivem-Pack]",
+        "to": "[TGS-Fivem-Pack]",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "signAndEditExecutable": false
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility"
+    }
+  }
+}

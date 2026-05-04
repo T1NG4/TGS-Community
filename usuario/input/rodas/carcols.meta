@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    
+<CVehicleModelInfoVarGlobal>    
+  <Wheels>
+    <Item/> <!-- VWT_SPORT -->
+    <Item/> <!-- VWT_MUSCLE -->
+    <Item/> <!-- VWT_LOWRIDER -->
+    <Item> <!-- VWT_SUV -->
+	  <Item>
+        <wheelName>wheel_brimsvo_22</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_22</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_23</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_23</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+      <Item>
+        <wheelName>wheel_brimsvo_24</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_24</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_25</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_25</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_26</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_26</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_27</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_27</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_28</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_28</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_29</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_29</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_30</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_30</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_31</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_31</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_32</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_32</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	  <Item>
+        <wheelName>wheel_brimsvo_33</wheelName>
+        <wheelVariation />
+        <modShopLabel>BRIMSVO_33</modShopLabel>
+        <rimRadius value="0.348500"/>
+        <rear value="false"/>
+      </Item>
+	</Item>
+    <Item/> <!-- VWT_OFFROAD -->
+    <Item/> <!-- VWT_TUNER -->
+    <Item/> <!-- VWT_BIKE -->
+    <Item/> <!-- VWT_HIEND -->
+    <Item/> <!-- VWT_SUPERMOD1 -->
+    <Item/> <!-- VWT_SUPERMOD2 -->
+    <Item/>
+  </Wheels>
+</CVehicleModelInfoVarGlobal>
