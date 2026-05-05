@@ -64,13 +64,14 @@
     "win": {
       "target": ["nsis"],
       "icon": "resources/icons/icon.ico",
-      "publish": ["github"]
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "T1NG4",
-      "repo": "TGS-launcher-releases",
-      "releaseType": "release"
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "T1NG4",
+          "repo": "TGS-launcher-releases",
+          "releaseType": "release"
+        }
+      ]
     }
   }
 }
