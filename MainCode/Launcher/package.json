@@ -2,6 +2,10 @@
   "name": "tgs-launcher",
   "version": "1.0.0",
   "description": "Launcher de instalação e Hub para TGS Ecosystem",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/T1NG4/tgs-launcher.git"
+  },
   "main": "src/main/main.js",
   "author": "TGS",
   "license": "MIT",
