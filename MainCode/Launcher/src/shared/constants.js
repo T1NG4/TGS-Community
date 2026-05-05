@@ -6,11 +6,11 @@ const MIN_NODE_VERSION = '20.0.0';
 const MIN_DISK_SPACE = 2 * 1024 * 1024 * 1024; // 2GB in bytes
 
 const DOWNLOAD_URLS = {
-  mainApp: 'https://github.com/T1NG4/TGS_fivem_pack_maneger/releases/latest',
-  templates: 'https://github.com/T1NG4/TGS_fivem_pack_maneger/releases/download/v2.0.0/templates.zip',
-  dependencies: 'https://github.com/T1NG4/TGS_fivem_pack_maneger/releases/download/v2.0.0/dependencies.zip',
-  documentation: 'https://github.com/T1NG4/TGS_fivem_pack_maneger/releases/download/v2.0.0/docs.zip',
-  examples: 'https://github.com/T1NG4/TGS_fivem_pack_maneger/releases/download/v2.0.0/examples.zip',
+  mainApp: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/app.zip',
+  templates: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/templates.zip',
+  dependencies: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/dependencies.zip',
+  documentation: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/docs.zip',
+  examples: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/examples.zip',
 };
 
 const COMPONENT_SIZES = {
