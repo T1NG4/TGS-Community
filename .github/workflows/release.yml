@@ -1,0 +1,53 @@
+name: Build & Release TGS Launcher
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão para release (ex: v1.2.3)'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: MainCode/Launcher
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'MainCode/Launcher/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer
+        run: npm run build:renderer
+
+      - name: Build & Publish
+        run: npm run build:main -- --publish always
+        env:
+          EP_GH_OWNER: T1NG4
+          EP_GH_REPO: TGS-launcher-releases
+          EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tgs-launcher-build
+          path: MainCode/Launcher/dist/
+          retention-days: 7
