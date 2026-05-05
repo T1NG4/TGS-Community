@@ -182,8 +182,16 @@ async function startInstallation(config, onProgress) {
       }
 
       try {
-        const url = DOWNLOAD_URLS[component];
-        const fileName = `${component}.zip`;
+        const urlDict = DOWNLOAD_URLS[config.appType || 'packManager'] || DOWNLOAD_URLS.packManager;
+        const url = urlDict[component];
+        if (!url) {
+          logger.warn(`No URL for component ${component} in ${config.appType}`);
+          continue;
+        }
+        
+        // Se for um exe, não adiciona .zip
+        const isExe = url.endsWith('.exe');
+        const fileName = isExe ? path.basename(url) : `${component}.zip`;
         const destination = path.join(installDir, fileName);
 
         logger.info(`Downloading ${component}`, { url, destination });
