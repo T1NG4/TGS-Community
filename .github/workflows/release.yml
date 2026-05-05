@@ -43,6 +43,7 @@ jobs:
       - name: Build & Publish
         run: npm run build:main -- --publish always
         env:
+          GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
           EP_GH_OWNER: T1NG4
           EP_GH_REPO: TGS-launcher-releases
           EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
