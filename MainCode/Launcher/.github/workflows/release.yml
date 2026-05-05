@@ -37,11 +37,10 @@ jobs:
       - name: Build & Publish
         run: npm run build:main -- --publish always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Para repo público separado, descomente e configure:
-          # EP_GH_OWNER: SEU-ORG-AQUI
-          # EP_GH_REPO: tgs-launcher-releases
-          # EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+          EP_GH_OWNER: T1NG4
+          EP_GH_REPO: TGS-launcher-releases
+          EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
