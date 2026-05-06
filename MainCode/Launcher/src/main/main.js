@@ -249,3 +249,33 @@ ipcMain.handle('window-maximize', () => {
     }
   }
 });
+
+ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
+  const { spawn } = require('child_process');
+  const { DOWNLOAD_URLS } = require('../shared/constants');
+  
+  try {
+    const urlDict = DOWNLOAD_URLS[appType];
+    if (!urlDict || !urlDict.mainApp) throw new Error('URL do app não encontrada');
+    
+    // O instalador salva em baseInstallPath/data/apps
+    const isExe = urlDict.mainApp.endsWith('.exe');
+    const fileName = isExe ? path.basename(urlDict.mainApp) : 'mainApp.zip'; // Simplificado, ideal seria extrair o zip se fosse zip, mas a spec pede portable .exe
+    
+    const exePath = path.join(baseInstallPath, 'data', 'apps', fileName);
+    
+    logger.info(`Iniciando aplicativo: ${exePath}`);
+    
+    // Inicia com o token de segurança
+    const child = spawn(exePath, ['--token=TGS_SECURE_AUTH_2026'], {
+      detached: true,
+      stdio: 'ignore'
+    });
+    
+    child.unref(); // Permite que o Launcher feche sem fechar o app filho se necessário
+    return { success: true };
+  } catch (error) {
+    logger.error('Falha ao iniciar aplicativo', error);
+    throw error;
+  }
+});

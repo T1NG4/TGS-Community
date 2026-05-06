@@ -8,9 +8,18 @@ interface CompletionProps {
 }
 
 export function Completion({ installationResult, onRestart }: CompletionProps) {
-  const handleLaunchApp = () => {
-    // In a real implementation, this would launch the installed application
-    window.open('https://github.com/T1NG4/TGS_fivem_pack_maneger', '_blank');
+  const handleLaunchApp = async () => {
+    try {
+      // Calls the backend to spawn the process with the secure token
+      // Pass the installed path so it knows where the data/apps folder is
+      const appType = window.electron?.appType || 'packManager'; // This depends on how appType is tracked. If not available, we can pass it via installationResult config if possible.
+      // Wait, installationResult has installedPath!
+      if (installationResult) {
+        await window.electron?.ipcRenderer.invoke('launch-app', 'packManager', installationResult.installedPath);
+      }
+    } catch (error) {
+      console.error('Error launching app:', error);
+    }
   };
 
   const handleViewDocumentation = () => {

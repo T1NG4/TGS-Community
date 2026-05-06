@@ -166,10 +166,22 @@ async function startInstallation(config, onProgress) {
   try {
     logger.info('Starting installation', config);
 
-    // Create installation directory
-    const installDir = config.installPath;
+    // Create installation directory structure
+    const baseInstallDir = config.installPath;
+    const dataDir = path.join(baseInstallDir, 'data');
+    const installDir = path.join(dataDir, 'apps');
+    
     if (!fs.existsSync(installDir)) {
       await fsMkdir(installDir, { recursive: true });
+    }
+
+    // Hide the data folder on Windows
+    if (process.platform === 'win32') {
+      try {
+        await execAsync(`attrib +h "${dataDir}"`);
+      } catch (err) {
+        logger.warn('Failed to hide data directory', err);
+      }
     }
 
     // Determine components to download based on installation type
