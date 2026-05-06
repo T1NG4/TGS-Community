@@ -58,6 +58,7 @@
     "files": [
       "package.json",
       "src/main/**/*",
+      "src/shared/**/*",
       "dist/**/*",
       "!**/*.map"
     ],
