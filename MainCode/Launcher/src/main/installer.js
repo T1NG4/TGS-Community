@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const { promisify } = require('util');
 const { app } = require('electron');
 const logger = require('./logger');
-const { DOWNLOAD_URLS, COMPONENT_SIZES, MIN_DISK_SPACE, MIN_NODE_VERSION } = require('../shared/constants');
+const { DOWNLOAD_URLS, COMPONENT_SIZES, MIN_DISK_SPACE, MIN_NODE_VERSION } = require('./constants');
 
 const execAsync = promisify(exec);
 const fsExists = promisify(fs.exists);

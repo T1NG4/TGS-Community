@@ -252,7 +252,7 @@ ipcMain.handle('window-maximize', () => {
 
 ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
   const { spawn } = require('child_process');
-  const { DOWNLOAD_URLS } = require('../shared/constants');
+  const { DOWNLOAD_URLS } = require('./constants');
   
   try {
     const urlDict = DOWNLOAD_URLS[appType];
