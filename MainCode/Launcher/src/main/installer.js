@@ -211,15 +211,63 @@ async function startInstallation(config, onProgress) {
 
     const fileName = urlDict.fileName || path.basename(urlDict.mainApp);
     const destination = path.join(appInstallDir, fileName);
+    const partialPath = `${destination}.partial`;
 
-    logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, destination });
+    // Não gravar direto no .exe: se o app estiver aberto ou o antivírus segurar o arquivo, o Windows retorna EBUSY.
+    try {
+      if (fs.existsSync(partialPath)) {
+        fs.unlinkSync(partialPath);
+      }
+    } catch (e) {
+      logger.warn('Could not remove stale partial download', e);
+    }
 
-    await downloadFile(urlDict.mainApp, destination, (progress) => {
+    logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, partialPath });
+
+    await downloadFile(urlDict.mainApp, partialPath, (progress) => {
       onProgress({
         ...progress,
         component: 'mainApp',
       });
     });
+
+    try {
+      if (fs.existsSync(destination)) {
+        try {
+          fs.unlinkSync(destination);
+        } catch (unlinkErr) {
+          try {
+            fs.unlinkSync(partialPath);
+          } catch {
+            // ignore
+          }
+          if (unlinkErr.code === 'EBUSY' || unlinkErr.code === 'EPERM') {
+            throw new Error(
+              'O aplicativo parece estar em execução (ou outro programa está usando o arquivo). Feche o TGS Pack Manager e tente instalar de novo.'
+            );
+          }
+          throw unlinkErr;
+        }
+      }
+      fs.renameSync(partialPath, destination);
+    } catch (replaceErr) {
+      try {
+        if (fs.existsSync(partialPath)) {
+          fs.unlinkSync(partialPath);
+        }
+      } catch {
+        // ignore
+      }
+      if (replaceErr.code === 'EBUSY' || replaceErr.code === 'EPERM') {
+        throw new Error(
+          'Não foi possível substituir o executável (arquivo em uso). Feche o TGS Pack Manager e o Launcher não precisa fechar — só o app instalado.'
+        );
+      }
+      if (replaceErr.message && replaceErr.message.includes('Feche o TGS')) {
+        throw replaceErr;
+      }
+      throw replaceErr;
+    }
 
     const hash = await calculateHash(destination);
     logger.info(`Hash for ${appType} mainApp: ${hash}`);
