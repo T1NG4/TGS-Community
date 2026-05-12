@@ -10,9 +10,11 @@ const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [react(), tailwindcss(), viteSingleFile()],
   build: {
     outDir: 'dist-renderer',
+    assetsInlineLimit: 0,
   },
   server: {
     port: 5175,

@@ -71,11 +71,11 @@ const THEMES = {
     modeLabel: "Pack Menager",
     modeSub: "245 MB",
     // banner
-    banner: "/images/banner-dark.jpg",
+    banner: "./images/banner-dark.jpg",
     // name + version accent
     nameAccent: "#ffffff",
     // logo
-    logo: "/images/TGS_logo.svg",
+    logo: "./images/TGS_logo.svg",
   },
   light: {
     windowBg: "#f5f5f8",
@@ -126,10 +126,10 @@ const THEMES = {
     doneGlow: "rgba(124,92,191,0.35)",
     modeLabel: "Mod Menager",
     modeSub: "120 MB",
-    banner: "/images/banner-light.jpg",
+    banner: "./images/banner-light.jpg",
     nameAccent: "#000000",
     // logo
-    logo: "/images/TGS_logo_black.svg",
+    logo: "./images/TGS_logo_black.svg",
   },
 } as const;
 
@@ -170,6 +170,8 @@ export default function App() {
   const [updateVersion, setUpdateVersion] = useState<string>("");
   const [updateError, setUpdateError] = useState<string>("");
   const [appVersion, setAppVersion] = useState<string>("");
+  const [installPath, setInstallPath] = useState<string>("");
+  const [installError, setInstallError] = useState<string>("");
 
   const t = THEMES[mode];
   const STEPS = mode === "dark" ? STEPS_DARK : STEPS_LIGHT;
@@ -234,16 +236,34 @@ export default function App() {
       addLog(`❌ Erro no auto-update: ${err?.message || "?"}`);
     };
 
+    const onInstallationProgress = (_: any, progress: any) => {
+      const percent = Math.max(0, Math.min(100, Math.round(progress?.progress ?? 0)));
+      setProgress(percent);
+      if (percent < 25) setStepIndex(0);
+      else if (percent < 50) setStepIndex(1);
+      else if (percent < 75) setStepIndex(2);
+      else if (percent < 95) setStepIndex(3);
+      else setStepIndex(4);
+    };
+
     ipcRenderer.on("update-available", onUpdateAvailable);
     ipcRenderer.on("update-not-available", onUpdateNotAvailable);
     ipcRenderer.on("download-progress", onDownloadProgress);
     ipcRenderer.on("update-downloaded", onUpdateDownloaded);
     ipcRenderer.on("update-error", onUpdateError);
+    ipcRenderer.on("installation-progress", onInstallationProgress);
 
     ipcRenderer
       .invoke("get-app-info")
       .then((info: { version?: string } | null) => {
         if (info?.version) setAppVersion(info.version);
+      })
+      .catch(() => {});
+
+    ipcRenderer
+      .invoke("get-default-install-path")
+      .then((p: string) => {
+        if (p) setInstallPath(p);
       })
       .catch(() => {});
 
@@ -255,6 +275,7 @@ export default function App() {
       ipcRenderer.removeListener("download-progress", onDownloadProgress);
       ipcRenderer.removeListener("update-downloaded", onUpdateDownloaded);
       ipcRenderer.removeListener("update-error", onUpdateError);
+      ipcRenderer.removeListener("installation-progress", onInstallationProgress);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -277,37 +298,10 @@ export default function App() {
     setLog((prev) => [...prev, `[${time}] ${msg}`]);
   };
 
-  /* ── installation animation ────────────────────────────────── */
+  /* ── installation step label sync ──────────────────────────── */
   useEffect(() => {
     if (phase !== "installing") return;
-
-    const target = ((stepIndex + 1) / STEPS.length) * 100;
-    addLog(STEPS[stepIndex]);
-    let current = progress;
-    const stepDurations = [1200, 2000, 1500, 1000, 1300, 1000];
-    const duration = stepDurations[stepIndex] ?? 1200;
-
-    intervalRef.current = setInterval(() => {
-      current += (target - current) * 0.08 + 0.2;
-      if (current >= target - 0.5) {
-        current = target;
-        setProgress(Math.round(current));
-        clearInterval(intervalRef.current!);
-        setTimeout(() => {
-          if (stepIndex < STEPS.length - 1) {
-            setStepIndex((i) => i + 1);
-          } else {
-            setProgress(100);
-            setPhase("done");
-            addLog("✅ Instalação concluída com sucesso!");
-          }
-        }, 320);
-      } else {
-        setProgress(Math.round(current));
-      }
-    }, duration / 60);
-
-    return () => clearInterval(intervalRef.current!);
+    if (STEPS[stepIndex]) addLog(STEPS[stepIndex]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, stepIndex]);
 
@@ -356,20 +350,84 @@ export default function App() {
     }
   };
 
-  const handleInstall = () => {
+  const handleInstall = async () => {
     setProgress(0);
     setStepIndex(0);
     setLog([]);
-    addLog(`Iniciando instalação — modo ${mode === "dark" ? "Pack Menager" : "Mod Menager"}...`);
+    setInstallError("");
+    const appType = mode === "dark" ? "packManager" : "modManager";
+    const appLabel = mode === "dark" ? "Pack Menager" : "Mod Menager";
+    addLog(`Iniciando instalação — ${appLabel}...`);
     setPhase("installing");
+
+    // @ts-ignore
+    if (!window.require) {
+      setInstallError("Ambiente Electron não detectado");
+      setPhase("idle");
+      return;
+    }
+    // @ts-ignore
+    const { ipcRenderer } = window.require("electron");
+
+    try {
+      const result = await ipcRenderer.invoke("start-installation", {
+        appType,
+        installPath,
+        type: "minimal",
+        createShortcuts: true,
+      });
+
+      if (result?.success) {
+        setProgress(100);
+        setStepIndex(STEPS.length - 1);
+        setPhase("done");
+        addLog(`✅ ${appLabel} instalado com sucesso (v${result.version || "?"})`);
+      } else {
+        const errMsg = result?.errors?.join("; ") || "Falha desconhecida";
+        setInstallError(errMsg);
+        addLog(`❌ Falha na instalação: ${errMsg}`);
+        setPhase("idle");
+      }
+    } catch (err: any) {
+      const message = err?.message || String(err);
+      setInstallError(message);
+      addLog(`❌ Erro na instalação: ${message}`);
+      setPhase("idle");
+    }
   };
 
-  const handleCancel = () => {
-    clearInterval(intervalRef.current!);
+  const handleCancel = async () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    // @ts-ignore
+    if (phase === "installing" && window.require) {
+      // @ts-ignore
+      const { ipcRenderer } = window.require("electron");
+      try {
+        await ipcRenderer.invoke("cancel-installation");
+      } catch {
+        // ignore
+      }
+    }
     setPhase("idle");
     setProgress(0);
     setStepIndex(0);
     setLog([]);
+    setInstallError("");
+  };
+
+  const handleLaunch = async () => {
+    // @ts-ignore
+    if (!window.require) return;
+    // @ts-ignore
+    const { ipcRenderer } = window.require("electron");
+    const appType = mode === "dark" ? "packManager" : "modManager";
+    try {
+      await ipcRenderer.invoke("launch-app", appType, installPath);
+      addLog(`▶ Aplicativo iniciado`);
+    } catch (err: any) {
+      const message = err?.message || String(err);
+      addLog(`❌ Falha ao iniciar app: ${message}`);
+    }
   };
 
   return (
@@ -613,13 +671,16 @@ export default function App() {
               <div className="flex justify-between items-center mb-2">
                 <span
                   className="text-xs truncate max-w-[500px] transition-colors duration-500"
-                  style={{ color: t.stepColor }}
+                  style={{ color: installError ? "#ff8888" : t.stepColor }}
+                  title={installError || undefined}
                 >
-                  {isRunning
-                    ? STEPS[stepIndex]
-                    : isDone
-                      ? "Instalação concluída com sucesso!"
-                      : "Pronto para instalar"}
+                  {installError
+                    ? `Erro: ${installError}`
+                    : isRunning
+                      ? STEPS[stepIndex]
+                      : isDone
+                        ? "Instalação concluída com sucesso!"
+                        : "Pronto para instalar"}
                 </span>
                 <span
                   className="text-sm font-bold tabular-nums transition-colors duration-500"
@@ -856,6 +917,7 @@ export default function App() {
                       Reinstalar
                     </button>
                     <button
+                      onClick={handleLaunch}
                       className="px-6 py-2 text-sm font-semibold text-white transition-all duration-200 shadow-lg"
                       style={{
                         background: t.doneGradient,

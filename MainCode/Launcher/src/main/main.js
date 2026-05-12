@@ -219,6 +219,10 @@ ipcMain.handle('get-app-info', async () => {
   };
 });
 
+ipcMain.handle('get-default-install-path', async () => {
+  return path.join(app.getPath('appData'), 'TGS Launcher Apps');
+});
+
 ipcMain.handle('window-resize', (event, { width, height }) => {
   if (mainWindow) {
     console.log(`[Main] Redimensionando para: ${width}x${height}`);
