@@ -2,6 +2,8 @@
 
 Custom FiveM vehicle pack
 
+> Nota: este `README` acompanha **saída de exemplo** gerada pelo Pack Menager (pasta `usuario/output`). A documentação do ecossistema está na raiz do repositório (`README.md`, `DOCUMENTACAO_*.md`).
+
 ## Recursos Incluídos
 - **TGS-VehiclesPack**: Veículos e configurações (.meta)
 - **TGS-SoundsPack**: Sons de motores customizados

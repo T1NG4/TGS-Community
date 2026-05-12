@@ -1,5 +1,7 @@
 # Auto-update robusto via GitHub Releases (TGS Launcher)
 
+> **Estado (2026):** o Launcher usa `electron-updater` + releases públicas conforme descrito; guias actualizados: [MainCode/Launcher/AUTO_UPDATE_SETUP.md](../MainCode/Launcher/AUTO_UPDATE_SETUP.md) e [GITHUB_SETUP_COMPLETE_GUIDE.md](../GITHUB_SETUP_COMPLETE_GUIDE.md).
+
 Este plano implementa um fluxo de auto-update confiável no Windows usando `electron-updater` + `electron-builder` (NSIS), publicando releases em um repositório GitHub **público separado**.
 
 ## Decisões/inputs confirmados

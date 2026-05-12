@@ -7,6 +7,7 @@
 ## Índice
 
 - [Visão Geral](#-visão-geral)
+- [Integração com o TGS Launcher](#integração-com-o-tgs-launcher)
 - [Tecnologias e Arquitetura](#-tecnologias-e-arquitetura)
 - [Instalação e Execução](#-instalação-e-execução)
 - [Funcionalidades Principais](#-funcionalidades-principais)
@@ -42,6 +43,10 @@ O sistema inclui 8 mods pré-configurados:
 - 🎭 **Roleplay Essentials** — Ferramentas essenciais para RP
 - 🗺️ **Map Extensions** — Expansões de mapa
 
+### Integração com o TGS Launcher
+
+O **TGS Launcher** instala o `TGS-Mod-Manager-Portable.exe` a partir da release pública correspondente, em `<installPath>\data\apps\modManager\`. Use o hub para **Executar** e manter o mesmo `installPath` em disco; o cliente Mod pode usar **electron-updater** para updates em cima do portable. Referência: [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md) e constantes do hub em `MainCode/Launcher/src/main/constants.js`.
+
 ---
 
 ## 🛠 Tecnologias e Arquitetura
@@ -50,9 +55,9 @@ O sistema inclui 8 mods pré-configurados:
 
 | Componente | Tecnologia | Versão | Uso |
 |-------------|------------|--------|-----|
-| **Runtime** | Electron | - | Aplicação desktop |
-| **Frontend** | HTML5/CSS3/JavaScript | - | Interface do usuário |
-| **Backend** | Node.js + Express | 16.x+ | API REST e autenticação |
+| **Runtime** | Electron | ^24 (cliente; conferir `client/package.json`) | Aplicação desktop |
+| **Frontend** | HTML/CSS/JavaScript | — | Interface do utilizador |
+| **Backend** | Node.js + Express | 20.x recomendado | API REST e autenticação |
 | **Auth** | JWT + bcrypt | - | Sistema de autenticação |
 | **HTTP Client** | Axios | - | Comunicação client-server |
 | **Security** | Helmet + CORS | - | Headers de segurança |

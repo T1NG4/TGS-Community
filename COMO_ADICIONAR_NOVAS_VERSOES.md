@@ -181,12 +181,19 @@ Se o workflow não rodar automaticamente:
 - **Pack Menager**: https://github.com/T1NG4/TGS-pack-manager-releases/releases
 - **Mod Menager**: https://github.com/T1NG4/TGS-mod-manager-releases/releases
 
-### **Arquivos Gerados**
+### **Arquivos gerados (por tipo)**
 
-Cada release contém:
-- 📦 `[AppName] Setup [Version].exe` - Instalador principal
-- 📄 `[AppName]-[Version].yml` - Metadados do auto-update
-- 📋 Release notes automáticos
+**TGS Launcher** (instalador NSIS):
+
+- `TGS Launcher Setup X.Y.Z.exe`
+- `latest.yml`, `*.blockmap` (quando o builder os publicar)
+
+**Pack Manager / Mod Manager** (portáveis usados pelo hub e pelo auto-update interno):
+
+- `TGS-Pack-Manager-Portable.exe` ou `TGS-Mod-Manager-Portable.exe`
+- `latest.yml` na release pública correspondente
+
+O hub copia os portáveis para `<installPath>\data\apps\packManager\` ou `\modManager\` (ver [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md)).
 
 ---
 
@@ -344,7 +351,7 @@ git status
 
 - **Workflow Logs**: GitHub → Actions → [workflow-name]
 - **App Console**: F12 → Console (modo desenvolvimento)
-- **Electron Logs**: `%APPDATA%/[app-name]/logs/`
+- **Electron Logs**: `%APPDATA%\TGS Launcher\logs\` (hub; cada app pode usar outra pasta)
 
 ---
 

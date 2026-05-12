@@ -198,8 +198,8 @@ Os 3 apps já estão configurados. Confirme:
 
 ```bash
 # Launcher
-git tag v1.0.0
-git push origin v1.0.0
+git tag v2.0.3
+git push origin v2.0.3
 
 # Pack Manager
 cd "MainCode/Pack Menager"
@@ -265,7 +265,7 @@ git push origin --delete v1.0.0
 
 | App | Caminho |
 |---|---|
-| Launcher | `%APPDATA%/tgs-launcher/logs/` |
+| Launcher | `%APPDATA%\TGS Launcher\logs\` |
 | Pack Manager | Console (DevTools) |
 | Mod Manager | Console (DevTools) |
 

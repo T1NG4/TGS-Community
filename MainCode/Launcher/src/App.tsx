@@ -350,6 +350,24 @@ export default function App() {
     }
   };
 
+  const handlePickFolder = async () => {
+    if (isRunning) return;
+    // @ts-ignore
+    if (!window.require) return;
+    // @ts-ignore
+    const { ipcRenderer } = window.require("electron");
+    try {
+      const picked = await ipcRenderer.invoke("pick-install-folder");
+      if (!picked) return;
+      setInstallPath(picked);
+      const cfg = await ipcRenderer.invoke("load-config");
+      await ipcRenderer.invoke("save-config", { ...cfg, installPath: picked });
+      addLog(`Pasta de instalação definida: ${picked}`);
+    } catch (err: any) {
+      addLog(`❌ Erro ao escolher pasta: ${err?.message || String(err)}`);
+    }
+  };
+
   const handleInstall = async () => {
     setProgress(0);
     setStepIndex(0);
@@ -382,6 +400,12 @@ export default function App() {
         setStepIndex(STEPS.length - 1);
         setPhase("done");
         addLog(`✅ ${appLabel} instalado com sucesso (v${result.version || "?"})`);
+        try {
+          const cfg = await ipcRenderer.invoke("load-config");
+          await ipcRenderer.invoke("save-config", { ...cfg, installPath });
+        } catch {
+          /* ignore persist errors */
+        }
       } else {
         const errMsg = result?.errors?.join("; ") || "Falha desconhecida";
         setInstallError(errMsg);
@@ -738,7 +762,8 @@ export default function App() {
               style={{ background: t.footerBg }}
             >
               {/* Left: mode toggle + log */}
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-1.5 min-w-0 flex-1 max-w-[420px]">
+                <div className="flex items-center gap-4">
                 {/* Mode button */}
                 <button
                   onClick={cycleMode}
@@ -850,6 +875,26 @@ export default function App() {
                 >
                   {showLog ? "Ocultar log" : "Ver log"}
                 </button>
+                </div>
+                <div className="flex items-center gap-2 min-w-0 text-[10px] leading-tight" style={{ color: t.textLabel }}>
+                  <span className="truncate min-w-0" title={installPath || ""}>
+                    {installPath ? `Instalação: ${installPath}` : "Carregando pasta…"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handlePickFolder}
+                    disabled={isRunning}
+                    className="shrink-0 px-2 py-0.5 rounded border text-[10px] transition-colors duration-150"
+                    style={{
+                      borderColor: t.cancelBorder,
+                      color: isRunning ? t.textMuted : t.cancelText,
+                      cursor: isRunning ? "not-allowed" : "pointer",
+                      background: "transparent",
+                    }}
+                  >
+                    Alterar pasta
+                  </button>
+                </div>
               </div>
 
               {/* Right: action buttons */}

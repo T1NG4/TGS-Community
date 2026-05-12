@@ -7,6 +7,7 @@
 ## Índice
 
 - [Visão Geral](#-visão-geral)
+- [Integração com o TGS Launcher](#integração-com-o-tgs-launcher)
 - [Tecnologias e Arquitetura](#-tecnologias-e-arquitetura)
 - [Instalação e Execução](#-instalação-e-execução)
 - [Funcionalidades Principais](#-funcionalidades-principais)
@@ -39,6 +40,10 @@ O aplicativo gera automaticamente **três recursos independentes** para FiveM:
 | **VehiclesPack** | Veículos, modelos 3D e configurações | `.yft`, `.ytd`, `.ydr`, `.ycd`, `.meta` |
 | **SoundsPack** | Sons de motores customizados | `.awc`, `.dat`, `.rel`, `.nametable` |
 | **WheelsPack** | Rodas customizadas e scripts | `.ydr`, `carcols.meta`, `tuning.lua` |
+
+### Integração com o TGS Launcher
+
+O **TGS Launcher** descarrega o build portátil `TGS-Pack-Manager-Portable.exe` (release pública no GitHub, ver `DOWNLOAD_URLS` em `MainCode/Launcher/src/main/constants.js`) para `<installPath>\data\apps\packManager\`, junto com `version.json`. O fluxo recomendado é **Executar** a partir do hub, para respeitar a pasta de instalação escolhida no rodapé (**Alterar pasta**). O Pack Menager pode atualizar-se sozinho via **electron-updater** contra o repositório público de releases. Mais detalhes: [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md).
 
 ---
 

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 const { autoUpdater } = require('electron-updater');
@@ -220,7 +220,23 @@ ipcMain.handle('get-app-info', async () => {
 });
 
 ipcMain.handle('get-default-install-path', async () => {
-  return path.join(app.getPath('appData'), 'TGS Launcher Apps');
+  try {
+    const cfg = await config.load();
+    return path.normalize(cfg.installPath);
+  } catch (err) {
+    logger.warn('get-default-install-path', err);
+    return path.join(app.getPath('appData'), 'TGS Launcher Apps');
+  }
+});
+
+ipcMain.handle('pick-install-folder', async () => {
+  const parent = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
+  const res = await dialog.showOpenDialog(parent, {
+    title: 'Pasta dos aplicativos TGS (Pack / Mod Manager)',
+    properties: ['openDirectory', 'createDirectory'],
+  });
+  if (res.canceled || !res.filePaths?.length) return null;
+  return path.normalize(res.filePaths[0]);
 });
 
 ipcMain.handle('window-resize', (event, { width, height }) => {
@@ -254,6 +270,18 @@ ipcMain.handle('window-maximize', () => {
   }
 });
 
+async function resolveInstallRoot(baseInstallPath) {
+  let root = baseInstallPath && String(baseInstallPath).trim();
+  if (!root) {
+    try {
+      root = (await config.load()).installPath;
+    } catch (_) {
+      root = '';
+    }
+  }
+  return root ? path.normalize(root) : '';
+}
+
 function resolveAppPaths(baseInstallPath, appType) {
   const { DOWNLOAD_URLS } = require('./constants');
   const urlDict = DOWNLOAD_URLS[appType];
@@ -271,27 +299,57 @@ ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
   const { spawn } = require('child_process');
   const fs = require('fs');
 
-  try {
-    const { exePath } = resolveAppPaths(baseInstallPath, appType);
-
-    if (!fs.existsSync(exePath)) {
-      throw new Error(`Executável não encontrado em ${exePath}. Reinstale o app pelo Launcher.`);
-    }
-
-    logger.info(`Iniciando aplicativo: ${exePath}`);
-
-    const child = spawn(exePath, ['--token=TGS_SECURE_AUTH_2026'], {
-      detached: true,
-      stdio: 'ignore',
-      cwd: path.dirname(exePath),
-    });
-
-    child.unref();
-    return { success: true };
-  } catch (error) {
-    logger.error('Falha ao iniciar aplicativo', error);
-    throw error;
+  let root = await resolveInstallRoot(baseInstallPath);
+  if (!root) {
+    throw new Error('Pasta de instalação não definida. Escolha a pasta em "Alterar pasta" e instale de novo.');
   }
+
+  const { exePath } = resolveAppPaths(root, appType);
+
+  if (!fs.existsSync(exePath)) {
+    throw new Error(
+      `Executável não encontrado em:\n${exePath}\n\n` +
+        'Use "Alterar pasta" se instalou em outro disco (ex.: C:\\TGS) ou clique em Instalar de novo.'
+    );
+  }
+
+  logger.info(`Iniciando aplicativo: ${exePath}`);
+
+  await new Promise((r) => setTimeout(r, 150));
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  let lastError = null;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt > 0) await sleep(300 * attempt);
+    try {
+      if (process.platform === 'win32') {
+        const child = spawn(
+          process.env.ComSpec || 'cmd.exe',
+          ['/d', '/c', 'start', '""', exePath, '--token=TGS_SECURE_AUTH_2026'],
+          {
+            detached: true,
+            stdio: 'ignore',
+            windowsHide: true,
+            cwd: path.dirname(exePath),
+          }
+        );
+        child.unref();
+      } else {
+        const child = spawn(exePath, ['--token=TGS_SECURE_AUTH_2026'], {
+          detached: true,
+          stdio: 'ignore',
+          cwd: path.dirname(exePath),
+        });
+        child.unref();
+      }
+      return { success: true };
+    } catch (err) {
+      lastError = err;
+      logger.warn(`launch-app tentativa ${attempt + 1} falhou`, err);
+    }
+  }
+  logger.error('Falha ao iniciar aplicativo após várias tentativas', lastError);
+  throw lastError || new Error('Falha ao iniciar o aplicativo');
 });
 
 ipcMain.handle('check-app-update', async (event, appType, baseInstallPath) => {
@@ -299,7 +357,11 @@ ipcMain.handle('check-app-update', async (event, appType, baseInstallPath) => {
   const installer = require('./installer');
 
   try {
-    const { versionPath } = resolveAppPaths(baseInstallPath, appType);
+    const root = await resolveInstallRoot(baseInstallPath);
+    if (!root) {
+      return { success: true, appType, installedVersion: null, latestVersion: null, hasUpdate: false, notInstalled: true };
+    }
+    const { versionPath } = resolveAppPaths(root, appType);
 
     let installedVersion = null;
     if (fs.existsSync(versionPath)) {
@@ -338,8 +400,12 @@ ipcMain.handle('get-installed-apps', async (event, baseInstallPath) => {
 
   try {
     const installed = {};
+    const root = await resolveInstallRoot(baseInstallPath);
+    if (!root) {
+      return { success: true, apps: {} };
+    }
     for (const appType of Object.keys(DOWNLOAD_URLS)) {
-      const { exePath, versionPath } = resolveAppPaths(baseInstallPath, appType);
+      const { exePath, versionPath } = resolveAppPaths(root, appType);
       const exeExists = fs.existsSync(exePath);
 
       let version = null;

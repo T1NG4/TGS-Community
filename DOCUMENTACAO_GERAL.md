@@ -9,12 +9,15 @@
 - [Visão Geral](#-visão-geral)
 - [Arquitetura do Ecossistema](#-arquitetura-do-ecossistema)
 - [Fluxos do Usuário](#-fluxos-do-usuário)
+- [Sistema de Auto-Update (GitHub Releases)](#sistema-de-auto-update-github-releases)
 - [Convenções e Estrutura](#-convenções-e-estrutura)
 - [Roadmap e Expansão](#-roadmap-e-expansão)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [Guia de Testes e Execução](#-guia-de-testes-e-execução)
-
----
+- [Métricas e Monitoramento](#-métricas-e-monitoramento)
+- [Segurança e Boas Práticas](#-segurança-e-boas-práticas)
+- [Suporte e Comunidade](#-suporte-e-comunidade)
+- [Licença](#-licença)
 
 ## 🌐 Visão Geral
 
@@ -24,7 +27,9 @@ Atualmente, existem dois aplicativos no ecossistema:
 - **Pack Menager** — Sistema profissional de automação para criação e gerenciamento de packs de veículos para FiveM
 - **Mod Menager** — Sistema completo de gerenciamento de mods para FiveM com autenticação segura
 
-Ambos são instalados pelo Launcher e sempre são abertos através dele, não sendo executados diretamente pelo sistema. O Launcher centraliza toda a experiência do usuário, garantindo controle, organização e uma estrutura preparada para expansão futura com novos aplicativos.
+Ambos são **instalados pelo Launcher**: o hub descarrega os executáveis **portáteis** (`TGS-Pack-Manager-Portable.exe`, `TGS-Mod-Manager-Portable.exe`) das releases públicas no GitHub e coloca-os em `<installPath>\data\apps\...`. O fluxo recomendado é **abrir sempre pelo Launcher** (botão Executar), para usar a pasta configurada e o token de sessão; tecnicamente os `.exe` portáteis podem ser iniciados manualmente a partir do disco, mas deixam de estar alinhados com a pasta que o Launcher mostra na interface.
+
+O Launcher centraliza instalação, pasta de dados e atualização do próprio hub (instalador NSIS + `electron-updater`).
 
 ---
 
@@ -89,7 +94,7 @@ Ambos são instalados pelo Launcher e sempre são abertos através dele, não se
 
 ---
 
-## � Sistema de Auto-Update (GitHub Releases)
+## Sistema de Auto-Update (GitHub Releases)
 
 O TGS Launcher implementa um sistema robusto de atualização automática utilizando `electron-updater` com publicação via **GitHub Releases**.
 
@@ -107,6 +112,8 @@ O TGS Launcher implementa um sistema robusto de atualização automática utiliz
 - **Repositório de releases**: Público — hospeda apenas os instaladores `.exe` e metadados de update
 
 Isso elimina a necessidade de tokens de autenticação no cliente, mantendo o código protegido.
+
+**Pack Menager e Mod Menager** são distribuídos como **executáveis portáteis** (nomes fixos nas releases públicas). O Launcher descarrega-os para `<installPath>\data\apps\...` e pode abri-los a partir daí; cada app pode ainda ter **auto-update próprio** (`electron-updater`) contra o mesmo repositório público de releases.
 
 ### Funcionalidades Implementadas
 
@@ -174,21 +181,37 @@ A interface exibe notificações em diferentes estados:
 
 ---
 
-## �📁 Convenções e Estrutura
+## 📁 Convenções e Estrutura
 
-### Estrutura de Diretórios
+### Estrutura de Diretórios (repositório)
 
 ```
 TGS Launcher/
-├── 📁 DOCUMENTACAO_*.md           # 5 arquivos de documentação oficial
-├── 📁 MainCode/                   # 🚀 Código fonte ativo do ecossistema
-│   ├── 📁 Launcher/               # Hub Central
-│   ├── 📁 Pack Menager/           # App 1
-│   └── 📁 Mod Menager/            # App 2
-├── 📁 Dependence/                 # 📍 Repositório unificado de node_modules
-├── 📁 plan/                       # Planos de migração e roadmap
-└── 📁 usuario/                    # Dados de entrada/saída do usuário
+├── DOCUMENTACAO_*.md              # Documentação (Geral, Launcher, Pack, Mod, Hospedagem, …)
+├── COMO_ADICIONAR_NOVAS_VERSOES.md
+├── GITHUB_SETUP_COMPLETE_GUIDE.md
+├── MainCode/
+│   ├── Launcher/                  # Hub (Electron + React + Vite)
+│   ├── Pack Menager/             # App 1 (portable + auto-update próprio)
+│   └── Mod Menager/              # App 2 (idem)
+├── Dependence/                   # Dependências partilhadas (quando usado no fluxo do projeto)
+├── plan/                         # Notas de migração / planeamento
+└── usuario/                      # Dados de exemplo ou I/O local
 ```
+
+### Onde ficam os apps no PC do utilizador
+
+Além do código em `MainCode/`, após instalar pelo hub existe uma **raiz escolhida** (`installPath`), por exemplo `C:\TGS` ou `%AppData%\TGS Launcher Apps`:
+
+```
+<installPath>/
+└── data/
+    └── apps/
+        ├── packManager/     → TGS-Pack-Manager-Portable.exe, version.json, …
+        └── modManager/      → TGS-Mod-Manager-Portable.exe, version.json, …
+```
+
+Em Windows **empacotado**, o valor por defeito da raiz pode ser a pasta **`TGSApps`** ao lado do executável do Launcher; em desenvolvimento costuma ser `%AppData%\TGS Launcher Apps`. Detalhes: [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md).
 
 ### Nomenclatura Padrão
 
@@ -251,7 +274,7 @@ Para expandir o ecossistema com um novo aplicativo:
 | Componente | Tecnologia | Versão | Uso |
 |-------------|------------|--------|-----|
 | **Runtime** | Node.js | 20.x | Backend e APIs |
-| **Desktop** | Electron | 39.8.9 | Aplicação desktop |
+| **Desktop** | Electron | varia por app (ex.: Launcher ~28, Pack ~39, Mod cliente ~24) | Aplicação desktop |
 | **Frontend** | React | 19.x | Interfaces modernas |
 | **TypeScript** | TypeScript | 5.x | Tipagem estática |
 | **Build** | Vite | 7.x | Build tool e dev server |
@@ -320,9 +343,9 @@ npm run dev
 
 ### Logs Centralizados
 
-- **Launcher** — Logs de sistema e apps
-- **Apps** — Logs específicos de cada aplicação
-- **Integração** — Logs de comunicação entre componentes
+- **Launcher** — Ficheiros em `%APPDATA%\TGS Launcher\logs\` (Windows; pasta `userData` do Electron)
+- **Apps** — Logs específicos de cada aplicação (consola / ficheiros locais ao app)
+- **Integração** — Eventos entre hub e portáveis (ver [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md))
 
 ---
 
@@ -347,7 +370,7 @@ npm run dev
 
 ### Canais de Suporte
 
-- **Documentação** — Estes 4 arquivos como referência principal
+- **Documentação** — Ficheiros `DOCUMENTACAO_*.md`, `COMO_ADICIONAR_NOVAS_VERSOES.md`, `GITHUB_SETUP_COMPLETE_GUIDE.md` e [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md)
 - **Issues** — GitHub para bugs e features
 - **Comunidade** — Discord TGS para suporte rápido
 - **Email** — Contato direto com equipe TGS

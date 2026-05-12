@@ -52,27 +52,27 @@ Para usá-lo, você precisa:
 
 1. **Push de tag** (recomendado):
    ```bash
-   git tag v1.0.1
-   git push origin v1.0.1
+   git tag v2.0.3
+   git push origin v2.0.3
    ```
 
 2. **Ou execução manual**:
    - Vá em Actions → Release Workflow → Run workflow
-   - Informe a versão (ex: `v1.0.1`)
+   - Informe a versão (ex: `v2.0.3`)
 
 ---
 
 ## 🚀 Como Funciona (Fluxo Completo)
 
 ```
-1. Desenvolvedor faz push da tag v1.0.1
+1. Desenvolvedor faz push da tag vX.Y.Z
            ↓
 2. GitHub Actions builda o app (electron-builder)
            ↓
 3. Artefatos publicados no repo público de releases:
-   - TGS Launcher Setup 1.0.1.exe
+   - TGS Launcher Setup X.Y.Z.exe (NSIS)
    - latest.yml (feed de versão)
-   - *.blockmap (delta download)
+   - *.blockmap (delta download, quando existir)
            ↓
 4. Launcher já instalado checa por updates na inicialização
            ↓
@@ -107,7 +107,7 @@ Verifique se:
 
 ### "Erro ao baixar update"
 - Verifique conexão com internet
-- Veja logs em `%APPDATA%/TGS Launcher/logs/`
+- Veja logs em `%APPDATA%\TGS Launcher\logs\` (pasta *userData* do produto no Windows)
 
 ### "Não aparece notificação de update"
 - O auto-update só funciona em build de produção (não em `npm run dev`)

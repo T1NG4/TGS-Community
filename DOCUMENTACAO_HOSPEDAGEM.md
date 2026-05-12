@@ -44,13 +44,13 @@ Se a segurança de login rigorosa não for um requisito imediato:
 
 ---
 
-## 4. Distribuição e Atualização Automática (O Launcher)
+## 4. Distribuição e atualização (Launcher + apps)
 
-Onde vamos colocar os arquivos pesados de instalação (`.exe`, `.zip`) para os clientes baixarem?
+- **Launcher:** instalador **NSIS** publicado no repositório público de releases; o cliente usa `electron-updater` contra esse feed.
+- **Pack Menager / Mod Menager:** builds **portáteis** (`.exe` com nome fixo) no respetivo repositório `*-releases`. O **TGS Launcher** descarrega esses ficheiros para `<installPath>\data\apps\...` na primeira instalação; cada app pode continuar a atualizar-se via `electron-updater` a partir da mesma release pública.
+- **Custo:** $0 na banda do GitHub para o fluxo típico de open source / releases públicas (sujeito às regras da GitHub).
 
-- **Estratégia:** Utilizar o **GitHub Releases**.
-- **Como funciona:** O `electron-builder` que já está configurado no projeto é capaz de fazer upload do instalador automaticamente para o GitHub. Quando o cliente abre o Launcher, ele checa os servidores do GitHub silenciosamente, baixa a atualização sem pesar no seu site, e instala.
-- **Custo:** $0 (Banda larga ilimitada para projetos Open Source ou repositórios específicos do GitHub).
+Para configurar PAT, secrets e nomes exatos dos repositórios, veja [GITHUB_SETUP_COMPLETE_GUIDE.md](GITHUB_SETUP_COMPLETE_GUIDE.md).
 
 ---
 

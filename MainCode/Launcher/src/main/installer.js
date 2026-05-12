@@ -4,6 +4,7 @@ const path = require('path');
 const axios = require('axios');
 const crypto = require('crypto');
 const { promisify } = require('util');
+const { pipeline } = require('stream/promises');
 const { app } = require('electron');
 const logger = require('./logger');
 const { DOWNLOAD_URLS, MIN_DISK_SPACE, MIN_NODE_VERSION } = require('./constants');
@@ -122,11 +123,11 @@ async function downloadFile(url, destination, onProgress) {
     responseType: 'stream',
   });
 
-  totalBytes = parseInt(response.headers['content-length'], 10);
+  totalBytes = parseInt(response.headers['content-length'], 10) || 0;
 
   response.data.on('data', (chunk) => {
     downloadedBytes += chunk.length;
-    if (onProgress) {
+    if (onProgress && totalBytes > 0) {
       onProgress({
         component: path.basename(destination),
         progress: (downloadedBytes / totalBytes) * 100,
@@ -138,12 +139,7 @@ async function downloadFile(url, destination, onProgress) {
     }
   });
 
-  response.data.pipe(writer);
-
-  return new Promise((resolve, reject) => {
-    writer.on('finish', resolve);
-    writer.on('error', reject);
-  });
+  await pipeline(response.data, writer);
 }
 
 async function calculateHash(filePath) {
@@ -211,63 +207,15 @@ async function startInstallation(config, onProgress) {
 
     const fileName = urlDict.fileName || path.basename(urlDict.mainApp);
     const destination = path.join(appInstallDir, fileName);
-    const partialPath = `${destination}.partial`;
 
-    // Não gravar direto no .exe: se o app estiver aberto ou o antivírus segurar o arquivo, o Windows retorna EBUSY.
-    try {
-      if (fs.existsSync(partialPath)) {
-        fs.unlinkSync(partialPath);
-      }
-    } catch (e) {
-      logger.warn('Could not remove stale partial download', e);
-    }
+    logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, destination });
 
-    logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, partialPath });
-
-    await downloadFile(urlDict.mainApp, partialPath, (progress) => {
+    await downloadFile(urlDict.mainApp, destination, (progress) => {
       onProgress({
         ...progress,
         component: 'mainApp',
       });
     });
-
-    try {
-      if (fs.existsSync(destination)) {
-        try {
-          fs.unlinkSync(destination);
-        } catch (unlinkErr) {
-          try {
-            fs.unlinkSync(partialPath);
-          } catch {
-            // ignore
-          }
-          if (unlinkErr.code === 'EBUSY' || unlinkErr.code === 'EPERM') {
-            throw new Error(
-              'O aplicativo parece estar em execução (ou outro programa está usando o arquivo). Feche o TGS Pack Manager e tente instalar de novo.'
-            );
-          }
-          throw unlinkErr;
-        }
-      }
-      fs.renameSync(partialPath, destination);
-    } catch (replaceErr) {
-      try {
-        if (fs.existsSync(partialPath)) {
-          fs.unlinkSync(partialPath);
-        }
-      } catch {
-        // ignore
-      }
-      if (replaceErr.code === 'EBUSY' || replaceErr.code === 'EPERM') {
-        throw new Error(
-          'Não foi possível substituir o executável (arquivo em uso). Feche o TGS Pack Manager e o Launcher não precisa fechar — só o app instalado.'
-        );
-      }
-      if (replaceErr.message && replaceErr.message.includes('Feche o TGS')) {
-        throw replaceErr;
-      }
-      throw replaceErr;
-    }
 
     const hash = await calculateHash(destination);
     logger.info(`Hash for ${appType} mainApp: ${hash}`);

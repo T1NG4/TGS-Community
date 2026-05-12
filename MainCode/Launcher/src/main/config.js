@@ -1,21 +1,30 @@
 const fs = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
 const { app } = require('electron');
 const logger = require('./logger');
-const { DEFAULT_INSTALL_PATHS } = require('./constants');
 
 const CONFIG_FILE = 'config.json';
 const CONFIG_DIR = path.join(app.getPath('userData'));
+
+/** Pasta raiz onde ficam data/apps (portables). Ao lado do .exe no build instalado; em dev, AppData. */
+function defaultAppsInstallRoot() {
+  try {
+    if (process.platform === 'win32' && app.isPackaged) {
+      return path.join(path.dirname(app.getPath('exe')), 'TGSApps');
+    }
+  } catch (_) {
+    /* ignore */
+  }
+  return path.join(app.getPath('appData'), 'TGS Launcher Apps');
+}
 
 async function load() {
   try {
     const configPath = path.join(CONFIG_DIR, CONFIG_FILE);
 
     if (!fs.existsSync(configPath)) {
-      // Return default config
       const defaultConfig = {
-        installPath: DEFAULT_INSTALL_PATHS[process.platform] || DEFAULT_INSTALL_PATHS.win32,
+        installPath: defaultAppsInstallRoot(),
         createShortcuts: true,
         addToPath: false,
         language: 'pt',
@@ -27,6 +36,9 @@ async function load() {
 
     const data = await fs.promises.readFile(configPath, 'utf8');
     const config = JSON.parse(data);
+    if (!config.installPath || typeof config.installPath !== 'string') {
+      config.installPath = defaultAppsInstallRoot();
+    }
 
     logger.info('Configuration loaded', config);
     return config;
