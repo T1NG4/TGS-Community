@@ -3,7 +3,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 const { app } = require('electron');
 const logger = require('./logger');
-const { DEFAULT_INSTALL_PATHS } = require('../shared/constants');
+const { DEFAULT_INSTALL_PATHS } = require('./constants');
 
 const CONFIG_FILE = 'config.json';
 const CONFIG_DIR = path.join(app.getPath('userData'));

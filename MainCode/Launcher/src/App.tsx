@@ -169,6 +169,7 @@ export default function App() {
   const [updateProgress, setUpdateProgress] = useState(0);
   const [updateVersion, setUpdateVersion] = useState<string>("");
   const [updateError, setUpdateError] = useState<string>("");
+  const [appVersion, setAppVersion] = useState<string>("");
 
   const t = THEMES[mode];
   const STEPS = mode === "dark" ? STEPS_DARK : STEPS_LIGHT;
@@ -239,7 +240,13 @@ export default function App() {
     ipcRenderer.on("update-downloaded", onUpdateDownloaded);
     ipcRenderer.on("update-error", onUpdateError);
 
-    // Iniciar verificação de updates
+    ipcRenderer
+      .invoke("get-app-info")
+      .then((info: { version?: string } | null) => {
+        if (info?.version) setAppVersion(info.version);
+      })
+      .catch(() => {});
+
     ipcRenderer.invoke("check-updates").catch(() => {});
 
     return () => {
@@ -419,7 +426,7 @@ export default function App() {
                   className="text-[10px] ml-0.5 transition-colors duration-500"
                   style={{ color: t.accent }}
                 >
-                  v1.0.0
+                  v{appVersion || "…"}
                 </sup>
               </span>
             </span>

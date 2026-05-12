@@ -34,7 +34,7 @@ function createWindow() {
 
   const startUrl = isDev
     ? 'http://localhost:5175'
-    : `file://${path.join(__dirname, '../../dist/index.html')}`;
+    : `file://${path.join(__dirname, '../../dist-renderer/index.html')}`;
 
   mainWindow.loadURL(startUrl);
 
@@ -250,32 +250,113 @@ ipcMain.handle('window-maximize', () => {
   }
 });
 
+function resolveAppPaths(baseInstallPath, appType) {
+  const { DOWNLOAD_URLS } = require('./constants');
+  const urlDict = DOWNLOAD_URLS[appType];
+  if (!urlDict || !urlDict.mainApp) {
+    throw new Error(`URL do app não encontrada para appType=${appType}`);
+  }
+  const fileName = urlDict.fileName || path.basename(urlDict.mainApp);
+  const appInstallDir = path.join(baseInstallPath, 'data', 'apps', appType);
+  const exePath = path.join(appInstallDir, fileName);
+  const versionPath = path.join(appInstallDir, 'version.json');
+  return { urlDict, fileName, appInstallDir, exePath, versionPath };
+}
+
 ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
   const { spawn } = require('child_process');
-  const { DOWNLOAD_URLS } = require('./constants');
-  
+  const fs = require('fs');
+
   try {
-    const urlDict = DOWNLOAD_URLS[appType];
-    if (!urlDict || !urlDict.mainApp) throw new Error('URL do app não encontrada');
-    
-    // O instalador salva em baseInstallPath/data/apps
-    const isExe = urlDict.mainApp.endsWith('.exe');
-    const fileName = isExe ? path.basename(urlDict.mainApp) : 'mainApp.zip'; // Simplificado, ideal seria extrair o zip se fosse zip, mas a spec pede portable .exe
-    
-    const exePath = path.join(baseInstallPath, 'data', 'apps', fileName);
-    
+    const { exePath } = resolveAppPaths(baseInstallPath, appType);
+
+    if (!fs.existsSync(exePath)) {
+      throw new Error(`Executável não encontrado em ${exePath}. Reinstale o app pelo Launcher.`);
+    }
+
     logger.info(`Iniciando aplicativo: ${exePath}`);
-    
-    // Inicia com o token de segurança
+
     const child = spawn(exePath, ['--token=TGS_SECURE_AUTH_2026'], {
       detached: true,
-      stdio: 'ignore'
+      stdio: 'ignore',
+      cwd: path.dirname(exePath),
     });
-    
-    child.unref(); // Permite que o Launcher feche sem fechar o app filho se necessário
+
+    child.unref();
     return { success: true };
   } catch (error) {
     logger.error('Falha ao iniciar aplicativo', error);
     throw error;
+  }
+});
+
+ipcMain.handle('check-app-update', async (event, appType, baseInstallPath) => {
+  const fs = require('fs');
+  const installer = require('./installer');
+
+  try {
+    const { versionPath } = resolveAppPaths(baseInstallPath, appType);
+
+    let installedVersion = null;
+    if (fs.existsSync(versionPath)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(versionPath, 'utf-8'));
+        installedVersion = data.version || null;
+      } catch (err) {
+        logger.warn(`Falha ao ler version.json de ${appType}`, err);
+      }
+    }
+
+    const latestVersion = await installer.fetchLatestVersion(appType);
+
+    const hasUpdate = !!(latestVersion && installedVersion && latestVersion !== installedVersion);
+    const notInstalled = !installedVersion;
+
+    logger.info(`Check update for ${appType}`, { installedVersion, latestVersion, hasUpdate, notInstalled });
+
+    return {
+      success: true,
+      appType,
+      installedVersion,
+      latestVersion,
+      hasUpdate,
+      notInstalled,
+    };
+  } catch (error) {
+    logger.error(`Falha ao verificar update do app ${appType}`, error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('get-installed-apps', async (event, baseInstallPath) => {
+  const fs = require('fs');
+  const { DOWNLOAD_URLS } = require('./constants');
+
+  try {
+    const installed = {};
+    for (const appType of Object.keys(DOWNLOAD_URLS)) {
+      const { exePath, versionPath } = resolveAppPaths(baseInstallPath, appType);
+      const exeExists = fs.existsSync(exePath);
+
+      let version = null;
+      if (fs.existsSync(versionPath)) {
+        try {
+          const data = JSON.parse(fs.readFileSync(versionPath, 'utf-8'));
+          version = data.version || null;
+        } catch {
+          // ignore
+        }
+      }
+
+      installed[appType] = {
+        installed: exeExists,
+        version,
+        exePath: exeExists ? exePath : null,
+      };
+    }
+    return { success: true, apps: installed };
+  } catch (error) {
+    logger.error('Falha ao listar apps instalados', error);
+    return { success: false, error: error.message };
   }
 });

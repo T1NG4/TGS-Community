@@ -4,12 +4,22 @@ const fs = require('fs').promises;
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const axios = require('axios');
+const { setupAutoUpdater } = require('./autoUpdater');
 const execAsync = promisify(exec);
 
 let mainWindow;
 const APP_DATA_PATH = path.join(app.getPath('userData'), 'Launcher');
 const LOGS_PATH = path.join(APP_DATA_PATH, 'logs');
 const MODS_STATE_PATH = path.join(APP_DATA_PATH, 'mods-state.json');
+
+const isDev = !app.isPackaged;
+
+// Segurança: Garantir que o App seja executado apenas pelo Launcher
+if (!isDev && !process.argv.includes('--token=TGS_SECURE_AUTH_2026')) {
+  console.error('Acesso Negado: Este aplicativo deve ser iniciado pelo TGS Launcher.');
+  app.quit();
+  process.exit(1);
+}
 
 // Configuração do servidor de autenticação remoto
 const AUTH_SERVER_CONFIG = {
@@ -84,6 +94,7 @@ function createWindow() {
 app.whenReady().then(async () => {
     await ensureDirectories();
     createWindow();
+    setupAutoUpdater(() => mainWindow);
 
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();

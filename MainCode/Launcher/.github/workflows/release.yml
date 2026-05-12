@@ -13,16 +13,16 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: write
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  build-and-release:
     runs-on: windows-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,67 +31,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: './package-lock.json'
-
-      - name: Update package.json version
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          npm version ${{ github.event.inputs.version }} --no-git-tag-version
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build renderer
+      - name: Build renderer (Vite)
         run: npm run build:renderer
 
-      - name: Build & Publish
-        run: npm run build:main -- --publish always
+      - name: Build & Publish Electron App
+        run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
           EP_GH_OWNER: T1NG4
           EP_GH_REPO: TGS-launcher-releases
           EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
 
-      - name: Upload artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tgs-launcher-build
-          path: dist/
+          path: |
+            release/*.exe
+            release/*.yml
+            release/*.yaml
+            release/*.blockmap
           retention-days: 7
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create tag (if workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -f ${{ github.event.inputs.version }}
-          git push origin ${{ github.event.inputs.version }}
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: tgs-launcher-build
-          path: dist/
-
-      - name: Create/Update Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*
-          draft: false
-          prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-alpha') || contains(github.event.inputs.version, '-beta') || contains(github.event.inputs.version, '-alpha') }}
-          generate_release_notes: true
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

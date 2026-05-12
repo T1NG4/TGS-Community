@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const { promisify } = require('util');
 const { app } = require('electron');
 const logger = require('./logger');
-const { DOWNLOAD_URLS, COMPONENT_SIZES, MIN_DISK_SPACE, MIN_NODE_VERSION } = require('./constants');
+const { DOWNLOAD_URLS, MIN_DISK_SPACE, MIN_NODE_VERSION } = require('./constants');
 
 const execAsync = promisify(exec);
 const fsExists = promisify(fs.exists);
@@ -157,115 +157,112 @@ async function calculateHash(filePath) {
   });
 }
 
+async function fetchLatestVersion(appType) {
+  const urlDict = DOWNLOAD_URLS[appType];
+  if (!urlDict?.releaseApi) return null;
+
+  try {
+    const response = await axios.get(urlDict.releaseApi, {
+      timeout: 10000,
+      headers: { 'User-Agent': 'TGS-Launcher/1.0.0' },
+    });
+    const tag = response.data?.tag_name || response.data?.name || '';
+    return tag.replace(/^v/, '') || null;
+  } catch (error) {
+    logger.warn(`Could not fetch latest version for ${appType}`, error.message);
+    return null;
+  }
+}
+
 async function startInstallation(config, onProgress) {
   installationCancelled = false;
   const startTime = Date.now();
-  const components = [];
   const errors = [];
+  const appType = config.appType || 'packManager';
 
   try {
     logger.info('Starting installation', config);
 
-    // Create installation directory structure
-    const baseInstallDir = config.installPath;
-    const dataDir = path.join(baseInstallDir, 'data');
-    const installDir = path.join(dataDir, 'apps');
-    
-    if (!fs.existsSync(installDir)) {
-      await fsMkdir(installDir, { recursive: true });
+    const urlDict = DOWNLOAD_URLS[appType];
+    if (!urlDict) {
+      throw new Error(`Unknown app type: ${appType}`);
     }
 
-    // Hide the data folder on Windows
+    const baseInstallDir = config.installPath;
+    const dataDir = path.join(baseInstallDir, 'data');
+    const appsRootDir = path.join(dataDir, 'apps');
+    const appInstallDir = path.join(appsRootDir, appType);
+
+    if (!fs.existsSync(appInstallDir)) {
+      await fsMkdir(appInstallDir, { recursive: true });
+    }
+
     if (process.platform === 'win32') {
       try {
         await execAsync(`attrib +h "${dataDir}"`);
-      } catch (err) {
-        logger.warn('Failed to hide data directory', err);
+      } catch {
+        // Não-admin: ignora silenciosamente; pasta apenas não fica oculta
       }
     }
 
-    // Determine components to download based on installation type
-    const componentsToDownload = getComponentsForType(config.type);
-
-    // Download each component
-    for (const component of componentsToDownload) {
-      if (installationCancelled) {
-        throw new Error('Installation cancelled by user');
-      }
-
-      try {
-        const urlDict = DOWNLOAD_URLS[config.appType || 'packManager'] || DOWNLOAD_URLS.packManager;
-        const url = urlDict[component];
-        if (!url) {
-          logger.warn(`No URL for component ${component} in ${config.appType}`);
-          continue;
-        }
-        
-        // Se for um exe, não adiciona .zip
-        const isExe = url.endsWith('.exe');
-        const fileName = isExe ? path.basename(url) : `${component}.zip`;
-        const destination = path.join(installDir, fileName);
-
-        logger.info(`Downloading ${component}`, { url, destination });
-
-        await downloadFile(url, destination, (progress) => {
-          onProgress({
-            ...progress,
-            component: component,
-          });
-        });
-
-        // Verify hash (if available)
-        const hash = await calculateHash(destination);
-        logger.info(`Hash for ${component}: ${hash}`);
-
-        components.push(component);
-      } catch (error) {
-        logger.error(`Failed to download ${component}`, error);
-        errors.push(`Failed to download ${component}: ${error.message}`);
-      }
+    if (installationCancelled) {
+      throw new Error('Installation cancelled by user');
     }
 
-    // Create shortcuts if requested
+    const fileName = urlDict.fileName || path.basename(urlDict.mainApp);
+    const destination = path.join(appInstallDir, fileName);
+
+    logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, destination });
+
+    await downloadFile(urlDict.mainApp, destination, (progress) => {
+      onProgress({
+        ...progress,
+        component: 'mainApp',
+      });
+    });
+
+    const hash = await calculateHash(destination);
+    logger.info(`Hash for ${appType} mainApp: ${hash}`);
+
+    const installedVersion = await fetchLatestVersion(appType);
+    const versionPath = path.join(appInstallDir, 'version.json');
+    await fsWriteFile(versionPath, JSON.stringify({
+      appType,
+      fileName,
+      version: installedVersion,
+      installedAt: new Date().toISOString(),
+      hash,
+    }, null, 2));
+
     if (config.createShortcuts) {
-      await createShortcuts(installDir);
+      await createShortcuts(appInstallDir);
     }
 
-    // Save configuration
-    const configPath = path.join(installDir, 'config.json');
+    const configPath = path.join(appInstallDir, 'config.json');
     await fsWriteFile(configPath, JSON.stringify(config, null, 2));
 
     const duration = Date.now() - startTime;
 
     logger.info('Installation completed successfully', {
       duration,
-      components,
-      installPath: installDir,
+      appType,
+      installPath: appInstallDir,
+      version: installedVersion,
     });
 
     return {
-      success: errors.length === 0,
-      installedPath: installDir,
-      components,
+      success: true,
+      installedPath: appInstallDir,
+      appType,
+      fileName,
+      version: installedVersion,
+      components: ['mainApp'],
       duration,
       errors: errors.length > 0 ? errors : undefined,
     };
   } catch (error) {
     logger.error('Installation failed', error);
     throw error;
-  }
-}
-
-function getComponentsForType(type) {
-  switch (type) {
-    case 'full':
-      return ['mainApp', 'templates', 'dependencies', 'documentation', 'examples'];
-    case 'minimal':
-      return ['mainApp', 'dependencies'];
-    case 'offline':
-      return ['mainApp', 'templates', 'dependencies'];
-    default:
-      return ['mainApp', 'dependencies'];
   }
 }
 
@@ -330,4 +327,5 @@ module.exports = {
   startInstallation,
   cancelInstallation,
   clearCache,
+  fetchLatestVersion,
 };

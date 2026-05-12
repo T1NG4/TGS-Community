@@ -5,16 +5,25 @@ const LAUNCHER_VERSION = '1.0.0';
 const MIN_NODE_VERSION = '20.0.0';
 const MIN_DISK_SPACE = 2 * 1024 * 1024 * 1024; // 2GB in bytes
 
+// Repositórios públicos de releases (T maiúsculo no TGS)
+const RELEASES_REPOS = {
+  launcher: 'T1NG4/TGS-launcher-releases',
+  packManager: 'T1NG4/TGS-pack-manager-releases',
+  modManager: 'T1NG4/TGS-mod-manager-releases',
+};
+
 const DOWNLOAD_URLS = {
   packManager: {
-    mainApp: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/TGS.Pack.Manager.Setup.exe',
-    templates: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/templates.zip',
-    dependencies: 'https://github.com/T1NG4/tgs-pack-manager-releases/releases/latest/download/dependencies.zip',
+    fileName: 'TGS-Pack-Manager-Portable.exe',
+    mainApp: `https://github.com/${RELEASES_REPOS.packManager}/releases/latest/download/TGS-Pack-Manager-Portable.exe`,
+    latestYml: `https://github.com/${RELEASES_REPOS.packManager}/releases/latest/download/latest.yml`,
+    releaseApi: `https://api.github.com/repos/${RELEASES_REPOS.packManager}/releases/latest`,
   },
   modManager: {
-    mainApp: 'https://github.com/T1NG4/tgs-mod-manager-releases/releases/latest/download/Launcher_Portable.exe',
-    templates: 'https://github.com/T1NG4/tgs-mod-manager-releases/releases/latest/download/templates.zip',
-    dependencies: 'https://github.com/T1NG4/tgs-mod-manager-releases/releases/latest/download/dependencies.zip',
+    fileName: 'TGS-Mod-Manager-Portable.exe',
+    mainApp: `https://github.com/${RELEASES_REPOS.modManager}/releases/latest/download/TGS-Mod-Manager-Portable.exe`,
+    latestYml: `https://github.com/${RELEASES_REPOS.modManager}/releases/latest/download/latest.yml`,
+    releaseApi: `https://api.github.com/repos/${RELEASES_REPOS.modManager}/releases/latest`,
   }
 };
 
@@ -79,6 +88,7 @@ module.exports = {
   MIN_NODE_VERSION,
   MIN_DISK_SPACE,
   DOWNLOAD_URLS,
+  RELEASES_REPOS,
   COMPONENT_SIZES,
   INSTALLATION_STEPS,
   INSTALLATION_TYPES,

@@ -1,6 +1,6 @@
 {
   "name": "tgs-launcher",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "description": "Launcher de instalação e Hub para TGS Ecosystem",
   "repository": {
     "type": "git",
@@ -52,26 +52,36 @@
     "appId": "com.tgs.launcher",
     "productName": "TGS Launcher",
     "directories": {
-      "output": "dist",
+      "output": "release",
       "buildResources": "resources"
     },
     "files": [
       "package.json",
       "src/main/**/*",
-      "dist/**/*",
+      "dist-renderer/**/*",
       "!**/*.map"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "T1NG4",
+        "repo": "TGS-launcher-releases",
+        "releaseType": "release"
+      }
     ],
     "win": {
       "target": ["nsis"],
-      "icon": "resources/icons/icon.ico",
-      "publish": [
-        {
-          "provider": "github",
-          "owner": "T1NG4",
-          "repo": "TGS-launcher-releases",
-          "releaseType": "release"
-        }
-      ]
+      "icon": "resources/icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "resources/icons/icon.ico",
+      "uninstallerIcon": "resources/icons/icon.ico",
+      "installerHeaderIcon": "resources/icons/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TGS Launcher"
     }
   }
 }

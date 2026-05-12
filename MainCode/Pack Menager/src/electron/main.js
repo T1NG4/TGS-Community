@@ -4,11 +4,18 @@ const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
 const os = require('os');
 const { createApp, setPaths, getOutputPath } = require('../server/src/app');
+const { setupAutoUpdater } = require('./autoUpdater');
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 const PORT = 3791;
 const isDev = !app.isPackaged;
 
+// Segurança: Garantir que o App seja executado apenas pelo Launcher
+if (!isDev && !process.argv.includes('--token=TGS_SECURE_AUTH_2026')) {
+  console.error('Acesso Negado: Este aplicativo deve ser iniciado pelo TGS Launcher.');
+  app.quit();
+  process.exit(1);
+}
 // Em dev, raiz do projeto = pasta "codigo fonte" (pai de src/), alinhado a app.js do server.
 // Empacotado: incluir `[TGS-Fivem-Pack]` em extraResources do electron-builder → process.resourcesPath
 const ROOT = isDev ? path.join(__dirname, '..', '..') : process.resourcesPath;
@@ -126,6 +133,7 @@ app.whenReady().then(() => {
   
   startServer();
   createWindow();
+  setupAutoUpdater(mainWindow);
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
