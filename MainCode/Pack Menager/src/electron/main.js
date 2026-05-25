@@ -91,6 +91,18 @@ function createWindow() {
 }
 
 // ─── IPC Handlers ───────────────────────────────────────────────────────────
+ipcMain.handle('open-external-url', async (_event, url) => {
+  try {
+    if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {
+      return { success: false, error: 'URL inválida' };
+    }
+    await shell.openExternal(url.trim());
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('open-packs-folder', async () => {
   try {
     await shell.openPath(getOutputPath());

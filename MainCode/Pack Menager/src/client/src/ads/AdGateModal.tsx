@@ -3,6 +3,7 @@ import { Download, ExternalLink, RefreshCw } from 'lucide-react';
 import { AdVideoPlayer } from './AdVideoPlayer';
 import { ImaAdPlayer } from './ImaAdPlayer';
 import { trackAdEvent, useAdConfig } from './useAdConfig';
+import { openExternalLink } from '../constants/publicLinks';
 
 type TranslateFn = (key: string) => string;
 
@@ -12,10 +13,6 @@ interface AdGateModalProps {
   t: TranslateFn;
   onComplete: () => void;
   onCancel: () => void;
-}
-
-function openExternalUrl(url: string) {
-  window.open(url, '_blank', 'noopener,noreferrer');
 }
 
 export const AdGateModal: React.FC<AdGateModalProps> = ({
@@ -134,7 +131,7 @@ export const AdGateModal: React.FC<AdGateModalProps> = ({
                   {selectedAd.clickUrl && (
                     <button
                       type="button"
-                      onClick={() => openExternalUrl(selectedAd.clickUrl!)}
+                      onClick={() => openExternalLink(selectedAd.clickUrl!)}
                       className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 shrink-0"
                     >
                       {t('adLearnMore')}
