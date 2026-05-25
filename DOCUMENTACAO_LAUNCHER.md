@@ -2,7 +2,7 @@
 
 Hub desktop (Electron) para instalar, atualizar e executar **Pack Menager** e **Mod Menager** a partir de releases públicas no GitHub.
 
-**Versão de referência** (hub): ver `MainCode/Launcher/package.json` (ex.: `2.0.3`).
+**Versão de referência** (hub): ver `MainCode/Launcher/package.json` (**2.0.5**).
 
 ---
 
@@ -27,6 +27,8 @@ Hub desktop (Electron) para instalar, atualizar e executar **Pack Menager** e **
 - **Gravar `installPath`**: pasta raiz onde existe `data\apps\...`. Persistido em `config.json` no *userData* do Electron e alterável na UI (**Alterar pasta**).
 - **Executar** o portable correto com o caminho resolvido a partir dessa raiz (evita abrir um `.exe` noutro disco quando instalaste noutro sítio).
 - **Verificar atualizações** do Launcher (`electron-updater`) e, em fluxos dedicados, consultar estado/updates dos apps instalados.
+- **Bloquear o hub** se o Launcher estiver desatualizado (`check-launcher-update` + `assertLauncherUpToDate` antes de instalar ou abrir apps).
+- **Exigir apps atualizados** antes de `launch-app` (compara `version.json` com a release no GitHub; download com ficheiro `.partial` e substituição do `.exe`).
 - **Janela**: redimensionar, minimizar, maximizar, fechar (handlers IPC).
 
 ---
@@ -108,7 +110,10 @@ MainCode/Launcher/
 | `cancel-installation` | invoke | Cancela fluxo de instalação |
 | `launch-app` | invoke | `(appType, baseInstallPath opcional)` — resolve raiz e arranca o portable |
 | `check-app-update` | invoke | Verificação de update por app (usa mesma raiz) |
+| `check-launcher-update` | invoke | Compara versão local com `T1NG4/TGS-launcher-releases` |
 | `get-installed-apps` | invoke | Lista apps presentes sob `data/apps` |
+
+A UI usa `check-app-update` para estado e **`start-installation`** de novo para descarregar/substituir o portable quando o utilizador clica em **Atualizar**.
 | `check-updates` / `install-update` | invoke | Auto-update do **Launcher** |
 | `get-logs` / `clear-cache` | invoke | Diagnóstico / cache |
 | `window-resize`, `window-minimize`, `window-close`, `window-maximize` | invoke | Controlo da janela |
@@ -137,8 +142,20 @@ MainCode/Launcher/
 ## Execução dos portables
 
 - O caminho do `.exe` é construído a partir de `installPath` (ou o que vier na config se o renderer não passar base).
+- **`launch-app` e `start-installation`** chamam `assertLauncherUpToDate()` — se o hub estiver atrás da release, a operação falha com mensagem para atualizar o Launcher primeiro.
+- **`launch-app`** também recusa abrir apps cujo `version.json` está atrás da última release (utilizador deve usar **Atualizar** na UI).
 - No **Windows**, o arranque pode usar `cmd /c start` para reduzir erros do tipo **EBUSY** (ficheiro bloqueado) ao abrir logo após operações de ficheiro.
 - Se o utilizador instalou em `C:\TGS` mas a config ainda apontava para `%APPDATA%\...`, o Launcher tentava o `.exe` no sítio errado — daí a importância de **Alterar pasta** / gravar config após instalar.
+
+### Repositórios de releases (públicos)
+
+| App | Releases |
+|-----|----------|
+| Launcher | `T1NG4/TGS-launcher-releases` |
+| Pack Menager | `T1NG4/TGS-pack-manager-releases` |
+| Mod Menager | `T1NG4/TGS-mod-manager-releases` |
+
+URLs e nomes de ficheiros: `MainCode/Launcher/src/main/constants.js` (`RELEASES_REPOS`, `DOWNLOAD_URLS`).
 
 ---
 
@@ -147,6 +164,7 @@ MainCode/Launcher/
 - Dois modos visuais (dark/light), passos de instalação com progresso, log opcional.
 - Rodapé: caminho de instalação truncado + **Alterar pasta** (desativado durante instalação).
 - Fluxo de update do Launcher: mensagens no log e ação para reiniciar após download.
+- Banner e botões **Atualizar** quando o Launcher ou um app instalado está desatualizado; instalar/abrir ficam desativados (`launcherBlocksHub`) até resolver.
 
 ---
 

@@ -52,13 +52,13 @@ Para usá-lo, você precisa:
 
 1. **Push de tag** (recomendado):
    ```bash
-   git tag v2.0.3
-   git push origin v2.0.3
+   git tag v2.0.5
+   git push origin v2.0.5
    ```
 
 2. **Ou execução manual**:
    - Vá em Actions → Release Workflow → Run workflow
-   - Informe a versão (ex: `v2.0.3`)
+   - Informe a versão (ex: `v2.0.5`)
 
 ---
 

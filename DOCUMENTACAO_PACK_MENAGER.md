@@ -2,6 +2,8 @@
 
 > Sistema profissional de automação para criação e gerenciamento de packs de veículos para FiveM
 
+**Versão de referência:** `2.0.5` (`MainCode/Pack Menager/package.json`). Release pública: [TGS-pack-manager-releases](https://github.com/T1NG4/TGS-pack-manager-releases). Código: repositório privado `T1NG4/TGS-pack-manager`.
+
 ---
 
 ## Índice
@@ -43,7 +45,15 @@ O aplicativo gera automaticamente **três recursos independentes** para FiveM:
 
 ### Integração com o TGS Launcher
 
-O **TGS Launcher** descarrega o build portátil `TGS-Pack-Manager-Portable.exe` (release pública no GitHub, ver `DOWNLOAD_URLS` em `MainCode/Launcher/src/main/constants.js`) para `<installPath>\data\apps\packManager\`, junto com `version.json`. O fluxo recomendado é **Executar** a partir do hub, para respeitar a pasta de instalação escolhida no rodapé (**Alterar pasta**). O Pack Menager pode atualizar-se sozinho via **electron-updater** contra o repositório público de releases. Mais detalhes: [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md).
+O **TGS Launcher** descarrega o build portátil `TGS-Pack-Manager-Portable.exe` (release pública no GitHub, ver `DOWNLOAD_URLS` em `MainCode/Launcher/src/main/constants.js`) para `<installPath>\data\apps\packManager\`, junto com `version.json`. O fluxo recomendado é **Executar** a partir do hub, para respeitar a pasta de instalação escolhida no rodapé (**Alterar pasta**). O hub **bloqueia abrir** o app se `version.json` estiver atrás da última release. O Pack Menager pode atualizar-se sozinho via **electron-updater** (build empacotado) contra `T1NG4/TGS-pack-manager-releases` (`latest.yml`). Mais detalhes: [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md).
+
+### Recursos recentes (v2.0.4 – v2.0.5)
+
+| Versão | Recurso |
+|--------|---------|
+| **2.0.4** | Gate de anúncio antes do **Export Pack**; config remota em `T1NG4/TGS-ads` (proxy local `GET /api/ads/config` no servidor Express — evita CSP no Electron); CI gera e publica `latest.yml` na release. |
+| **2.0.5** | Rodapé **Documentação** / **GitHub** abre no navegador via IPC `open-external-url` + `shell.openExternal` (corrige falha com `contextIsolation`). |
+| **Docs públicas** | `releases-public/` → sincronizadas para o repo de releases (`README.md`, `DOCUMENTACAO.md`). |
 
 ---
 

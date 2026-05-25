@@ -179,4 +179,4 @@ Use sempre o **TGS Launcher** → Executar App.
 
 ---
 
-*Última atualização da documentação: alinhada com a release **v2.0.4**.*
+*Última atualização da documentação: alinhada com a release **v2.0.5**.*

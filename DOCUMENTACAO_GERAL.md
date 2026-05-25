@@ -126,6 +126,18 @@ Isso elimina a necessidade de tokens de autenticação no cliente, mantendo o c�
 | Tratamento de erros | Notificação amigável em caso de falha | ✅ Implementado |
 | Canal stable | Releases normais (padrão) | ✅ Implementado |
 | Canal beta | Suporte a pre-releases com sufixo `-beta.x` | ✅ Suportado |
+| Hub bloqueado se Launcher antigo | `assertLauncherUpToDate` — sem instalar/abrir apps | ✅ v2.0.5 |
+| Apps obrigatoriamente atualizados | `check-app-update` + UI; `launch-app` recusa versão antiga | ✅ v2.0.4+ |
+| Pack: ads antes do export | Config `T1NG4/TGS-ads`, proxy `/api/ads/config` | ✅ Pack v2.0.4+ |
+| Pack: links externos no rodapé | `open-external-url` no Electron | ✅ Pack v2.0.5 |
+
+### Versões publicadas (referência — maio 2026)
+
+| Componente | Versão | Repo código (privado) | Repo releases (público) |
+|------------|--------|------------------------|-------------------------|
+| TGS Launcher | **2.0.5** | `T1NG4/tgs-launcher` (monorepo local) | `T1NG4/TGS-launcher-releases` |
+| Pack Menager | **2.0.5** | `T1NG4/TGS-pack-manager` | `T1NG4/TGS-pack-manager-releases` |
+| Mod Menager | (conforme `package.json`) | `T1NG4/TGS-mod-manager` | `T1NG4/TGS-mod-manager-releases` |
 
 ### Configuração do Build (`package.json`)
 

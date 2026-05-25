@@ -355,6 +355,22 @@ git status
 
 ---
 
+## 📌 Versões recentes no GitHub (maio 2026)
+
+| App | Tag publicada | Notas principais |
+|-----|---------------|------------------|
+| **Launcher** | `v2.0.5` | Hub bloqueado se o Launcher estiver desatualizado; apps só abrem na versão da release. |
+| **Pack Menager** | `v2.0.5` | Footer docs/GitHub no navegador; v2.0.4 trouxe ads + `latest.yml` no CI. |
+
+Repositórios de **código** (privados): `tgs-launcher` (monorepo), `TGS-pack-manager`, `TGS-mod-manager`.  
+Repositórios de **releases** (públicos): `TGS-launcher-releases`, `TGS-pack-manager-releases`, `TGS-mod-manager-releases`.  
+Config de anúncios (Pack): branch `main` em `T1NG4/TGS-ads` (`pack-manager.json`).
+
+Documentação privada (este monorepo): `DOCUMENTACAO_*.md`, `README.md`.  
+Documentação pública do Pack: `MainCode/Pack Menager/releases-public/` → sincronizada pelo workflow de release.
+
+---
+
 ## 🎉 Conclusão
 
 Com este guia, você pode facilmente adicionar novas versões para qualquer aplicativo TGS:

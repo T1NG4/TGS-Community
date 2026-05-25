@@ -10,12 +10,14 @@ O **TGS Launcher** (Electron + React + Vite) é o hub que:
 - grava a **pasta de instalação** (`installPath`) em `%APPDATA%\TGS Launcher\config.json` (ajustável na UI: **Alterar pasta**);
 - verifica e instala **atualizações do próprio Launcher** via `electron-updater` e GitHub Releases.
 
-Versão atual do hub: ver `MainCode/Launcher/package.json` (referência de documentação: **2.0.3**).
+Versão atual do hub: ver `MainCode/Launcher/package.json` (referência: **2.0.5**). Pack Menager: **2.0.5** (`MainCode/Pack Menager/package.json`).
 
 ## Funcionalidades
 
 - Instalação guiada dos apps com progresso e log
 - Auto-update do Launcher (build de produção)
+- **Hub bloqueado** se o Launcher estiver desatualizado (instalar/abrir apps só após atualizar o hub)
+- **Atualização obrigatória dos apps** antes de executar (comparação com GitHub Releases + botão Atualizar no hub)
 - Temas claro / escuro
 - Escolha da raiz de instalação (ex.: `C:\TGS` vs pasta por defeito)
 - Integração com repositórios públicos de releases (URLs em `MainCode/Launcher/src/main/constants.js`)
