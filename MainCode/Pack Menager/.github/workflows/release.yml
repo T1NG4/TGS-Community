@@ -43,6 +43,8 @@ jobs:
 
       - name: Build client
         run: npm run build:client
+        env:
+          VITE_GA_MEASUREMENT_ID: G-DF8MNV3V66
 
       - name: Build & Publish
         run: npm run build:electron -- --publish always

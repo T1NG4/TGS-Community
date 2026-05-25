@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { initGa4, trackEvent, trackPageView } from "./analytics/ga4";
 
 type Phase = "idle" | "installing" | "done";
 type Mode = "dark" | "light" | "code";
@@ -301,6 +302,12 @@ export default function App() {
     }, 280);
   };
 
+  useEffect(() => {
+    const appType = mode === "dark" ? "packManager" : mode === "light" ? "modManager" : "codeManager";
+    const label = mode === "dark" ? "Pack Menager" : mode === "light" ? "Mod Menager" : "Code Manager";
+    trackPageView(`/${appType}`, label);
+  }, [mode]);
+
   /* ── keep prevMode in sync ─────────────────────────────────── */
   useEffect(() => {
     prevMode.current = mode;
@@ -370,8 +377,10 @@ export default function App() {
 
     ipcRenderer
       .invoke("get-app-info")
-      .then((info: { version?: string } | null) => {
+      .then(async (info: { version?: string } | null) => {
         if (info?.version) setAppVersion(info.version);
+        await initGa4(info?.version);
+        trackPageView("/", "TGS Launcher Hub");
       })
       .catch(() => {});
 
@@ -585,6 +594,10 @@ export default function App() {
         : `Iniciando instalação — ${appLabel}...`
     );
     setPhase("installing");
+    trackEvent(isAppUpdate ? "app_update_start" : "app_install_start", {
+      app_type: appType,
+      target_version: appUpdate.latestVersion || "",
+    });
 
     // @ts-ignore
     if (!window.require) {
@@ -608,6 +621,10 @@ export default function App() {
         setStepIndex(STEPS.length - 1);
         setPhase("done");
         addLog(`✅ ${appLabel} instalado com sucesso (v${result.version || "?"})`);
+        trackEvent(isAppUpdate ? "app_update_complete" : "app_install_complete", {
+          app_type: appType,
+          app_version: result.version || "",
+        });
         setAppUpdate({
           hasUpdate: false,
           installedVersion: result.version || null,
@@ -693,6 +710,7 @@ export default function App() {
       }
 
       await ipcRenderer.invoke("launch-app", appType, installPath);
+      trackEvent("app_launch", { app_type: appType });
       addLog(`▶ Aplicativo iniciado`);
     } catch (err: any) {
       const message = err?.message || String(err);

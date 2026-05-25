@@ -22,6 +22,7 @@ import {
   PACK_MANAGER_PUBLIC_DOCS_URL,
   PACK_MANAGER_RELEASES_REPO_URL,
 } from '../../constants/publicLinks';
+import { trackEvent } from '../../analytics/ga4';
 import {
   Car,
   FolderOpen,
@@ -79,7 +80,7 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
-  const [currentVersion, setCurrentVersion] = useState('2.0.5');
+  const [currentVersion, setCurrentVersion] = useState('2.0.6');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
@@ -1397,6 +1398,11 @@ const PackManagerApp: React.FC = () => {
         setValidationProgress(100);
         setValidationStep('Completed!');
         addLog('success', 'Pack exported successfully');
+        trackEvent('pack_export_complete', {
+          pack_id: currentPack?.id || '',
+          pack_name: currentPack?.name || '',
+          app_version: currentVersion,
+        });
         const srvWarnings = Array.isArray(result.warnings) ? result.warnings : [];
         if (srvWarnings.length > 0) {
           setValidationResults((prev) => [

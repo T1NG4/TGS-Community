@@ -156,7 +156,7 @@ function isValidAdConfig(data) {
 
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://imasdk.googleapis.com",
+  "script-src 'self' 'unsafe-inline' https://imasdk.googleapis.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https: blob:",
   "media-src 'self' https: blob: data:",

@@ -95,6 +95,7 @@ Guias:
 | [DOCUMENTACAO_PACK_MENAGER.md](DOCUMENTACAO_PACK_MENAGER.md) | Pack Menager |
 | [DOCUMENTACAO_MOD_MENAGER.md](DOCUMENTACAO_MOD_MENAGER.md) | Mod Menager |
 | [DOCUMENTACAO_HOSPEDAGEM.md](DOCUMENTACAO_HOSPEDAGEM.md) | Deploy / custo zero |
+| [DOCUMENTACAO_ANALYTICS.md](DOCUMENTACAO_ANALYTICS.md) | Google Analytics 4 (Launcher + apps) |
 
 ## Contribuição
 

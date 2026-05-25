@@ -13,6 +13,7 @@
 - [Convenções e Estrutura](#-convenções-e-estrutura)
 - [Roadmap e Expansão](#-roadmap-e-expansão)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Google Analytics 4](#google-analytics-4)
 - [Guia de Testes e Execução](#-guia-de-testes-e-execução)
 - [Métricas e Monitoramento](#-métricas-e-monitoramento)
 - [Segurança e Boas Práticas](#-segurança-e-boas-práticas)
@@ -190,6 +191,14 @@ A interface exibe notificações em diferentes estados:
 - **⬇️ Baixando**: Progresso com barra visual
 - **✅ Pronto**: Botão "Reiniciar e Atualizar" — usuário controla quando reiniciar
 - **❌ Erro**: Mensagem amigável com opção de fechar
+
+---
+
+## Google Analytics 4
+
+O ecossistema inclui **GA4** (gtag.js) no Launcher, Pack Menager e Mod Menager, com `app_name` distinto por produto e eventos de instalação, lançamento e exportação de packs.
+
+Configuração, IDs, CSP e lista de eventos: **[DOCUMENTACAO_ANALYTICS.md](DOCUMENTACAO_ANALYTICS.md)**.
 
 ---
 

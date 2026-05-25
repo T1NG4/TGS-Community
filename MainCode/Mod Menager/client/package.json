@@ -1,6 +1,6 @@
 {
   "name": "tgs-launcher",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Launcher para FiveM - Gerenciador de Mods com Catálogo Visual e Autenticação Segura",
   "main": "main-new.js",
   "scripts": {

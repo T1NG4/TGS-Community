@@ -416,6 +416,10 @@ function setupLoginPage() {
                             timestamp: new Date().toISOString()
                         });
                     }
+
+                    if (window.tgsAnalytics) {
+                        window.tgsAnalytics.trackEvent('login_success', { method: 'password' });
+                    }
                     
                     window.location.href = 'dashboard.html';
                 } else {
