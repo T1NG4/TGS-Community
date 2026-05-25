@@ -309,6 +309,54 @@ function resolveAppPaths(baseInstallPath, appType) {
   return { urlDict, fileName, appInstallDir, exePath, versionPath };
 }
 
+async function getAppUpdateStatus(appType, baseInstallPath) {
+  const fs = require('fs');
+  const installer = require('./installer');
+
+  const root = await resolveInstallRoot(baseInstallPath);
+  if (!root) {
+    return {
+      success: true,
+      appType,
+      installedVersion: null,
+      latestVersion: null,
+      hasUpdate: false,
+      notInstalled: true,
+    };
+  }
+
+  const { versionPath, exePath } = resolveAppPaths(root, appType);
+  const exeExists = fs.existsSync(exePath);
+
+  let installedVersion = null;
+  if (fs.existsSync(versionPath)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(versionPath, 'utf-8'));
+      installedVersion = data.version || null;
+    } catch (err) {
+      logger.warn(`Falha ao ler version.json de ${appType}`, err);
+    }
+  }
+
+  const latestVersion = await installer.fetchLatestVersion(appType);
+
+  const hasUpdate = !!(
+    latestVersion &&
+    exeExists &&
+    (!installedVersion || isNewerVersion(latestVersion, installedVersion))
+  );
+  const notInstalled = !exeExists;
+
+  return {
+    success: true,
+    appType,
+    installedVersion,
+    latestVersion,
+    hasUpdate,
+    notInstalled,
+  };
+}
+
 ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
   const { spawn } = require('child_process');
   const fs = require('fs');
@@ -316,6 +364,16 @@ ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
   let root = await resolveInstallRoot(baseInstallPath);
   if (!root) {
     throw new Error('Pasta de instalação não definida. Escolha a pasta em "Alterar pasta" e instale de novo.');
+  }
+
+  const updateStatus = await getAppUpdateStatus(appType, baseInstallPath);
+  if (updateStatus.hasUpdate) {
+    const installed = updateStatus.installedVersion || '?';
+    const latest = updateStatus.latestVersion || '?';
+    throw new Error(
+      `Atualização obrigatória (v${installed} → v${latest}). ` +
+        'Clique em "Atualizar" no Launcher. Feche o aplicativo se estiver aberto antes de atualizar.'
+    );
   }
 
   const { exePath } = resolveAppPaths(root, appType);
@@ -367,45 +425,10 @@ ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
 });
 
 ipcMain.handle('check-app-update', async (event, appType, baseInstallPath) => {
-  const fs = require('fs');
-  const installer = require('./installer');
-
   try {
-    const root = await resolveInstallRoot(baseInstallPath);
-    if (!root) {
-      return { success: true, appType, installedVersion: null, latestVersion: null, hasUpdate: false, notInstalled: true };
-    }
-    const { versionPath } = resolveAppPaths(root, appType);
-
-    let installedVersion = null;
-    if (fs.existsSync(versionPath)) {
-      try {
-        const data = JSON.parse(fs.readFileSync(versionPath, 'utf-8'));
-        installedVersion = data.version || null;
-      } catch (err) {
-        logger.warn(`Falha ao ler version.json de ${appType}`, err);
-      }
-    }
-
-    const latestVersion = await installer.fetchLatestVersion(appType);
-
-    const hasUpdate = !!(
-      latestVersion &&
-      installedVersion &&
-      isNewerVersion(latestVersion, installedVersion)
-    );
-    const notInstalled = !installedVersion;
-
-    logger.info(`Check update for ${appType}`, { installedVersion, latestVersion, hasUpdate, notInstalled });
-
-    return {
-      success: true,
-      appType,
-      installedVersion,
-      latestVersion,
-      hasUpdate,
-      notInstalled,
-    };
+    const status = await getAppUpdateStatus(appType, baseInstallPath);
+    logger.info(`Check update for ${appType}`, status);
+    return status;
   } catch (error) {
     logger.error(`Falha ao verificar update do app ${appType}`, error);
     return { success: false, error: error.message };

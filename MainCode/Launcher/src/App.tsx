@@ -504,16 +504,26 @@ export default function App() {
   };
 
   const handleInstall = async () => {
-    setProgress(0);
-    setStepIndex(0);
-    setLog([]);
-    setInstallError("");
-    const appType = getAppType();
     const appLabel = getAppLabel();
     const isAppUpdate =
       appUpdate.hasUpdate &&
       appUpdate.installedVersion &&
       appUpdate.latestVersion;
+
+    if (isAppUpdate) {
+      const confirmed = window.confirm(
+        `Atualizar ${appLabel} para v${appUpdate.latestVersion}?\n\n` +
+          'Feche o aplicativo se estiver aberto (obrigatório para substituir o .exe). ' +
+          'O Launcher vai baixar a versão mais recente.'
+      );
+      if (!confirmed) return;
+    }
+
+    setProgress(0);
+    setStepIndex(0);
+    setLog([]);
+    setInstallError("");
+    const appType = getAppType();
     addLog(
       isAppUpdate
         ? `Atualizando ${appLabel} (v${appUpdate.installedVersion} → v${appUpdate.latestVersion})...`
@@ -591,10 +601,33 @@ export default function App() {
   const handleLaunch = async () => {
     // @ts-ignore
     if (!window.require) return;
+
+    if (appUpdate.hasUpdate && appUpdate.latestVersion) {
+      addLog(
+        `⚠️ Atualize para v${appUpdate.latestVersion} antes de abrir o app (instalada: v${appUpdate.installedVersion || "?"})`
+      );
+      return;
+    }
+
     // @ts-ignore
     const { ipcRenderer } = window.require("electron");
     const appType = getAppType();
+
     try {
+      const fresh = await ipcRenderer.invoke("check-app-update", appType, installPath);
+      if (fresh?.hasUpdate) {
+        setAppUpdate({
+          hasUpdate: true,
+          installedVersion: fresh.installedVersion ?? null,
+          latestVersion: fresh.latestVersion ?? null,
+          notInstalled: !!fresh.notInstalled,
+        });
+        addLog(
+          `⚠️ Atualização obrigatória: v${fresh.installedVersion || "?"} → v${fresh.latestVersion || "?"}`
+        );
+        return;
+      }
+
       await ipcRenderer.invoke("launch-app", appType, installPath);
       addLog(`▶ Aplicativo iniciado`);
     } catch (err: any) {
@@ -1191,22 +1224,6 @@ export default function App() {
                         ? `Atualizar (v${appUpdate.latestVersion})`
                         : "Executar App ↗"}
                     </button>
-                    {appUpdate.hasUpdate && (
-                      <button
-                        onClick={handleLaunch}
-                        className="px-4 py-2 text-sm font-medium transition-all duration-200"
-                        style={{
-                          border: `1px solid ${t.cancelBorder}`,
-                          color: t.cancelText,
-                          background: "transparent",
-                          cursor: "pointer",
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = t.cancelHoverBg)}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                      >
-                        Abrir v{appUpdate.installedVersion}
-                      </button>
-                    )}
                   </>
                 )}
               </div>

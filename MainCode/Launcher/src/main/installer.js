@@ -14,6 +14,10 @@ const fsExists = promisify(fs.exists);
 const fsMkdir = promisify(fs.mkdir);
 const fsWriteFile = promisify(fs.writeFile);
 const fsReadFile = promisify(fs.readFile);
+const fsRename = promisify(fs.rename);
+const fsUnlink = promisify(fs.unlink);
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let installationCancelled = false;
 
@@ -207,15 +211,50 @@ async function startInstallation(config, onProgress) {
 
     const fileName = urlDict.fileName || path.basename(urlDict.mainApp);
     const destination = path.join(appInstallDir, fileName);
+    const partialPath = `${destination}.partial`;
 
-    logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, destination });
+    logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, destination, partialPath });
 
-    await downloadFile(urlDict.mainApp, destination, (progress) => {
+    try {
+      if (await fsExists(partialPath)) await fsUnlink(partialPath);
+    } catch {
+      /* ignore */
+    }
+
+    await downloadFile(urlDict.mainApp, partialPath, (progress) => {
       onProgress({
         ...progress,
         component: 'mainApp',
       });
     });
+
+    let replaced = false;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      if (attempt > 0) await sleep(400 * attempt);
+      try {
+        if (await fsExists(destination)) {
+          await fsUnlink(destination);
+        }
+        await fsRename(partialPath, destination);
+        replaced = true;
+        break;
+      } catch (err) {
+        if (err.code !== 'EBUSY' && err.code !== 'EPERM' && err.code !== 'EACCES') {
+          throw err;
+        }
+      }
+    }
+
+    if (!replaced) {
+      try {
+        if (await fsExists(partialPath)) await fsUnlink(partialPath);
+      } catch {
+        /* ignore */
+      }
+      throw new Error(
+        'Não foi possível substituir o executável. Feche o aplicativo (Pack/Mod Manager) e tente atualizar de novo.'
+      );
+    }
 
     const hash = await calculateHash(destination);
     logger.info(`Hash for ${appType} mainApp: ${hash}`);
