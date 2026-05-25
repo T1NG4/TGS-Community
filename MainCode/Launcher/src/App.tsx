@@ -258,8 +258,20 @@ export default function App() {
     latestVersion: string | null;
     notInstalled: boolean;
   }>({ hasUpdate: false, installedVersion: null, latestVersion: null, notInstalled: true });
+  const [launcherUpdate, setLauncherUpdate] = useState({
+    hasUpdate: false,
+    currentVersion: "",
+    latestVersion: "",
+  });
 
   const t = THEMES[mode];
+
+  /** Hub bloqueado enquanto o próprio Launcher não estiver na versão mais recente */
+  const launcherBlocksHub =
+    launcherUpdate.hasUpdate ||
+    updateState === "available" ||
+    updateState === "downloading" ||
+    updateState === "ready";
 
   const getAppType = () =>
     mode === "dark" ? "packManager" : mode === "light" ? "modManager" : "codeManager";
@@ -304,12 +316,18 @@ export default function App() {
     const onUpdateAvailable = (_: any, info: any) => {
       setUpdateState("available");
       setUpdateVersion(info?.version || "nova versão");
+      setLauncherUpdate((prev) => ({
+        ...prev,
+        hasUpdate: true,
+        latestVersion: info?.version || prev.latestVersion,
+      }));
       addLog(`🔄 Update disponível: v${info?.version || "?"}`);
     };
 
     const onUpdateNotAvailable = () => {
       setUpdateState("idle");
-      addLog("✅ App está na versão mais recente");
+      setLauncherUpdate((prev) => ({ ...prev, hasUpdate: false }));
+      addLog("✅ Launcher está na versão mais recente");
     };
 
     const onDownloadProgress = (_: any, progress: any) => {
@@ -317,8 +335,13 @@ export default function App() {
       setUpdateProgress(Math.round(progress?.percent || 0));
     };
 
-    const onUpdateDownloaded = () => {
+    const onUpdateDownloaded = (_: any, info: any) => {
       setUpdateState("ready");
+      setLauncherUpdate((prev) => ({
+        ...prev,
+        hasUpdate: true,
+        latestVersion: info?.version || prev.latestVersion,
+      }));
       addLog("✅ Update baixado — pronto para instalar");
     };
 
@@ -361,7 +384,30 @@ export default function App() {
 
     ipcRenderer.invoke("check-updates").catch(() => {});
 
+    const checkLauncherVersion = async () => {
+      try {
+        const result = await ipcRenderer.invoke("check-launcher-update");
+        if (result?.success) {
+          setLauncherUpdate({
+            hasUpdate: !!result.hasUpdate,
+            currentVersion: result.currentVersion || "",
+            latestVersion: result.latestVersion || "",
+          });
+          if (result.hasUpdate) {
+            addLog(
+              `⚠️ Launcher desatualizado (v${result.currentVersion} → v${result.latestVersion}). Atualize o hub antes de instalar/abrir apps.`
+            );
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    checkLauncherVersion();
+    const launcherInterval = setInterval(checkLauncherVersion, 300000);
+
     return () => {
+      clearInterval(launcherInterval);
       ipcRenderer.removeListener("update-available", onUpdateAvailable);
       ipcRenderer.removeListener("update-not-available", onUpdateNotAvailable);
       ipcRenderer.removeListener("download-progress", onDownloadProgress);
@@ -504,6 +550,15 @@ export default function App() {
   };
 
   const handleInstall = async () => {
+    if (launcherBlocksHub) {
+      addLog(
+        launcherUpdate.hasUpdate
+          ? `⚠️ Atualize o TGS Launcher (v${launcherUpdate.currentVersion} → v${launcherUpdate.latestVersion}) antes de instalar apps.`
+          : "⚠️ Conclua a atualização do TGS Launcher (banner no topo) antes de instalar apps."
+      );
+      return;
+    }
+
     const appLabel = getAppLabel();
     const isAppUpdate =
       appUpdate.hasUpdate &&
@@ -601,6 +656,15 @@ export default function App() {
   const handleLaunch = async () => {
     // @ts-ignore
     if (!window.require) return;
+
+    if (launcherBlocksHub) {
+      addLog(
+        launcherUpdate.hasUpdate
+          ? `⚠️ Atualize o TGS Launcher (v${launcherUpdate.currentVersion} → v${launcherUpdate.latestVersion}) antes de abrir apps.`
+          : "⚠️ Conclua a atualização do TGS Launcher (banner no topo) antes de abrir apps."
+      );
+      return;
+    }
 
     if (appUpdate.hasUpdate && appUpdate.latestVersion) {
       addLog(
@@ -1149,12 +1213,12 @@ export default function App() {
                     </button>
                     <button
                       onClick={handleInstall}
-                      disabled={isRunning}
+                      disabled={isRunning || launcherBlocksHub}
                       className="px-6 py-2 text-sm font-semibold text-white transition-all duration-200 shadow-lg"
                       style={{
-                        background: isRunning ? t.disabledBg : t.accentGradient,
-                        color: isRunning ? t.disabledText : "#fff",
-                        cursor: isRunning ? "not-allowed" : "pointer",
+                        background: isRunning || launcherBlocksHub ? t.disabledBg : t.accentGradient,
+                        color: isRunning || launcherBlocksHub ? t.disabledText : "#fff",
+                        cursor: isRunning || launcherBlocksHub ? "not-allowed" : "pointer",
                         boxShadow: isRunning ? "none" : `0 0 18px ${t.accentGlow}`,
                         transition: "background 0.5s ease, box-shadow 0.5s ease",
                       }}
@@ -1192,13 +1256,21 @@ export default function App() {
                     </button>
                     <button
                       onClick={appUpdate.hasUpdate ? handleInstall : handleLaunch}
+                      disabled={launcherBlocksHub}
                       className="px-6 py-2 text-sm font-semibold text-white transition-all duration-200 shadow-lg"
                       style={{
-                        background: appUpdate.hasUpdate ? t.accentGradient : t.doneGradient,
-                        boxShadow: appUpdate.hasUpdate
-                          ? `0 0 18px ${t.accentGlow}`
-                          : `0 0 18px ${t.doneGlow}`,
-                        cursor: "pointer",
+                        background: launcherBlocksHub
+                          ? t.disabledBg
+                          : appUpdate.hasUpdate
+                            ? t.accentGradient
+                            : t.doneGradient,
+                        boxShadow: launcherBlocksHub
+                          ? "none"
+                          : appUpdate.hasUpdate
+                            ? `0 0 18px ${t.accentGlow}`
+                            : `0 0 18px ${t.doneGlow}`,
+                        color: launcherBlocksHub ? t.disabledText : "#fff",
+                        cursor: launcherBlocksHub ? "not-allowed" : "pointer",
                         transition: "background 0.5s ease, box-shadow 0.5s ease",
                       }}
                       onMouseEnter={(e) => {

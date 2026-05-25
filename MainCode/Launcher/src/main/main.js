@@ -22,6 +22,32 @@ function isNewerVersion(latest, current) {
   return false;
 }
 
+async function getLauncherUpdateStatus() {
+  const currentVersion = app.getVersion();
+  const latestVersion = await installer.fetchLauncherLatestVersion();
+  const hasUpdate = !!(
+    latestVersion &&
+    isNewerVersion(latestVersion, currentVersion)
+  );
+
+  return {
+    success: true,
+    currentVersion,
+    latestVersion,
+    hasUpdate,
+  };
+}
+
+async function assertLauncherUpToDate() {
+  const status = await getLauncherUpdateStatus();
+  if (status.hasUpdate) {
+    throw new Error(
+      `Atualize o TGS Launcher antes de gerir os apps (v${status.currentVersion} → v${status.latestVersion}). ` +
+        'Use "Reiniciar e Atualizar" no banner superior.'
+    );
+  }
+}
+
 // Configuração do auto-updater
 autoUpdater.autoDownload = true; // Baixar automaticamente quando disponível
 autoUpdater.autoInstallOnAppQuit = false; // Aguardar confirmação do usuário (melhor UX)
@@ -135,8 +161,18 @@ ipcMain.handle('check-system', async () => {
   }
 });
 
+ipcMain.handle('check-launcher-update', async () => {
+  try {
+    return await getLauncherUpdateStatus();
+  } catch (error) {
+    logger.error('Falha ao verificar update do Launcher', error);
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('start-installation', async (event, config) => {
   try {
+    await assertLauncherUpToDate();
     const result = await installer.startInstallation(config, (progress) => {
       event.sender.send('installation-progress', progress);
     });
@@ -360,6 +396,8 @@ async function getAppUpdateStatus(appType, baseInstallPath) {
 ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
   const { spawn } = require('child_process');
   const fs = require('fs');
+
+  await assertLauncherUpToDate();
 
   let root = await resolveInstallRoot(baseInstallPath);
   if (!root) {

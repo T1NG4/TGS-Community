@@ -7,7 +7,7 @@ const { promisify } = require('util');
 const { pipeline } = require('stream/promises');
 const { app } = require('electron');
 const logger = require('./logger');
-const { DOWNLOAD_URLS, MIN_DISK_SPACE, MIN_NODE_VERSION } = require('./constants');
+const { DOWNLOAD_URLS, RELEASES_REPOS, MIN_DISK_SPACE, MIN_NODE_VERSION } = require('./constants');
 
 const execAsync = promisify(exec);
 const fsExists = promisify(fs.exists);
@@ -170,6 +170,23 @@ async function fetchLatestVersion(appType) {
     return tag.replace(/^v/, '') || null;
   } catch (error) {
     logger.warn(`Could not fetch latest version for ${appType}`, error.message);
+    return null;
+  }
+}
+
+async function fetchLauncherLatestVersion() {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${RELEASES_REPOS.launcher}/releases/latest`,
+      {
+        timeout: 10000,
+        headers: { 'User-Agent': 'TGS-Launcher/1.0.0' },
+      }
+    );
+    const tag = response.data?.tag_name || response.data?.name || '';
+    return tag.replace(/^v/, '') || null;
+  } catch (error) {
+    logger.warn('Could not fetch latest Launcher version', error.message);
     return null;
   }
 }
@@ -363,4 +380,5 @@ module.exports = {
   cancelInstallation,
   clearCache,
   fetchLatestVersion,
+  fetchLauncherLatestVersion,
 };
