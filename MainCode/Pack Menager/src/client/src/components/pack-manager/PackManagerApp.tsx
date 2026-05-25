@@ -18,6 +18,11 @@ import { buildExportPreview } from './exportPreview';
 import { useApiBase } from '../../hooks/useApiBase';
 import { AdGateModal } from '../../ads/AdGateModal';
 import {
+  openExternalLink,
+  PACK_MANAGER_PUBLIC_DOCS_URL,
+  PACK_MANAGER_RELEASES_REPO_URL,
+} from '../../constants/publicLinks';
+import {
   Car,
   FolderOpen,
   Plus,
@@ -2380,12 +2385,21 @@ const PackManagerApp: React.FC = () => {
               <div className={`w-2 h-2 ${getStatusConfig().bgColor} rounded-full ${connectionStatus === 'online' ? 'animate-pulse' : ''}`}></div>
               <span className={getStatusConfig().color}>{getStatusConfig().text}</span>
             </div>
-            <a href="#" className="hover:text-zinc-300 transition-colors">
+            <button
+              type="button"
+              onClick={() => openExternalLink(PACK_MANAGER_PUBLIC_DOCS_URL)}
+              className="hover:text-zinc-300 transition-colors bg-transparent border-0 p-0 cursor-pointer font-mono text-xs text-zinc-500"
+            >
               TGS_Pack_Docs
-            </a>
-            <a href="#" className="hover:text-zinc-300 transition-colors">
+            </button>
+            <button
+              type="button"
+              onClick={() => openExternalLink(PACK_MANAGER_RELEASES_REPO_URL)}
+              className="hover:text-zinc-300 transition-colors bg-transparent border-0 p-0 cursor-pointer font-mono text-xs text-zinc-500"
+              title={PACK_MANAGER_RELEASES_REPO_URL}
+            >
               GitHub
-            </a>
+            </button>
           </div>
         </div>
       </div>

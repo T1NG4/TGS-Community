@@ -63,6 +63,23 @@ jobs:
           $tag = "v$tag"
           gh release upload $tag release/latest.yml --repo T1NG4/TGS-pack-manager-releases --clobber
 
+      - name: Sync public docs to releases repo
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git clone "https://x-access-token:$env:GH_TOKEN@github.com/T1NG4/TGS-pack-manager-releases.git" releases-repo
+          Copy-Item releases-public/README.md releases-repo/README.md -Force
+          Copy-Item releases-public/DOCUMENTACAO.md releases-repo/DOCUMENTACAO.md -Force
+          Set-Location releases-repo
+          git add README.md DOCUMENTACAO.md
+          git diff --staged --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "docs: sync public documentation (release build)"
+            git push origin main
+          }
+
       - name: Upload artifacts (best-effort)
         uses: actions/upload-artifact@v4
         continue-on-error: true

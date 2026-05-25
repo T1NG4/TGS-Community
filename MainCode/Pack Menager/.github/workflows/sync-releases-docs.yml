@@ -1,0 +1,37 @@
+name: Sync public docs to releases repo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'releases-public/**'
+      - '.github/workflows/sync-releases-docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Pack Manager
+        uses: actions/checkout@v4
+
+      - name: Push docs to TGS-pack-manager-releases
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/T1NG4/TGS-pack-manager-releases.git" releases-repo
+          cp releases-public/README.md releases-repo/README.md
+          cp releases-public/DOCUMENTACAO.md releases-repo/DOCUMENTACAO.md
+          cd releases-repo
+          git add README.md DOCUMENTACAO.md
+          if git diff --staged --quiet; then
+            echo "No doc changes to push"
+            exit 0
+          fi
+          git commit -m "docs: sync public documentation from TGS-pack-manager"
+          git push origin main
