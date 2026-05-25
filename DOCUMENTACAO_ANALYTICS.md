@@ -68,11 +68,19 @@ O Pack Menager mantém o canal separado **`trackAdEvent`** (URL opcional no JSON
 
 ---
 
-## 4. Privacidade e dev
+## 4. Desktop (Electron) — por que “Tempo real” ficava em zero?
+
+O GA4 **não contabiliza bem** tráfego com origem `file://` ou `http://localhost`. Os apps TGS enviam eventos com **`page_location`** em `https://tgs.gamer.gd/...` para aparecer no painel.
+
+**Testar em dev:** no GA4 abre **Admin → DebugView** (não só “Tempo real”). Com `npm run dev`, `debug_mode` fica ativo no Launcher/Pack.
+
+**Build portable:** precisa da versão **v2.0.7+** (correção GA) ou dev com app aberto + DebugView.
+
+## 5. Privacidade e dev
 
 - `anonymize_ip: true` na config gtag.
-- Sem ID configurado → **nenhum** script GA é carregado.
-- Em desenvolvimento, analytics **desligado** por defeito (exceto `VITE_GA_ENABLED=true` no Launcher/Pack ou `enabledInDev: true` no Mod).
+- ID padrão de produção embutido no código (`G-DF8MNV3V66`); podes sobrescrever com `.env`.
+- Para desligar em dev: `VITE_GA_ENABLED=false` (Launcher/Pack) ou `enabledInDev: false` (Mod).
 
 ---
 

@@ -1,9 +1,11 @@
 /**
  * Google Analytics 4 (gtag.js) — TGS Pack Manager
- * Configure VITE_GA_MEASUREMENT_ID no .env (ver .env.example).
+ * Desktop: page_location do site TGS (localhost/file não contam bem no GA4).
  */
 
 const APP_NAME = 'tgs_pack_manager';
+const DEFAULT_MEASUREMENT_ID = 'G-DF8MNV3V66';
+const PAGE_ORIGIN = 'https://tgs.gamer.gd';
 
 declare global {
   interface Window {
@@ -15,14 +17,20 @@ declare global {
 let initialized = false;
 
 export function getMeasurementId(): string {
-  return (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined)?.trim() || '';
+  const fromEnv = (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined)?.trim();
+  return fromEnv || DEFAULT_MEASUREMENT_ID;
 }
 
 export function isGaEnabled(): boolean {
   const id = getMeasurementId();
-  if (!id) return false;
-  if (import.meta.env.DEV && import.meta.env.VITE_GA_ENABLED !== 'true') return false;
+  if (!id || id.includes('XXXXXXXX')) return false;
+  if (import.meta.env.DEV && import.meta.env.VITE_GA_ENABLED === 'false') return false;
   return true;
+}
+
+function pageLocation(path: string): string {
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return `${PAGE_ORIGIN}${p}`;
 }
 
 function loadGtagScript(measurementId: string): Promise<void> {
@@ -48,6 +56,9 @@ export async function initGa4(appVersion?: string): Promise<void> {
   try {
     await loadGtagScript(measurementId);
   } catch {
+    if (import.meta.env.DEV) {
+      console.warn('[TGS GA4] Não foi possível carregar gtag.js');
+    }
     return;
   }
 
@@ -62,6 +73,9 @@ export async function initGa4(appVersion?: string): Promise<void> {
     app_name: APP_NAME,
     app_version: appVersion || undefined,
     anonymize_ip: true,
+    debug_mode: import.meta.env.DEV,
+    page_location: pageLocation('/pack-manager'),
+    page_title: 'TGS Pack Manager',
   });
 
   initialized = true;
@@ -69,9 +83,11 @@ export async function initGa4(appVersion?: string): Promise<void> {
 
 export function trackPageView(pagePath: string, pageTitle?: string): void {
   if (!initialized || !window.gtag) return;
+  const path = pagePath.startsWith('/') ? pagePath : `/${pagePath}`;
   window.gtag('event', 'page_view', {
-    page_path: pagePath,
+    page_path: path,
     page_title: pageTitle || pagePath,
+    page_location: pageLocation(`/pack-manager${path}`),
     app_name: APP_NAME,
   });
 }

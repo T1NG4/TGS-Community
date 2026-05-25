@@ -1,24 +1,28 @@
 /**
- * Google Analytics 4 — TGS Mod Manager (HTML estático)
- * Requer analytics-config.js antes deste script.
+ * Google Analytics 4 — TGS Mod Manager (HTML estático / file://)
  */
 (function () {
   'use strict';
 
   var config = window.TGS_ANALYTICS_CONFIG || {};
-  var measurementId = (config.measurementId || '').trim();
+  var measurementId = (config.measurementId || 'G-DF8MNV3V66').trim();
   var appName = config.appName || 'tgs_mod_manager';
   var appVersion = config.appVersion || '';
-  var isFile = window.location.protocol === 'file:';
+  var pageOrigin = 'https://tgs.gamer.gd';
   var isDev =
-    isFile ||
+    window.location.protocol === 'file:' ||
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1';
 
   function isEnabled() {
-    if (!measurementId) return false;
-    if (isDev && !config.enabledInDev) return false;
+    if (!measurementId || measurementId.indexOf('XXXXXXXX') !== -1) return false;
+    if (isDev && config.enabledInDev === false) return false;
     return true;
+  }
+
+  function pageLocation(path) {
+    var p = path.charAt(0) === '/' ? path : '/' + path;
+    return pageOrigin + p;
   }
 
   var initialized = false;
@@ -53,25 +57,34 @@
           window.dataLayer.push(arguments);
         };
         window.gtag('js', new Date());
+        var pagePath = (window.location.pathname || '/mod-manager').split(/[/\\]/).pop() || 'login';
         window.gtag('config', measurementId, {
           send_page_view: false,
           app_name: appName,
           app_version: appVersion || undefined,
           anonymize_ip: true,
+          debug_mode: isDev,
+          page_location: pageLocation('/mod-manager/' + pagePath.replace('.html', '')),
+          page_title: 'TGS Mod Manager',
         });
         initialized = true;
-        trackPageView(window.location.pathname || '/', document.title);
+        trackPageView('/mod-manager/' + pagePath.replace('.html', ''), document.title);
+        if (isDev) {
+          console.info('[TGS GA4] Ativo — use DebugView no GA4 em modo dev');
+        }
       })
       .catch(function () {
-        /* analytics must not break the app */
+        if (isDev) console.warn('[TGS GA4] Falha ao carregar gtag.js');
       });
   }
 
   function trackPageView(pagePath, pageTitle) {
     if (!initialized || !window.gtag) return;
+    var path = pagePath.charAt(0) === '/' ? pagePath : '/' + pagePath;
     window.gtag('event', 'page_view', {
-      page_path: pagePath,
+      page_path: path,
       page_title: pageTitle || pagePath,
+      page_location: pageLocation(path),
       app_name: appName,
     });
   }
