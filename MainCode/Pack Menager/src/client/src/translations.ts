@@ -31,7 +31,22 @@ const translations = {
     sound: "sound",
     metas: "metas",
     config: "Config",
-    logs: "logs"
+    logs: "logs",
+    adSponsored: "Sponsored",
+    adGateTitle: "Watch to continue export",
+    adGateDesc: "Watch the full ad to unlock pack export.",
+    adLoading: "Loading ad...",
+    adLoadError: "Could not load ads. Export is blocked until ads are available.",
+    adRetry: "Retry",
+    adDisabled: "Ads are temporarily disabled. You can export now.",
+    adLearnMore: "Learn more",
+    adClickToPlay: "Click the video to start playback.",
+    adProgress: "Watch progress",
+    adCancel: "Cancel",
+    adExportContinue: "EXPORT PACK",
+    adNetworkLoading: "Loading ad from network...",
+    adNetworkUnavailable: "No programmatic ad available right now.",
+    adNetworkHint: "Try again in a moment or check your VAST tag."
   },
   pt: {
     editing: "EDITANDO",
@@ -65,7 +80,22 @@ const translations = {
     sound: "Som",
     metas: "Metas",
     config: "Config",
-    logs: "Logs"
+    logs: "Logs",
+    adSponsored: "Patrocinado",
+    adGateTitle: "Assista para continuar a exportação",
+    adGateDesc: "Assista ao anúncio completo para desbloquear a exportação do pack.",
+    adLoading: "Carregando anúncio...",
+    adLoadError: "Não foi possível carregar os anúncios. A exportação fica bloqueada até os anúncios estarem disponíveis.",
+    adRetry: "Tentar novamente",
+    adDisabled: "Anúncios temporariamente desativados. Você já pode exportar.",
+    adLearnMore: "Saiba mais",
+    adClickToPlay: "Clique no vídeo para iniciar a reprodução.",
+    adProgress: "Progresso da visualização",
+    adCancel: "Cancelar",
+    adExportContinue: "EXPORTAR PACK",
+    adNetworkLoading: "Carregando anúncio da rede...",
+    adNetworkUnavailable: "Nenhum anúncio programático disponível no momento.",
+    adNetworkHint: "Tente novamente em instantes ou verifique sua tag VAST."
   }
 };
 

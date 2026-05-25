@@ -52,6 +52,17 @@ jobs:
           EP_GH_REPO: TGS-pack-manager-releases
           EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
 
+      - name: Generate latest.yml (portable auto-update)
+        run: npm run generate:latest-yml
+
+      - name: Upload latest.yml to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+        run: |
+          $tag = (Get-Content package.json | ConvertFrom-Json).version
+          $tag = "v$tag"
+          gh release upload $tag release/latest.yml --repo T1NG4/TGS-pack-manager-releases --clobber
+
       - name: Upload artifacts (best-effort)
         uses: actions/upload-artifact@v4
         continue-on-error: true

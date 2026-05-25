@@ -8,6 +8,20 @@ const config = require('./config');
 
 let mainWindow;
 
+function isNewerVersion(latest, current) {
+  const latestParts = String(latest).split('.').map((n) => Number(n) || 0);
+  const currentParts = String(current).split('.').map((n) => Number(n) || 0);
+  const len = Math.max(latestParts.length, currentParts.length);
+
+  for (let i = 0; i < len; i++) {
+    const l = latestParts[i] || 0;
+    const c = currentParts[i] || 0;
+    if (l > c) return true;
+    if (l < c) return false;
+  }
+  return false;
+}
+
 // Configuração do auto-updater
 autoUpdater.autoDownload = true; // Baixar automaticamente quando disponível
 autoUpdater.autoInstallOnAppQuit = false; // Aguardar confirmação do usuário (melhor UX)
@@ -375,7 +389,11 @@ ipcMain.handle('check-app-update', async (event, appType, baseInstallPath) => {
 
     const latestVersion = await installer.fetchLatestVersion(appType);
 
-    const hasUpdate = !!(latestVersion && installedVersion && latestVersion !== installedVersion);
+    const hasUpdate = !!(
+      latestVersion &&
+      installedVersion &&
+      isNewerVersion(latestVersion, installedVersion)
+    );
     const notInstalled = !installedVersion;
 
     logger.info(`Check update for ${appType}`, { installedVersion, latestVersion, hasUpdate, notInstalled });

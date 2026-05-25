@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "enabled": true,
+  "ads": [],
+  "vastTagUrl": "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744973/example&description_url=https%3A%2F%2Ftgs-pack-manager.local&tfcd=0&npa=0&ad_type=video&sz=640x480&min_ad_duration=0&max_ad_duration=30000&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=",
+  "analyticsUrl": null
+}

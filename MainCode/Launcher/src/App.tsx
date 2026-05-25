@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 type Phase = "idle" | "installing" | "done";
-type Mode = "dark" | "light";
+type Mode = "dark" | "light" | "code";
 type UpdateState = "checking" | "available" | "downloading" | "ready" | "error" | "idle";
 
 /* ─── Theme definitions ─────────────────────────────────────── */
@@ -131,6 +131,77 @@ const THEMES = {
     // logo
     logo: "./images/TGS_logo_black.svg",
   },
+  code: {
+    // backgrounds
+    windowBg: "#0a0a0a",
+    titlebarBg: "transparent",
+    footerBg: "#0c0c0c",
+    progressSectionBg: "#0c0c0c",
+    logBg: "#050505",
+    outerBg: "#0d0d0d",
+    // border
+    border: "#2a2a2a",
+    // accent - gray predominant with green accent
+    accent: "#808080",
+    accentAlt: "#76b900",
+    accentGlow: "rgba(128,128,128,0.4)",
+    accentGradient: "linear-gradient(90deg, #808080, #76b900)",
+    accentGradientHover: "linear-gradient(90deg, #909090, #8cd100)",
+    // progress bar
+    progressBg: "#1a1a1a",
+    progressFill: "linear-gradient(90deg, #808080, #76b900)",
+    progressDotActive: "#808080",
+    progressDotDone: "#76b900",
+    progressDotIdle: "#1a1a1a",
+    // text
+    textPrimary: "#e0e0e0",
+    textSecondary: "#808080",
+    textMuted: "#4a4a4a",
+    textLabel: "#76b900",
+    // toggle
+    toggleOn: "#808080",
+    toggleOff: "#1a1a1a",
+    toggleThumb: "#e0e0e0",
+    // buttons
+    cancelBorder: "#2a2a2a",
+    cancelText: "#808080",
+    cancelHoverBg: "#1a1a1a",
+    disabledBg: "#1a1a1a",
+    disabledText: "#4a4a4a",
+    // badge
+    badgeInstalling: "#808080",
+    badgeDone: "#76b900",
+    // window controls hover
+    minHover: "rgba(255,255,255,0.08)",
+    closeHover: "rgba(200,0,0,0.6)",
+    controlText: "rgba(128,128,128,0.6)",
+    // outer glow blobs
+    blob1: "rgba(128,128,128,0.06)",
+    blob2: "rgba(118,185,0,0.06)",
+    // banner overlay top
+    bannerTopGradient: "rgba(0,0,0,0.55)",
+    bannerBottomGradient: "#0a0a0a",
+    bannerLeftGradient: "rgba(10,10,10,0.65)",
+    // step label
+    stepColor: "#808080",
+    percentColor: "#76b900",
+    // log text
+    logText: "#5a5a5a",
+    logLinkText: "#76b900",
+    // done button
+    doneGradient: "linear-gradient(90deg, #76b900, #808080)",
+    doneHover: "linear-gradient(90deg, #8cd100, #909090)",
+    doneGlow: "rgba(128,128,128,0.4)",
+    // mode label
+    modeLabel: "TGS CODE",
+    modeSub: "180 MB",
+    // banner
+    banner: "./images/banner-code.jpg",
+    // name + version accent
+    nameAccent: "#ffffff",
+    // logo
+    logo: "./images/TGS_logo.svg",
+  },
 } as const;
 
 const STEPS_DARK = [
@@ -149,6 +220,15 @@ const STEPS_LIGHT = [
   "Indexando biblioteca de mods...",
   "Configurando interface do catálogo...",
   "Finalizando instalação do Mod Menager...",
+];
+
+const STEPS_CODE = [
+  "Verificando requisitos do sistema...",
+  "Baixando TGS CODE...",
+  "Extraindo arquivos de código...",
+  "Configurando ambiente de desenvolvimento...",
+  "Registrando componentes do CODE...",
+  "Finalizando instalação do TGS CODE...",
 ];
 
 export default function App() {
@@ -172,14 +252,26 @@ export default function App() {
   const [appVersion, setAppVersion] = useState<string>("");
   const [installPath, setInstallPath] = useState<string>("");
   const [installError, setInstallError] = useState<string>("");
+  const [appUpdate, setAppUpdate] = useState<{
+    hasUpdate: boolean;
+    installedVersion: string | null;
+    latestVersion: string | null;
+    notInstalled: boolean;
+  }>({ hasUpdate: false, installedVersion: null, latestVersion: null, notInstalled: true });
 
   const t = THEMES[mode];
-  const STEPS = mode === "dark" ? STEPS_DARK : STEPS_LIGHT;
+
+  const getAppType = () =>
+    mode === "dark" ? "packManager" : mode === "light" ? "modManager" : "codeManager";
+
+  const getAppLabel = () =>
+    mode === "dark" ? "Pack Menager" : mode === "light" ? "Mod Menager" : "TGS CODE";
+  const STEPS = mode === "dark" ? STEPS_DARK : mode === "light" ? STEPS_LIGHT : STEPS_CODE;
   const isRunning = phase === "installing";
   const isDone = phase === "done";
 
   /* ── mode switch with fade ─────────────────────────────────── */
-  const MODES: Mode[] = ["dark", "light"];
+  const MODES: Mode[] = ["dark", "light", "code"];
   const cycleMode = () => {
     if (isRunning) return;
     setTransitioning(true);
@@ -298,6 +390,49 @@ export default function App() {
     setLog((prev) => [...prev, `[${time}] ${msg}`]);
   };
 
+  /* ── Verificar update dos apps instalados (Pack/Mod/Code) ── */
+  useEffect(() => {
+    // @ts-ignore
+    if (!window.require || !installPath) return;
+    // @ts-ignore
+    const { ipcRenderer } = window.require("electron");
+    const appType = getAppType();
+    const appLabel = getAppLabel();
+
+    const checkAppUpdate = async () => {
+      try {
+        const installed = await ipcRenderer.invoke("get-installed-apps", installPath);
+        const appInfo = installed?.apps?.[appType];
+        if (appInfo?.installed) {
+          setPhase((p) => (p === "installing" ? p : "done"));
+        }
+
+        const result = await ipcRenderer.invoke("check-app-update", appType, installPath);
+        if (!result?.success) return;
+
+        setAppUpdate({
+          hasUpdate: !!result.hasUpdate,
+          installedVersion: result.installedVersion ?? null,
+          latestVersion: result.latestVersion ?? null,
+          notInstalled: !!result.notInstalled,
+        });
+
+        if (result.hasUpdate) {
+          addLog(
+            `🔄 Update ${appLabel}: v${result.installedVersion} → v${result.latestVersion}`
+          );
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+
+    checkAppUpdate();
+    const interval = setInterval(checkAppUpdate, 300000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [installPath, mode]);
+
   /* ── installation step label sync ──────────────────────────── */
   useEffect(() => {
     if (phase !== "installing") return;
@@ -373,9 +508,17 @@ export default function App() {
     setStepIndex(0);
     setLog([]);
     setInstallError("");
-    const appType = mode === "dark" ? "packManager" : "modManager";
-    const appLabel = mode === "dark" ? "Pack Menager" : "Mod Menager";
-    addLog(`Iniciando instalação — ${appLabel}...`);
+    const appType = getAppType();
+    const appLabel = getAppLabel();
+    const isAppUpdate =
+      appUpdate.hasUpdate &&
+      appUpdate.installedVersion &&
+      appUpdate.latestVersion;
+    addLog(
+      isAppUpdate
+        ? `Atualizando ${appLabel} (v${appUpdate.installedVersion} → v${appUpdate.latestVersion})...`
+        : `Iniciando instalação — ${appLabel}...`
+    );
     setPhase("installing");
 
     // @ts-ignore
@@ -400,6 +543,12 @@ export default function App() {
         setStepIndex(STEPS.length - 1);
         setPhase("done");
         addLog(`✅ ${appLabel} instalado com sucesso (v${result.version || "?"})`);
+        setAppUpdate({
+          hasUpdate: false,
+          installedVersion: result.version || null,
+          latestVersion: result.version || null,
+          notInstalled: false,
+        });
         try {
           const cfg = await ipcRenderer.invoke("load-config");
           await ipcRenderer.invoke("save-config", { ...cfg, installPath });
@@ -444,7 +593,7 @@ export default function App() {
     if (!window.require) return;
     // @ts-ignore
     const { ipcRenderer } = window.require("electron");
-    const appType = mode === "dark" ? "packManager" : "modManager";
+    const appType = getAppType();
     try {
       await ipcRenderer.invoke("launch-app", appType, installPath);
       addLog(`▶ Aplicativo iniciado`);
@@ -612,6 +761,53 @@ export default function App() {
                 </button>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ── Update do app (Pack / Mod / Code) ─────────────── */}
+        {!minimized && isDone && appUpdate.hasUpdate && appUpdate.latestVersion && (
+          <div
+            className="absolute left-0 right-0 z-20 px-4 py-2 flex items-center justify-between"
+            style={{
+              top:
+                updateState !== "idle" && updateState !== "checking" ? "6.25rem" : "3rem",
+              background: t.accentAlt,
+              borderBottom: `1px solid ${t.border}`,
+              transition: "all 0.3s ease",
+            }}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span style={{ color: t.textPrimary }}>
+                🔄 {getAppLabel()}: nova versão disponível
+              </span>
+              <span style={{ color: t.textSecondary, fontSize: "12px" }} className="truncate">
+                v{appUpdate.installedVersion} → v{appUpdate.latestVersion}
+              </span>
+            </div>
+            <button
+              onClick={handleInstall}
+              disabled={isRunning}
+              className="shrink-0 px-3 py-1 text-xs font-semibold rounded transition-all duration-200"
+              style={{
+                background: t.windowBg,
+                color: t.accent,
+                border: `1px solid ${t.border}`,
+                cursor: isRunning ? "not-allowed" : "pointer",
+                opacity: isRunning ? 0.6 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!isRunning) {
+                  e.currentTarget.style.background = t.accent;
+                  e.currentTarget.style.color = t.windowBg;
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = t.windowBg;
+                e.currentTarget.style.color = t.accent;
+              }}
+            >
+              {isRunning ? "Atualizando..." : "Atualizar agora"}
+            </button>
           </div>
         )}
 
@@ -959,27 +1155,58 @@ export default function App() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = t.cancelHoverBg)}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      Reinstalar
+                      {appUpdate.hasUpdate ? "Reinstalar do zero" : "Reinstalar"}
                     </button>
                     <button
-                      onClick={handleLaunch}
+                      onClick={appUpdate.hasUpdate ? handleInstall : handleLaunch}
                       className="px-6 py-2 text-sm font-semibold text-white transition-all duration-200 shadow-lg"
                       style={{
-                        background: t.doneGradient,
-                        boxShadow: `0 0 18px ${t.doneGlow}`,
+                        background: appUpdate.hasUpdate ? t.accentGradient : t.doneGradient,
+                        boxShadow: appUpdate.hasUpdate
+                          ? `0 0 18px ${t.accentGlow}`
+                          : `0 0 18px ${t.doneGlow}`,
                         cursor: "pointer",
+                        transition: "background 0.5s ease, box-shadow 0.5s ease",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = t.doneHover;
-                        e.currentTarget.style.boxShadow = `0 0 28px ${t.doneGlow}`;
+                        if (appUpdate.hasUpdate) {
+                          e.currentTarget.style.background = t.accentGradientHover;
+                          e.currentTarget.style.boxShadow = `0 0 28px ${t.accentGlow}`;
+                        } else {
+                          e.currentTarget.style.background = t.doneHover;
+                          e.currentTarget.style.boxShadow = `0 0 28px ${t.doneGlow}`;
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = t.doneGradient;
-                        e.currentTarget.style.boxShadow = `0 0 18px ${t.doneGlow}`;
+                        if (appUpdate.hasUpdate) {
+                          e.currentTarget.style.background = t.accentGradient;
+                          e.currentTarget.style.boxShadow = `0 0 18px ${t.accentGlow}`;
+                        } else {
+                          e.currentTarget.style.background = t.doneGradient;
+                          e.currentTarget.style.boxShadow = `0 0 18px ${t.doneGlow}`;
+                        }
                       }}
                     >
-                      Executar App ↗
+                      {appUpdate.hasUpdate
+                        ? `Atualizar (v${appUpdate.latestVersion})`
+                        : "Executar App ↗"}
                     </button>
+                    {appUpdate.hasUpdate && (
+                      <button
+                        onClick={handleLaunch}
+                        className="px-4 py-2 text-sm font-medium transition-all duration-200"
+                        style={{
+                          border: `1px solid ${t.cancelBorder}`,
+                          color: t.cancelText,
+                          background: "transparent",
+                          cursor: "pointer",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = t.cancelHoverBg)}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        Abrir v{appUpdate.installedVersion}
+                      </button>
+                    )}
                   </>
                 )}
               </div>

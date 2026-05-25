@@ -130,6 +130,40 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
 });
 
+const ADS_CONFIG_REMOTE_URL =
+  'https://raw.githubusercontent.com/T1NG4/TGS-ads/main/pack-manager.json';
+
+function isValidAdConfig(data) {
+  if (!data || typeof data !== 'object') return false;
+  const hasValidAds =
+    Array.isArray(data.ads) &&
+    data.ads.every(
+      (ad) =>
+        ad &&
+        typeof ad.id === 'string' &&
+        typeof ad.type === 'string' &&
+        typeof ad.url === 'string'
+    );
+  const hasVast =
+    typeof data.vastTagUrl === 'string' && data.vastTagUrl.trim().length > 0;
+  return (
+    typeof data.version === 'number' &&
+    typeof data.enabled === 'boolean' &&
+    hasValidAds &&
+    (!data.enabled || data.ads.length > 0 || hasVast)
+  );
+}
+
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://imasdk.googleapis.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https: blob:",
+  "media-src 'self' https: blob: data:",
+  "connect-src 'self' https:",
+  "frame-src 'self' https:",
+].join('; ');
+
 // ─── Express App ──────────────────────────────────────────────────────────────
 function createApp(serveStatic = false) {
   const app = express();
@@ -138,7 +172,7 @@ function createApp(serveStatic = false) {
 
   // Security headers
   app.use((req, res, next) => {
-    res.set('Content-Security-Policy', "default-src 'self' 'unsafe-inline'");
+    res.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
     res.set('X-Frame-Options', 'DENY');
     res.set('X-Content-Type-Options', 'nosniff');
     next();
@@ -153,6 +187,51 @@ function createApp(serveStatic = false) {
 
   // ── Reference ──────────────────────────────────────────────────────────────
   app.get('/api/reference', (_req, res) => res.json({ status: 'ok' }));
+
+  app.get('/api/ads/config', async (_req, res) => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10_000);
+      const response = await fetch(ADS_CONFIG_REMOTE_URL, {
+        headers: { 'User-Agent': 'TGS-Pack-Manager' },
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        return res.status(502).json({ error: `Upstream HTTP ${response.status}` });
+      }
+
+      const data = await response.json();
+      if (!isValidAdConfig(data)) {
+        return res.status(502).json({ error: 'Invalid ads config format' });
+      }
+
+      res.json(data);
+    } catch (error) {
+      logger.warn('Failed to fetch remote ads config', error);
+      res.status(502).json({ error: error.message || 'Failed to fetch ads config' });
+    }
+  });
+
+  const RELEASES_REPO = 'T1NG4/TGS-pack-manager-releases';
+  app.get('/api/releases/latest', async (_req, res) => {
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${RELEASES_REPO}/releases/latest`,
+        { headers: { Accept: 'application/vnd.github+json' } }
+      );
+      if (!response.ok) {
+        return res.status(response.status).json({ error: 'Failed to fetch release info' });
+      }
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(502).json({
+        error: error instanceof Error ? error.message : 'Failed to fetch release info',
+      });
+    }
+  });
 
   app.get('/api/output-path', (_req, res) => res.json({ path: OUTPUT_PATH }));
 

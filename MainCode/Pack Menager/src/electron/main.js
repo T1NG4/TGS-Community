@@ -10,6 +10,10 @@ const { setupAutoUpdater } = require('./autoUpdater');
 const PORT = 3791;
 const isDev = !app.isPackaged;
 
+if (isDev) {
+  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
+}
+
 // Segurança: Garantir que o App seja executado apenas pelo Launcher
 if (!isDev && !process.argv.includes('--token=TGS_SECURE_AUTH_2026')) {
   console.error('Acesso Negado: Este aplicativo deve ser iniciado pelo TGS Launcher.');

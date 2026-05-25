@@ -16,6 +16,7 @@ import { MetaField } from '../shared/MetaField';
 import { XmlMetaEditor } from './XmlMetaEditor';
 import { buildExportPreview } from './exportPreview';
 import { useApiBase } from '../../hooks/useApiBase';
+import { AdGateModal } from '../../ads/AdGateModal';
 import {
   Car,
   FolderOpen,
@@ -73,72 +74,67 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
-  const [currentVersion, setCurrentVersion] = useState('1.0.0'); // Versão atual do app
+  const [currentVersion, setCurrentVersion] = useState('2.0.4');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
   };
 
-  // Verificação de versão via GitHub API
+  const API = useApiBase();
+
+  const isNewerVersion = (latest: string, current: string) => {
+    const latestParts = latest.split('.').map(Number);
+    const currentParts = current.split('.').map(Number);
+
+    for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
+      const latestPart = latestParts[i] || 0;
+      const currentPart = currentParts[i] || 0;
+
+      if (latestPart > currentPart) return true;
+      if (latestPart < currentPart) return false;
+    }
+    return false;
+  };
+
+  // Verificação de versão via backend (evita CORS no dev)
   useEffect(() => {
     const checkVersion = async () => {
       try {
-        // Verificar conexão com GitHub API
-        const response = await fetch('https://api.github.com/repos/TGS-Fivem/TGS-Pack-Manager/releases/latest');
-        
+        const response = await fetch(`${API}/api/releases/latest`);
         if (!response.ok) {
           throw new Error('Failed to fetch release info');
         }
 
         const releaseData = await response.json();
-        const latestVersion = releaseData.tag_name.replace('v', ''); // Remove 'v' do tag
-        
-        // Comparar versões
-        if (latestVersion === currentVersion) {
-          setConnectionStatus('online'); // Mesma versão
-        } else if (isNewerVersion(latestVersion, currentVersion)) {
-          setConnectionStatus('update'); // Nova versão disponível
-        } else {
-          setConnectionStatus('online'); // Versão atual mais nova que a do repo
+        const latestVersion = String(releaseData.tag_name || '').replace(/^v/, '');
+
+        if (!latestVersion) {
+          setConnectionStatus('online');
+          return;
         }
-        
-      } catch (error) {
-        // Se falhar, verificar se é problema de conexão
+
+        if (latestVersion === currentVersion) {
+          setConnectionStatus('online');
+        } else if (isNewerVersion(latestVersion, currentVersion)) {
+          setConnectionStatus('update');
+        } else {
+          setConnectionStatus('online');
+        }
+      } catch {
         try {
-          // Teste simples de conexão
-          const testResponse = await fetch('https://api.github.com/rate_limit', { method: 'HEAD' });
-          if (testResponse.ok) {
-            // Conectado mas falhou na verificação de versão
-            setConnectionStatus('online');
-          }
-        } catch (connectionError) {
-          // Sem conexão
+          const health = await fetch(`${API}/api/reference`);
+          setConnectionStatus(health.ok ? 'online' : 'offline');
+        } catch {
           setConnectionStatus('offline');
         }
       }
     };
 
-    // Função para comparar versões
-    const isNewerVersion = (latest: string, current: string) => {
-      const latestParts = latest.split('.').map(Number);
-      const currentParts = current.split('.').map(Number);
-      
-      for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
-        const latestPart = latestParts[i] || 0;
-        const currentPart = currentParts[i] || 0;
-        
-        if (latestPart > currentPart) return true;
-        if (latestPart < currentPart) return false;
-      }
-      return false;
-    };
-
     checkVersion();
-    // Verificar a cada 5 minutos
     const interval = setInterval(checkVersion, 300000);
-    
+
     return () => clearInterval(interval);
-  }, [currentVersion]);
+  }, [API, currentVersion]);
 
   const getStatusConfig = () => {
     switch (connectionStatus) {
@@ -228,14 +224,13 @@ const PackManagerApp: React.FC = () => {
   const logsEndRef = useRef<HTMLDivElement | null>(null);
   const [validationProgress, setValidationProgress] = useState(0);
   const [isValidating, setIsValidating] = useState(false);
+  const [showAdGate, setShowAdGate] = useState(false);
   const [validationStep, setValidationStep] = useState('');
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedVehicle, setSelectedVehicle] = useState<string>('');
   const [selectedMetaType, setSelectedMetaType] = useState<'handling' | 'vehicles' | 'carvariations' | 'carcols' | 'vehiclelayouts'>('handling');
   const [metaContent, setMetaContent] = useState('');
   const [editingSharedWheelsCarcols, setEditingSharedWheelsCarcols] = useState(false);
-
-  const API = useApiBase();
 
   const addLog = (type: 'info' | 'error' | 'success', message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -1323,7 +1318,21 @@ const PackManagerApp: React.FC = () => {
     showToast('Validation complete');
   };
 
-  const exportPack = async () => {
+  const handleExportClick = () => {
+    if (!currentPack || isValidating) return;
+    setShowAdGate(true);
+  };
+
+  const handleAdGateComplete = () => {
+    setShowAdGate(false);
+    executeExport();
+  };
+
+  const handleAdGateCancel = () => {
+    setShowAdGate(false);
+  };
+
+  const executeExport = async () => {
     if (!currentPack) return;
     setIsValidating(true);
     setValidationProgress(0);
@@ -3518,7 +3527,7 @@ const PackManagerApp: React.FC = () => {
                     <FolderOpen className="w-4 h-4" /> FOLDER
                   </button>
                   <button
-                    onClick={exportPack}
+                    onClick={handleExportClick}
                     disabled={isValidating}
                     className="flex-1 py-4 bg-gradient-to-r from-white to-slate-100 text-black font-semibold rounded-2xl flex items-center justify-center gap-2 disabled:opacity-50"
                   >
@@ -3555,6 +3564,14 @@ const PackManagerApp: React.FC = () => {
           </div>
         </div>
       )}
+
+      <AdGateModal
+        open={showAdGate}
+        apiBase={API}
+        t={t}
+        onComplete={handleAdGateComplete}
+        onCancel={handleAdGateCancel}
+      />
 
       {/* Toast Notification */}
       {toast && (

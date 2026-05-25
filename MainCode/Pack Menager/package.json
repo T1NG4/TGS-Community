@@ -1,6 +1,6 @@
 {
   "name": "tgs-fivem-pack-manager",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "private": true,
   "author": "TGS",
   "description": "Gerenciador de car packs FiveM (TGS)",
@@ -12,7 +12,8 @@
     "electron": "electron .",
     "test:run": "npm run test:run --prefix src/server",
     "build:client": "npm run build --prefix src/client",
-    "build:electron": "npm run build:client && electron-builder"
+    "build:electron": "npm run build:client && electron-builder",
+    "generate:latest-yml": "node scripts/generate-latest-yml.js"
   },
   "dependencies": {
     "electron-updater": "^6.1.8"
