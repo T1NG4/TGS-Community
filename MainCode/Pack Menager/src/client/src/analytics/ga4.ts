@@ -11,6 +11,8 @@ declare global {
   interface Window {
     dataLayer?: IArguments[] | unknown[];
     gtag?: GtagFn;
+    tgsGaEnableDebug?: () => void;
+    tgsGaPing?: () => void;
   }
 }
 
@@ -30,10 +32,25 @@ function setupGtagQueue(): void {
 }
 
 let initialized = false;
+let scriptLoaded = false;
 
+function isLocalHost(): boolean {
+  try {
+    const h = window.location.hostname;
+    return h === 'localhost' || h === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
+/** DebugView: localStorage TGS_GA_DEBUG=1, npm run dev, ou app em localhost (portable). */
 export function isGaDebugMode(): boolean {
   try {
-    return import.meta.env.DEV || localStorage.getItem('TGS_GA_DEBUG') === '1';
+    return (
+      import.meta.env.DEV ||
+      localStorage.getItem('TGS_GA_DEBUG') === '1' ||
+      isLocalHost()
+    );
   } catch {
     return import.meta.env.DEV;
   }
@@ -47,7 +64,9 @@ export function enableGaDebugMode(): void {
   }
   if (window.gtag) {
     window.gtag('config', getMeasurementId(), { debug_mode: true });
-    console.info('[TGS GA4] debug_mode ligado — abra DebugView no GA4');
+    console.info('[TGS GA4] debug_mode ligado — eventos vão para DebugView');
+  } else {
+    console.info('[TGS GA4] debug_mode será aplicado no próximo arranque — faça reload');
   }
 }
 
@@ -63,14 +82,25 @@ export function isGaEnabled(): boolean {
   return true;
 }
 
+export function isGaInitialized(): boolean {
+  return initialized;
+}
+
 function pageLocation(path: string): string {
   const p = path.startsWith('/') ? path : `/${path}`;
   return `${PAGE_ORIGIN}${p}`;
 }
 
+function logGa(message: string, ...args: unknown[]): void {
+  if (isGaDebugMode()) {
+    console.info(`[TGS GA4] ${message}`, ...args);
+  }
+}
+
 function loadGtagScript(measurementId: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[data-tgs-ga="${measurementId}"]`)) {
+      scriptLoaded = true;
       resolve();
       return;
     }
@@ -78,17 +108,25 @@ function loadGtagScript(measurementId: string): Promise<void> {
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
     script.dataset.tgsGa = measurementId;
-    script.onload = () => resolve();
+    script.onload = () => {
+      scriptLoaded = true;
+      resolve();
+    };
     script.onerror = () => reject(new Error('Failed to load gtag.js'));
     document.head.appendChild(script);
   });
 }
 
 export async function initGa4(appVersion?: string): Promise<void> {
-  if (initialized || !isGaEnabled()) return;
-  const measurementId = getMeasurementId();
+  if (!isGaEnabled()) {
+    console.warn('[TGS GA4] desativado — sem Measurement ID válido');
+    return;
+  }
+  if (initialized) return;
 
+  const measurementId = getMeasurementId();
   setupGtagQueue();
+  initialized = true;
 
   window.gtag!('js', new Date());
   window.gtag!('config', measurementId, {
@@ -101,24 +139,28 @@ export async function initGa4(appVersion?: string): Promise<void> {
     page_title: 'TGS Pack Manager',
   });
 
-  try {
-    await loadGtagScript(measurementId);
-    console.info('[TGS GA4] gtag.js carregado — Network: filtre por "collect"');
-  } catch {
-    console.warn('[TGS GA4] Falha ao carregar gtag.js — rede/firewall');
-    return;
-  }
+  void loadGtagScript(measurementId)
+    .then(() => {
+      logGa('gtag.js carregado — Network: filtre por "collect"');
+    })
+    .catch(() => {
+      console.warn(
+        '[TGS GA4] Falha ao carregar gtag.js — antivírus/firewall podem bloquear googletagmanager.com'
+      );
+    });
 
-  initialized = true;
-
-  if (typeof window !== 'undefined') {
-    (window as Window & { tgsGaEnableDebug?: () => void }).tgsGaEnableDebug = enableGaDebugMode;
-  }
+  window.tgsGaEnableDebug = enableGaDebugMode;
+  window.tgsGaPing = () => {
+    trackEvent('tgs_ga_ping', { tgs_category: 'debug', tgs_action: 'ping' });
+    logGa('ping enviado — veja DebugView');
+  };
 
   console.info(
     '[TGS GA4] Ativo —',
     measurementId,
-    isGaDebugMode() ? '(DebugView ON)' : '(DebugView: localStorage TGS_GA_DEBUG=1 + reload)'
+    isGaDebugMode()
+      ? '(DebugView ON — localhost/dev/TGS_GA_DEBUG)'
+      : '(DebugView: localStorage TGS_GA_DEBUG=1 + reload, ou tgsGaEnableDebug())'
   );
 }
 
@@ -144,12 +186,14 @@ function buildParams(params?: Record<string, string | number | boolean | undefin
   return clean;
 }
 
-/** Navegação — page_view + evento tipado. */
 export function trackScreen(
   screenName: string,
   extra?: Record<string, string | number | boolean | undefined>
 ): void {
-  if (!initialized || !window.gtag) return;
+  if (!initialized || !window.gtag) {
+    logGa('trackScreen ignorado (GA ainda não pronto):', screenName);
+    return;
+  }
   const path = `/pack-manager/screen/${screenName}`;
   trackPageView(path, String(extra?.hub_mode || screenName));
   window.gtag('event', 'tgs_screen_view', {
@@ -163,6 +207,21 @@ export function trackEvent(
   eventName: string,
   params?: Record<string, string | number | boolean | undefined>
 ): void {
-  if (!initialized || !window.gtag) return;
-  window.gtag('event', eventName, buildParams(params));
+  if (!isGaEnabled()) return;
+
+  if (!initialized || !window.gtag) {
+    logGa('evento descartado (init pendente):', eventName);
+    void initGa4().then(() => trackEvent(eventName, params));
+    return;
+  }
+
+  const payload = buildParams(params);
+  window.gtag('event', eventName, payload);
+  logGa('evento →', eventName, payload);
+
+  if (isGaDebugMode() && !scriptLoaded) {
+    console.warn(
+      '[TGS GA4] gtag.js ainda a carregar — o evento ficou na fila; se não aparecer no DebugView, verifique firewall'
+    );
+  }
 }

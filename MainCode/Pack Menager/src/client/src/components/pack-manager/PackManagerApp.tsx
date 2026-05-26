@@ -86,7 +86,7 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
-  const [currentVersion, setCurrentVersion] = useState('2.0.12');
+  const [currentVersion, setCurrentVersion] = useState('2.0.13');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
@@ -1343,13 +1343,6 @@ const PackManagerApp: React.FC = () => {
 
   const handleAdGateComplete = () => {
     setShowAdGate(false);
-    if (currentPack) {
-      const vehicleCount = currentPack.brands?.reduce(
-        (n, b) => n + (b.vehicles?.length || 0),
-        0
-      );
-      trackPackExportStart(currentPack.id, currentPack.name, vehicleCount);
-    }
     executeExport();
   };
 
@@ -1362,6 +1355,11 @@ const PackManagerApp: React.FC = () => {
     const exportStartedAt = Date.now();
     const packId = currentPack.id;
     const packName = currentPack.name;
+    const vehicleCount = currentPack.brands?.reduce(
+      (n, b) => n + (b.vehicles?.length || 0),
+      0
+    );
+    trackPackExportStart(packId, packName, vehicleCount);
     setIsValidating(true);
     setValidationProgress(0);
     setValidationStep('Starting...');

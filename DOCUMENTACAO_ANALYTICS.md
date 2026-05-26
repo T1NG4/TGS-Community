@@ -125,9 +125,11 @@ Eventos antigos (`app_install_start`, `app_open`, `pack_export_complete`, …) d
 
 O GA4 não contabiliza bem `file://`. Os apps enviam `page_location` em `https://tgs.gamer.gd/...`.
 
-**DebugView:** `localStorage.setItem('TGS_GA_DEBUG','1')` + reload, ou `npm run dev`.
+**DebugView (Pack/Launcher em `http://localhost`):** `debug_mode` liga **automaticamente** — não precisa de `TGS_GA_DEBUG` se a UI for servida em localhost.
 
-**Console:** `tgsGaEnableDebug()` (Launcher/Pack).
+**DebugView (manual):** `localStorage.setItem('TGS_GA_DEBUG','1')` + reload, ou `npm run dev`.
+
+**Console (Pack):** `tgsGaEnableDebug()`, `tgsGaPing()` (evento de teste), e logs `[TGS GA4] evento →` com cada envio.
 
 ---
 
