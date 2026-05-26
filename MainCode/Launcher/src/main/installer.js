@@ -21,6 +21,33 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let installationCancelled = false;
 
+/** Encerra o portable em execução para permitir substituir o .exe no Windows. */
+async function stopManagedApp(appType) {
+  const fileName = DOWNLOAD_URLS[appType]?.fileName;
+  if (!fileName) return;
+
+  if (process.platform === 'win32') {
+    try {
+      await execAsync(`taskkill /F /IM "${fileName}" /T`, {
+        windowsHide: true,
+        timeout: 15000,
+      });
+      logger.info(`Processo encerrado para atualização: ${fileName}`);
+    } catch {
+      // Processo não estava em execução — ok
+    }
+    await sleep(1200);
+    return;
+  }
+
+  try {
+    await execAsync(`pkill -f "${fileName.replace(/"/g, '')}" || true`);
+  } catch {
+    /* ignore */
+  }
+  await sleep(800);
+}
+
 async function checkSystem() {
   const results = {
     nodejs: { installed: false },
@@ -230,6 +257,15 @@ async function startInstallation(config, onProgress) {
     const destination = path.join(appInstallDir, fileName);
     const partialPath = `${destination}.partial`;
 
+    if (await fsExists(destination)) {
+      onProgress?.({
+        component: 'mainApp',
+        progress: 0,
+        message: 'Fechando aplicativo para atualizar...',
+      });
+      await stopManagedApp(appType);
+    }
+
     logger.info(`Downloading ${appType} portable`, { url: urlDict.mainApp, destination, partialPath });
 
     try {
@@ -246,8 +282,11 @@ async function startInstallation(config, onProgress) {
     });
 
     let replaced = false;
-    for (let attempt = 0; attempt < 6; attempt++) {
-      if (attempt > 0) await sleep(400 * attempt);
+    for (let attempt = 0; attempt < 8; attempt++) {
+      if (attempt > 0) {
+        await stopManagedApp(appType);
+        await sleep(500 * attempt);
+      }
       try {
         if (await fsExists(destination)) {
           await fsUnlink(destination);
@@ -258,6 +297,27 @@ async function startInstallation(config, onProgress) {
       } catch (err) {
         if (err.code !== 'EBUSY' && err.code !== 'EPERM' && err.code !== 'EACCES') {
           throw err;
+        }
+        try {
+          if (await fsExists(destination)) {
+            const backupPath = `${destination}.old`;
+            try {
+              if (await fsExists(backupPath)) await fsUnlink(backupPath);
+            } catch {
+              /* ignore */
+            }
+            await fsRename(destination, backupPath);
+          }
+          await fsRename(partialPath, destination);
+          replaced = true;
+          try {
+            if (await fsExists(`${destination}.old`)) await fsUnlink(`${destination}.old`);
+          } catch {
+            /* remove on next update */
+          }
+          break;
+        } catch {
+          /* retry */
         }
       }
     }
