@@ -129,6 +129,10 @@ O GA4 não contabiliza bem `file://`. Os apps enviam `page_location` em `https:/
 
 **DebugView (manual):** `localStorage.setItem('TGS_GA_DEBUG','1')` + reload, ou `npm run dev`.
 
+**Console (Pack/Mod no .exe):** **F12** ou **Ctrl+Shift+I** abre o DevTools (portable). Com `--ga-debug` no arranque, abre automaticamente.
+
+**Launcher → apps com debug:** em `%APPDATA%\\tgs-launcher\\config.json` (ou pasta do userData do Launcher), adiciona `"gaDebug": true` e reinicia o Launcher — ao clicar **Executar App**, o Pack/Mod abre já com DevTools.
+
 **Console (Pack):** `tgsGaEnableDebug()`, `tgsGaPing()` (evento de teste), e logs `[TGS GA4] evento →` com cada envio.
 
 ---

@@ -6,6 +6,7 @@ const { promisify } = require('util');
 const axios = require('axios');
 const { setupAutoUpdater } = require('./autoUpdater');
 const staticServer = require('./staticServer');
+const { setupDevTools, wantDevToolsOnStartup } = require('./devtools');
 const execAsync = promisify(exec);
 
 let uiBaseUrl = null;
@@ -62,7 +63,8 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: false,
             enableRemoteModule: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'),
+            devTools: true,
         },
         frame: false,
         titleBarStyle: 'hidden',
@@ -95,8 +97,9 @@ async function createWindow() {
         });
     });
 
-    // Descomente para desenvolvimento
-    // mainWindow.webContents.openDevTools();
+    setupDevTools(mainWindow, {
+        openOnStart: isDev || wantDevToolsOnStartup(),
+    });
 
     mainWindow.on('closed', function () {
         mainWindow = null;

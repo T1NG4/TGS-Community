@@ -409,6 +409,7 @@ async function getAppUpdateStatus(appType, baseInstallPath) {
 ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
   const { spawn } = require('child_process');
   const fs = require('fs');
+  const config = require('./config');
 
   await assertLauncherUpToDate();
 
@@ -438,6 +439,14 @@ ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
 
   logger.info(`Iniciando aplicativo: ${exePath}`);
 
+  const launchArgs = ['--token=TGS_SECURE_AUTH_2026'];
+  try {
+    const cfg = await config.load();
+    if (cfg?.gaDebug) launchArgs.push('--ga-debug');
+  } catch {
+    /* ignore */
+  }
+
   await new Promise((r) => setTimeout(r, 150));
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -448,7 +457,7 @@ ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
       if (process.platform === 'win32') {
         const child = spawn(
           process.env.ComSpec || 'cmd.exe',
-          ['/d', '/c', 'start', '""', exePath, '--token=TGS_SECURE_AUTH_2026'],
+          ['/d', '/c', 'start', '""', exePath, ...launchArgs],
           {
             detached: true,
             stdio: 'ignore',
@@ -458,7 +467,7 @@ ipcMain.handle('launch-app', async (event, appType, baseInstallPath) => {
         );
         child.unref();
       } else {
-        const child = spawn(exePath, ['--token=TGS_SECURE_AUTH_2026'], {
+        const child = spawn(exePath, launchArgs, {
           detached: true,
           stdio: 'ignore',
           cwd: path.dirname(exePath),

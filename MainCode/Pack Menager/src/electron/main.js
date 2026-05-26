@@ -6,6 +6,7 @@ const os = require('os');
 const net = require('net');
 const { createApp, setPaths, getOutputPath } = require('../server/src/app');
 const { setupAutoUpdater } = require('./autoUpdater');
+const { setupDevTools, wantDevToolsOnStartup } = require('./devtools');
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 const DEFAULT_PORT = 3791;
@@ -91,6 +92,7 @@ function createWindow(port) {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
+      devTools: true,
     },
     show: false,
   });
@@ -103,6 +105,10 @@ function createWindow(port) {
   mainWindow.webContents.setWindowOpenHandler(({ url: href }) => {
     shell.openExternal(href);
     return { action: 'deny' };
+  });
+
+  setupDevTools(mainWindow, {
+    openOnStart: isDev || wantDevToolsOnStartup(),
   });
 
   mainWindow.once('ready-to-show', () => {
@@ -147,6 +153,17 @@ ipcMain.on('minimize-window', () => {
   if (mainWindow) {
     mainWindow.minimize();
   }
+});
+
+ipcMain.handle('toggle-devtools', () => {
+  if (!mainWindow?.webContents) return { opened: false };
+  const wc = mainWindow.webContents;
+  if (wc.isDevToolsOpened()) {
+    wc.closeDevTools();
+    return { opened: false };
+  }
+  wc.openDevTools({ mode: 'detach' });
+  return { opened: true };
 });
 
 ipcMain.on('toggle-fullscreen', () => {
