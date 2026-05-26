@@ -3,11 +3,12 @@
 const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
 const os = require('os');
+const net = require('net');
 const { createApp, setPaths, getOutputPath } = require('../server/src/app');
 const { setupAutoUpdater } = require('./autoUpdater');
 
 // ─── Configuration ────────────────────────────────────────────────────────────
-const PORT = 3791;
+const DEFAULT_PORT = 3791;
 const isDev = !app.isPackaged;
 
 if (isDev) {
@@ -29,7 +30,31 @@ const OUTPUT_PATH = path.join(ROOT, 'output');
 const DIST_PATH = path.join(__dirname, '..', 'client', 'dist');
 
 // ─── Express ──────────────────────────────────────────────────────────────────
-function startServer() {
+function findAvailablePort(startPort, maxAttempts = 20) {
+  return new Promise((resolve, reject) => {
+    let attempt = 0;
+
+    const tryPort = (port) => {
+      const tester = net.createServer();
+      tester.once('error', () => {
+        attempt += 1;
+        if (attempt >= maxAttempts) {
+          reject(new Error(`Nenhuma porta disponível a partir de ${startPort}`));
+          return;
+        }
+        tryPort(port + 1);
+      });
+      tester.once('listening', () => {
+        tester.close(() => resolve(port));
+      });
+      tester.listen(port, '127.0.0.1');
+    };
+
+    tryPort(startPort);
+  });
+}
+
+function startServer(port) {
   // Set up IPC bridge for server to communicate with main process
   global.electronAPI = {
     openPacksFolder: async () => {
@@ -44,15 +69,15 @@ function startServer() {
 
   setPaths(BASE_PATH, OUTPUT_PATH, DIST_PATH);
   const expressApp = createApp(!isDev); // serve static only in production
-  expressApp.listen(PORT, () =>
-    console.log(`[Backend] Express em http://localhost:${PORT}  |  Output → ${OUTPUT_PATH}`)
+  expressApp.listen(port, () =>
+    console.log(`[Backend] Express em http://localhost:${port}  |  Output → ${OUTPUT_PATH}`)
   );
 }
 
 // ─── Window ───────────────────────────────────────────────────────────────────
 let mainWindow;
 
-function createWindow() {
+function createWindow(port) {
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 680,
@@ -72,7 +97,7 @@ function createWindow() {
 
   Menu.setApplicationMenu(null);
 
-  const url = isDev ? 'http://localhost:5173' : `http://localhost:${PORT}`;
+  const url = isDev ? 'http://localhost:5173' : `http://localhost:${port}`;
   mainWindow.loadURL(url);
 
   mainWindow.webContents.setWindowOpenHandler(({ url: href }) => {
@@ -147,12 +172,30 @@ app.whenReady().then(() => {
     });
   }
   
-  startServer();
-  createWindow();
-  setupAutoUpdater(mainWindow);
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+  if (isDev) {
+    startServer(DEFAULT_PORT);
+    createWindow(DEFAULT_PORT);
+    setupAutoUpdater(mainWindow);
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow(DEFAULT_PORT);
+    });
+    return;
+  }
+
+  // Produção: evitar crash se a porta padrão já estiver em uso.
+  findAvailablePort(DEFAULT_PORT)
+    .then((port) => {
+      startServer(port);
+      createWindow(port);
+      setupAutoUpdater(mainWindow);
+      app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow(port);
+      });
+    })
+    .catch((err) => {
+      console.error('[Backend] Falha ao iniciar servidor:', err);
+      app.quit();
+    });
 });
 
 app.on('window-all-closed', () => {
