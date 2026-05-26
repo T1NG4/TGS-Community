@@ -9,9 +9,24 @@ const PAGE_ORIGIN = 'https://tgs.gamer.gd';
 
 declare global {
   interface Window {
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
+    dataLayer?: IArguments[] | unknown[];
+    gtag?: GtagFn;
   }
+}
+
+type GtagFn = {
+  (...args: unknown[]): void;
+  (command: 'js', date: Date): void;
+  (command: 'config', id: string, params?: Record<string, unknown>): void;
+  (command: 'event', name: string, params?: Record<string, unknown>): void;
+};
+
+function setupGtagQueue(): void {
+  window.dataLayer = window.dataLayer || [];
+  if (typeof window.gtag === 'function') return;
+  window.gtag = function gtag() {
+    window.dataLayer!.push(arguments);
+  } as GtagFn;
 }
 
 let initialized = false;
@@ -73,22 +88,10 @@ export async function initGa4(appVersion?: string): Promise<void> {
   if (initialized || !isGaEnabled()) return;
   const measurementId = getMeasurementId();
 
-  try {
-    await loadGtagScript(measurementId);
-  } catch {
-    if (import.meta.env.DEV) {
-      console.warn('[TGS GA4] Não foi possível carregar gtag.js');
-    }
-    return;
-  }
+  setupGtagQueue();
 
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer!.push(args);
-  };
-
-  window.gtag('js', new Date());
-  window.gtag('config', measurementId, {
+  window.gtag!('js', new Date());
+  window.gtag!('config', measurementId, {
     send_page_view: false,
     app_name: APP_NAME,
     app_version: appVersion || undefined,
@@ -97,6 +100,13 @@ export async function initGa4(appVersion?: string): Promise<void> {
     page_location: pageLocation('/pack-manager'),
     page_title: 'TGS Pack Manager',
   });
+
+  try {
+    await loadGtagScript(measurementId);
+  } catch {
+    console.warn('[TGS GA4] Falha ao carregar gtag.js');
+    return;
+  }
 
   initialized = true;
 
