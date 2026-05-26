@@ -1,4 +1,4 @@
-name: Build & Release TGS Launcher
+name: Build & Release TGS Mod Manager
 
 on:
   push:
@@ -7,14 +7,12 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Versão para release (ex: v1.2.3)'
-        required: false
-        type: string
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -22,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: MainCode/Launcher
+        working-directory: MainCode/Mod Menager/client
 
     steps:
       - name: Checkout code
@@ -35,7 +33,7 @@ jobs:
           $pkg = (Get-Content package.json | ConvertFrom-Json).version
           $tag = "${{ github.ref_name }}" -replace '^v',''
           if ($pkg -ne $tag) {
-            Write-Error "Launcher package.json ($pkg) != tag v$tag. Alinhe antes de publicar."
+            Write-Error "Mod client package.json ($pkg) != tag v$tag. Alinhe antes de publicar."
             exit 1
           }
 
@@ -47,23 +45,22 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build renderer (GA4 embutido)
-        run: npm run build:renderer
-        env:
-          VITE_GA_MEASUREMENT_ID: G-DF8MNV3V66
+      - name: Build client
+        run: npm run build
 
-      - name: Build & Publish
-        run: npm run build:main -- --publish always
+      - name: Build & Publish portable
+        run: npm run package -- --publish always
         env:
           GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
           EP_GH_OWNER: T1NG4
-          EP_GH_REPO: TGS-launcher-releases
+          EP_GH_REPO: TGS-mod-manager-releases
           EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
-          name: tgs-launcher-build
-          path: MainCode/Launcher/release/
+          name: tgs-mod-manager-build
+          path: MainCode/Mod Menager/client/release/
           retention-days: 7
           if-no-files-found: ignore
