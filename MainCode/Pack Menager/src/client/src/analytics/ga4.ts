@@ -16,6 +16,26 @@ declare global {
 
 let initialized = false;
 
+export function isGaDebugMode(): boolean {
+  try {
+    return import.meta.env.DEV || localStorage.getItem('TGS_GA_DEBUG') === '1';
+  } catch {
+    return import.meta.env.DEV;
+  }
+}
+
+export function enableGaDebugMode(): void {
+  try {
+    localStorage.setItem('TGS_GA_DEBUG', '1');
+  } catch {
+    /* ignore */
+  }
+  if (window.gtag) {
+    window.gtag('config', getMeasurementId(), { debug_mode: true });
+    console.info('[TGS GA4] debug_mode ligado — abra DebugView no GA4');
+  }
+}
+
 export function getMeasurementId(): string {
   const fromEnv = (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined)?.trim();
   return fromEnv || DEFAULT_MEASUREMENT_ID;
@@ -73,12 +93,22 @@ export async function initGa4(appVersion?: string): Promise<void> {
     app_name: APP_NAME,
     app_version: appVersion || undefined,
     anonymize_ip: true,
-    debug_mode: import.meta.env.DEV,
+    debug_mode: isGaDebugMode(),
     page_location: pageLocation('/pack-manager'),
     page_title: 'TGS Pack Manager',
   });
 
   initialized = true;
+
+  if (typeof window !== 'undefined') {
+    (window as Window & { tgsGaEnableDebug?: () => void }).tgsGaEnableDebug = enableGaDebugMode;
+  }
+
+  console.info(
+    '[TGS GA4] Ativo —',
+    measurementId,
+    isGaDebugMode() ? '(DebugView ON)' : '(DebugView: localStorage TGS_GA_DEBUG=1 + reload)'
+  );
 }
 
 export function trackPageView(pagePath: string, pageTitle?: string): void {
