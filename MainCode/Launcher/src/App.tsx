@@ -407,6 +407,16 @@ export default function App() {
 
     ipcRenderer.invoke("check-updates").catch(() => {});
 
+    // Re-checar updates sem precisar reiniciar o .exe
+    // - ao voltar o foco (usuário fica com app aberto por horas)
+    // - em intervalo fixo
+    const checkAutoUpdate = () => {
+      ipcRenderer.invoke("check-updates").catch(() => {});
+    };
+    const onFocus = () => checkAutoUpdate();
+    window.addEventListener("focus", onFocus);
+    const autoUpdateInterval = setInterval(checkAutoUpdate, 10 * 60 * 1000);
+
     const checkLauncherVersion = async () => {
       try {
         const result = await ipcRenderer.invoke("check-launcher-update");
@@ -431,6 +441,8 @@ export default function App() {
 
     return () => {
       clearInterval(launcherInterval);
+      clearInterval(autoUpdateInterval);
+      window.removeEventListener("focus", onFocus);
       ipcRenderer.removeListener("update-available", onUpdateAvailable);
       ipcRenderer.removeListener("update-not-available", onUpdateNotAvailable);
       ipcRenderer.removeListener("download-progress", onDownloadProgress);
