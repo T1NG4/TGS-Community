@@ -1,5 +1,5 @@
 /**
- * Google Analytics 4 — TGS Mod Manager (HTML estático / file://)
+ * Google Analytics 4 — TGS Mod Manager
  */
 (function () {
   'use strict';
@@ -9,14 +9,22 @@
   var appName = config.appName || 'tgs_mod_manager';
   var appVersion = config.appVersion || '';
   var pageOrigin = 'https://tgs.gamer.gd';
-  var isDev =
-    window.location.protocol === 'file:' ||
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1';
+
+  function isGaDebugMode() {
+    try {
+      return (
+        localStorage.getItem('TGS_GA_DEBUG') === '1' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      );
+    } catch (e) {
+      return false;
+    }
+  }
 
   function isEnabled() {
     if (!measurementId || measurementId.indexOf('XXXXXXXX') !== -1) return false;
-    if (isDev && config.enabledInDev === false) return false;
+    if (config.enabledInDev === false && window.location.protocol === 'file:') return false;
     return true;
   }
 
@@ -27,7 +35,15 @@
 
   var initialized = false;
 
-  function loadGtag() {
+  function setupGtagQueue() {
+    window.dataLayer = window.dataLayer || [];
+    if (typeof window.gtag === 'function') return;
+    window.gtag = function () {
+      window.dataLayer.push(arguments);
+    };
+  }
+
+  function loadGtagScript() {
     return new Promise(function (resolve, reject) {
       if (document.querySelector('script[data-tgs-ga="' + measurementId + '"]')) {
         resolve();
@@ -48,33 +64,40 @@
     });
   }
 
+  function currentPageSlug() {
+    var pagePath = (window.location.pathname || '/mod-manager/login').split(/[/\\]/).pop() || 'login';
+    return pagePath.replace('.html', '');
+  }
+
   function init() {
     if (!isEnabled() || initialized) return Promise.resolve();
-    return loadGtag()
+
+    setupGtagQueue();
+
+    var slug = currentPageSlug();
+    window.gtag('js', new Date());
+    window.gtag('config', measurementId, {
+      send_page_view: false,
+      app_name: appName,
+      app_version: appVersion || undefined,
+      anonymize_ip: true,
+      debug_mode: isGaDebugMode(),
+      page_location: pageLocation('/mod-manager/' + slug),
+      page_title: 'TGS Mod Manager',
+    });
+
+    return loadGtagScript()
       .then(function () {
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = function () {
-          window.dataLayer.push(arguments);
-        };
-        window.gtag('js', new Date());
-        var pagePath = (window.location.pathname || '/mod-manager').split(/[/\\]/).pop() || 'login';
-        window.gtag('config', measurementId, {
-          send_page_view: false,
-          app_name: appName,
-          app_version: appVersion || undefined,
-          anonymize_ip: true,
-          debug_mode: isDev,
-          page_location: pageLocation('/mod-manager/' + pagePath.replace('.html', '')),
-          page_title: 'TGS Mod Manager',
-        });
         initialized = true;
-        trackPageView('/mod-manager/' + pagePath.replace('.html', ''), document.title);
-        if (isDev) {
-          console.info('[TGS GA4] Ativo — use DebugView no GA4 em modo dev');
-        }
+        trackPageView('/mod-manager/' + slug, document.title);
+        console.info(
+          '[TGS GA4] Ativo —',
+          measurementId,
+          isGaDebugMode() ? '(DebugView ON)' : '(TGS_GA_DEBUG=1 + reload para DebugView)'
+        );
       })
       .catch(function () {
-        if (isDev) console.warn('[TGS GA4] Falha ao carregar gtag.js');
+        console.warn('[TGS GA4] Falha ao carregar gtag.js — rede/firewall');
       });
   }
 
@@ -102,10 +125,23 @@
     window.gtag('event', eventName, payload);
   }
 
+  function enableGaDebugMode() {
+    try {
+      localStorage.setItem('TGS_GA_DEBUG', '1');
+    } catch (e) {
+      /* ignore */
+    }
+    if (window.gtag) {
+      window.gtag('config', measurementId, { debug_mode: true });
+      console.info('[TGS GA4] debug_mode ligado');
+    }
+  }
+
   window.tgsAnalytics = {
     trackPageView: trackPageView,
     trackEvent: trackEvent,
     isEnabled: isEnabled,
+    enableGaDebugMode: enableGaDebugMode,
   };
 
   if (document.readyState === 'loading') {

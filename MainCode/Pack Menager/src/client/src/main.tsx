@@ -2,9 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { initGa4, trackPageView } from './analytics/ga4';
-
-void initGa4().then(() => trackPageView('/', 'TGS Pack Manager'));
 
 if (import.meta.env.DEV) {
   const shouldSkipDevNoise = (args: unknown[]) =>

@@ -204,6 +204,10 @@ document.addEventListener('DOMContentLoaded', function() {
         checkPaymentStatusFromURL();
         initializeAdminMenu();
         initializeCreatorMenu();
+        if (window.tgsAnalytics) {
+            window.tgsAnalytics.trackEvent('dashboard_open', { screen: 'dashboard' });
+            window.tgsAnalytics.trackPageView('/mod-manager/dashboard', document.title);
+        }
     }
     
     setTimeout(() => {

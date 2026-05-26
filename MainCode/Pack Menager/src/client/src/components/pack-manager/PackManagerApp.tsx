@@ -22,7 +22,7 @@ import {
   PACK_MANAGER_PUBLIC_DOCS_URL,
   PACK_MANAGER_RELEASES_REPO_URL,
 } from '../../constants/publicLinks';
-import { trackEvent } from '../../analytics/ga4';
+import { initGa4, trackEvent } from '../../analytics/ga4';
 import {
   Car,
   FolderOpen,
@@ -80,7 +80,7 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
-  const [currentVersion, setCurrentVersion] = useState('2.0.9');
+  const [currentVersion, setCurrentVersion] = useState('2.0.10');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
@@ -242,6 +242,12 @@ const PackManagerApp: React.FC = () => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs((prev) => [...prev, { timestamp, type, message }].slice(-100)); // Keep last 100 logs
   };
+
+  useEffect(() => {
+    void initGa4(currentVersion).then(() => {
+      trackEvent('app_open', { app_version: currentVersion });
+    });
+  }, []);
 
   useEffect(() => {
     const savedPacks = localStorage.getItem('fivemPacks');

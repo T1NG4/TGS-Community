@@ -103,12 +103,14 @@ export async function initGa4(appVersion?: string): Promise<void> {
 
   try {
     await loadGtagScript(measurementId);
+    console.info('[TGS GA4] gtag.js carregado — Network: filtre por "collect"');
   } catch {
-    console.warn('[TGS GA4] Falha ao carregar gtag.js');
+    console.warn('[TGS GA4] Falha ao carregar gtag.js — rede/firewall');
     return;
   }
 
   initialized = true;
+  trackPageView('/', 'TGS Pack Manager');
 
   if (typeof window !== 'undefined') {
     (window as Window & { tgsGaEnableDebug?: () => void }).tgsGaEnableDebug = enableGaDebugMode;

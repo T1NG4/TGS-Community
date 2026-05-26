@@ -61,8 +61,8 @@ copy analytics-config.example.js analytics-config.js
 | App | `app_name` | Eventos |
 |-----|------------|---------|
 | Launcher | `tgs_launcher` | `page_view` (hub + troca Pack/Mod/Code), `app_install_start`, `app_install_complete`, `app_update_start`, `app_update_complete`, `app_launch` |
-| Pack Menager | `tgs_pack_manager` | `page_view`, `pack_export_complete` |
-| Mod Menager | `tgs_mod_manager` | `page_view` (por página HTML), `login_success` |
+| Pack Menager | `tgs_pack_manager` | `app_open`, `page_view`, `pack_export_complete` (UI em `http://localhost:3791`) |
+| Mod Menager | `tgs_mod_manager` | `page_view`, `login_success`, `dashboard_open` (UI em `http://127.0.0.1:3793`) |
 
 O Pack Menager mantém o canal separado **`trackAdEvent`** (URL opcional no JSON de ads em `T1NG4/TGS-ads`) — não substitui o GA4.
 

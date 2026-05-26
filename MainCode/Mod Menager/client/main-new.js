@@ -5,7 +5,10 @@ const { exec } = require('child_process');
 const { promisify } = require('util');
 const axios = require('axios');
 const { setupAutoUpdater } = require('./autoUpdater');
+const staticServer = require('./staticServer');
 const execAsync = promisify(exec);
+
+let uiBaseUrl = null;
 
 let mainWindow;
 const APP_DATA_PATH = path.join(app.getPath('userData'), 'Launcher');
@@ -39,7 +42,15 @@ async function ensureDirectories() {
     }
 }
 
-function createWindow() {
+async function resolveUiBaseUrl() {
+    if (!uiBaseUrl) {
+        uiBaseUrl = await staticServer.startStaticServer(__dirname);
+        console.log(`[UI] Mod Manager em ${uiBaseUrl} (necessário para Google Analytics)`);
+    }
+    return uiBaseUrl;
+}
+
+async function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1100,
         height: 680,
@@ -59,7 +70,8 @@ function createWindow() {
         icon: path.join(__dirname, 'midias', 'TGS', 'TGS_logo.ico')
     });
 
-    mainWindow.loadFile('login.html');
+    const base = await resolveUiBaseUrl();
+    mainWindow.loadURL(`${base}/login.html`);
 
     // CSP configurado para MercadoPago com todos os domínios necessários
     mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
@@ -93,16 +105,20 @@ function createWindow() {
 
 app.whenReady().then(async () => {
     await ensureDirectories();
-    createWindow();
+    await createWindow();
     setupAutoUpdater(() => mainWindow);
 
-    app.on('activate', function () {
-        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    app.on('activate', async function () {
+        if (BrowserWindow.getAllWindows().length === 0) await createWindow();
     });
 });
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('before-quit', () => {
+    staticServer.stopStaticServer();
 });
 
 // ===== WINDOW CONTROLS =====
