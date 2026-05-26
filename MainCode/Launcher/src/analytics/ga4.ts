@@ -115,7 +115,6 @@ export async function initGa4(appVersion?: string): Promise<void> {
   }
 
   initialized = true;
-  trackPageView('/', 'TGS Launcher Hub');
 
   if (typeof window !== 'undefined') {
     (window as Window & { tgsGaEnableDebug?: () => void }).tgsGaEnableDebug = enableGaDebugMode;
@@ -128,15 +127,45 @@ export async function initGa4(appVersion?: string): Promise<void> {
   );
 }
 
+/** Navegação / telas — evento dedicado + page_view padrão GA4. */
+export function trackScreen(
+  screenName: string,
+  extra?: Record<string, string | number | boolean | undefined>
+): void {
+  if (!initialized || !window.gtag) return;
+  const path = `/launcher/screen/${screenName}`;
+  const title = String(extra?.hub_mode || screenName);
+  trackPageView(path, title);
+  window.gtag('event', 'tgs_screen_view', {
+    ...buildParams(extra),
+    screen_name: screenName,
+    tgs_category: 'navigation',
+  });
+}
+
 export function trackPageView(pagePath: string, pageTitle?: string): void {
   if (!initialized || !window.gtag) return;
   const path = pagePath.startsWith('/') ? pagePath : `/${pagePath}`;
   window.gtag('event', 'page_view', {
     page_path: path,
     page_title: pageTitle || pagePath,
-    page_location: pageLocation(`/launcher${path}`),
+    page_location: pageLocation(path.startsWith('/launcher') ? path : `/launcher${path}`),
     app_name: APP_NAME,
+    tgs_product: APP_NAME,
   });
+}
+
+function buildParams(params?: Record<string, string | number | boolean | undefined>) {
+  const clean: Record<string, string | number | boolean> = {
+    app_name: APP_NAME,
+    tgs_product: APP_NAME,
+  };
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined) clean[k] = v;
+    }
+  }
+  return clean;
 }
 
 export function trackEvent(
@@ -144,11 +173,5 @@ export function trackEvent(
   params?: Record<string, string | number | boolean | undefined>
 ): void {
   if (!initialized || !window.gtag) return;
-  const clean: Record<string, string | number | boolean> = { app_name: APP_NAME };
-  if (params) {
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== undefined) clean[k] = v;
-    }
-  }
-  window.gtag('event', eventName, clean);
+  window.gtag('event', eventName, buildParams(params));
 }

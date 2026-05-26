@@ -22,7 +22,13 @@ import {
   PACK_MANAGER_PUBLIC_DOCS_URL,
   PACK_MANAGER_RELEASES_REPO_URL,
 } from '../../constants/publicLinks';
-import { initGa4, trackEvent } from '../../analytics/ga4';
+import { initGa4 } from '../../analytics/ga4';
+import {
+  trackPackExportComplete,
+  trackPackExportFailed,
+  trackPackExportStart,
+  trackPackOpen,
+} from '../../analytics/tgsEvents';
 import {
   Car,
   FolderOpen,
@@ -80,7 +86,7 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
-  const [currentVersion, setCurrentVersion] = useState('2.0.11');
+  const [currentVersion, setCurrentVersion] = useState('2.0.12');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
@@ -245,7 +251,7 @@ const PackManagerApp: React.FC = () => {
 
   useEffect(() => {
     void initGa4(currentVersion).then(() => {
-      trackEvent('app_open', { app_version: currentVersion });
+      trackPackOpen(currentVersion);
     });
   }, []);
 
@@ -1337,6 +1343,13 @@ const PackManagerApp: React.FC = () => {
 
   const handleAdGateComplete = () => {
     setShowAdGate(false);
+    if (currentPack) {
+      const vehicleCount = currentPack.brands?.reduce(
+        (n, b) => n + (b.vehicles?.length || 0),
+        0
+      );
+      trackPackExportStart(currentPack.id, currentPack.name, vehicleCount);
+    }
     executeExport();
   };
 
@@ -1346,6 +1359,9 @@ const PackManagerApp: React.FC = () => {
 
   const executeExport = async () => {
     if (!currentPack) return;
+    const exportStartedAt = Date.now();
+    const packId = currentPack.id;
+    const packName = currentPack.name;
     setIsValidating(true);
     setValidationProgress(0);
     setValidationStep('Starting...');
@@ -1369,7 +1385,9 @@ const PackManagerApp: React.FC = () => {
         const applyData = await applyResponse.json();
 
         if (!applyResponse.ok || !applyData.success) {
-          showToast(`Error applying wheels: ${applyData.error || 'Unknown error'}`, 'error');
+          const wheelErr = applyData.error || 'Unknown error';
+          trackPackExportFailed(packId, packName, `wheels: ${wheelErr}`);
+          showToast(`Error applying wheels: ${wheelErr}`, 'error');
           setIsValidating(false);
           return;
         }
@@ -1404,12 +1422,13 @@ const PackManagerApp: React.FC = () => {
         setValidationProgress(100);
         setValidationStep('Completed!');
         addLog('success', 'Pack exported successfully');
-        trackEvent('pack_export_complete', {
-          pack_id: currentPack?.id || '',
-          pack_name: currentPack?.name || '',
-          app_version: currentVersion,
-        });
         const srvWarnings = Array.isArray(result.warnings) ? result.warnings : [];
+        trackPackExportComplete(
+          packId,
+          packName,
+          Date.now() - exportStartedAt,
+          srvWarnings.length
+        );
         if (srvWarnings.length > 0) {
           setValidationResults((prev) => [
             ...prev,
@@ -1425,12 +1444,16 @@ const PackManagerApp: React.FC = () => {
           setShowModal(false);
         }
       } else {
-        showToast(result.error || 'Export failed', 'error');
-        addLog('error', `Export error: ${result.error}`);
+        const errMsg = result.error || 'Export failed';
+        trackPackExportFailed(packId, packName, errMsg);
+        showToast(errMsg, 'error');
+        addLog('error', `Export error: ${errMsg}`);
       }
     } catch (error) {
+      const errMsg = error instanceof Error ? error.message : 'Unknown error';
+      trackPackExportFailed(packId, packName, errMsg);
       showToast('Backend connection error.', 'error');
-      addLog('error', `Connection error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      addLog('error', `Connection error: ${errMsg}`);
     } finally {
       setIsValidating(false);
       setValidationProgress(0);

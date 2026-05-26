@@ -1,5 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { initGa4, trackEvent, trackPageView } from "./analytics/ga4";
+import { initGa4 } from "./analytics/ga4";
+import {
+  trackHubAppInstallComplete,
+  trackHubAppInstallFailed,
+  trackHubAppInstallStart,
+  trackHubAppOpen,
+  trackHubAppUpdateComplete,
+  trackHubAppUpdateFailed,
+  trackHubAppUpdateStart,
+  trackHubScreen,
+  trackLauncherUpdateComplete,
+  trackLauncherUpdateStart,
+} from "./analytics/tgsEvents";
 
 type Phase = "idle" | "installing" | "done";
 type Mode = "dark" | "light" | "code";
@@ -305,7 +317,7 @@ export default function App() {
   useEffect(() => {
     const appType = mode === "dark" ? "packManager" : mode === "light" ? "modManager" : "codeManager";
     const label = mode === "dark" ? "Pack Menager" : mode === "light" ? "Mod Menager" : "Code Manager";
-    trackPageView(`/${appType}`, label);
+    trackHubScreen(appType, label);
   }, [mode]);
 
   /* ── keep prevMode in sync ─────────────────────────────────── */
@@ -321,6 +333,7 @@ export default function App() {
     const { ipcRenderer } = window.require("electron");
 
     const onUpdateAvailable = (_: any, info: any) => {
+      trackLauncherUpdateStart(appVersion, info?.version || "?");
       setUpdateState("available");
       setUpdateVersion(info?.version || "nova versão");
       setLauncherUpdate((prev) => ({
@@ -343,6 +356,7 @@ export default function App() {
     };
 
     const onUpdateDownloaded = (_: any, info: any) => {
+      trackLauncherUpdateComplete(info?.version || updateVersion || appVersion);
       setUpdateState("ready");
       setLauncherUpdate((prev) => ({
         ...prev,
@@ -380,7 +394,7 @@ export default function App() {
       .then(async (info: { version?: string } | null) => {
         if (info?.version) setAppVersion(info.version);
         await initGa4(info?.version);
-        trackPageView("/", "TGS Launcher Hub");
+        trackHubScreen("home", "hub");
       })
       .catch(() => {});
 
@@ -594,10 +608,16 @@ export default function App() {
         : `Iniciando instalação — ${appLabel}...`
     );
     setPhase("installing");
-    trackEvent(isAppUpdate ? "app_update_start" : "app_install_start", {
-      app_type: appType,
-      target_version: appUpdate.latestVersion || "",
-    });
+    const installStartedAt = Date.now();
+    if (isAppUpdate) {
+      trackHubAppUpdateStart(
+        appType,
+        appUpdate.installedVersion || "?",
+        appUpdate.latestVersion || "?"
+      );
+    } else {
+      trackHubAppInstallStart(appType, appUpdate.latestVersion || "latest");
+    }
 
     // @ts-ignore
     if (!window.require) {
@@ -621,10 +641,12 @@ export default function App() {
         setStepIndex(STEPS.length - 1);
         setPhase("done");
         addLog(`✅ ${appLabel} instalado com sucesso (v${result.version || "?"})`);
-        trackEvent(isAppUpdate ? "app_update_complete" : "app_install_complete", {
-          app_type: appType,
-          app_version: result.version || "",
-        });
+        const ver = result.version || "";
+        if (isAppUpdate) {
+          trackHubAppUpdateComplete(appType, ver);
+        } else {
+          trackHubAppInstallComplete(appType, ver, Date.now() - installStartedAt);
+        }
         setAppUpdate({
           hasUpdate: false,
           installedVersion: result.version || null,
@@ -639,12 +661,16 @@ export default function App() {
         }
       } else {
         const errMsg = result?.errors?.join("; ") || "Falha desconhecida";
+        if (isAppUpdate) trackHubAppUpdateFailed(appType, errMsg);
+        else trackHubAppInstallFailed(appType, errMsg);
         setInstallError(errMsg);
         addLog(`❌ Falha na instalação: ${errMsg}`);
         setPhase("idle");
       }
     } catch (err: any) {
       const message = err?.message || String(err);
+      if (isAppUpdate) trackHubAppUpdateFailed(appType, message);
+      else trackHubAppInstallFailed(appType, message);
       setInstallError(message);
       addLog(`❌ Erro na instalação: ${message}`);
       setPhase("idle");
@@ -710,7 +736,7 @@ export default function App() {
       }
 
       await ipcRenderer.invoke("launch-app", appType, installPath);
-      trackEvent("app_launch", { app_type: appType });
+      trackHubAppOpen(appType, appUpdate.installedVersion || appVersion);
       addLog(`▶ Aplicativo iniciado`);
     } catch (err: any) {
       const message = err?.message || String(err);

@@ -1,6 +1,6 @@
 # Google Analytics 4 — Ecossistema TGS
 
-Integração **GA4** (gtag.js) no **TGS Launcher**, **Pack Menager** e **Mod Menager**. Em produção os eventos só são enviados se o Measurement ID estiver configurado.
+Integração **GA4** (gtag.js) no **TGS Launcher**, **Pack Menager** e **Mod Menager**. Eventos com prefixo **`tgs_`** para filtrar facilmente em **Principais eventos** / **DebugView**.
 
 ---
 
@@ -10,7 +10,7 @@ Integração **GA4** (gtag.js) no **TGS Launcher**, **Pack Menager** e **Mod Men
 2. Fluxo de dados **Web** (ou vários fluxos, um por app).
 3. Copiar o **Measurement ID** (`G-XXXXXXXXXX`).
 
-Pode usar **um único ID** para todo o ecossistema e filtrar no GA4 pelo parâmetro `app_name`, ou IDs separados por app.
+Pode usar **um único ID** para todo o ecossistema e filtrar pelo parâmetro `tgs_product` / `app_name`.
 
 ---
 
@@ -21,15 +21,12 @@ Pode usar **um único ID** para todo o ecossistema e filtrar no GA4 pelo parâme
 ```bash
 cd MainCode/Launcher
 copy .env.example .env
-# Editar .env:
 # VITE_GA_MEASUREMENT_ID=G-SEU_ID
 ```
 
-- Código: `src/analytics/ga4.ts`
-- Arranque: `App.tsx` (após `get-app-info`)
-- **Build:** o ID é embutido no `vite build`; para releases CI, definir `VITE_GA_MEASUREMENT_ID` como secret/variável do workflow.
-
-Testar em dev: `VITE_GA_ENABLED=true` no `.env`.
+- `src/analytics/ga4.ts` — transporte gtag
+- `src/analytics/tgsEvents.ts` — catálogo de eventos do hub
+- Arranque: `App.tsx`
 
 ### Pack Menager (`MainCode/Pack Menager/src/client`)
 
@@ -39,52 +36,110 @@ copy .env.example .env
 # VITE_GA_MEASUREMENT_ID=G-SEU_ID
 ```
 
-- Código: `src/client/src/analytics/ga4.ts`
-- CSP: `src/server/src/app.js` inclui `https://www.googletagmanager.com` em `script-src`
-- Rebuild do cliente + servidor empacotado para produção
+- `src/client/src/analytics/ga4.ts` + `tgsEvents.ts`
+- UI: `http://localhost:3791` (porta dinâmica em produção)
 
 ### Mod Menager (`MainCode/Mod Menager/client`)
 
 ```bash
 cd "MainCode/Mod Menager/client"
 copy analytics-config.example.js analytics-config.js
-# Editar analytics-config.js → measurementId: 'G-SEU_ID'
 ```
 
-- Scripts: `analytics-config.js` + `analytics.js` (incluídos em `login.html`, `dashboard.html`, etc.)
-- CSP: `main-new.js` (`connect-src` para domínios GA4)
+- `analytics.js` + `tgsEvents.js`
+- UI: `http://127.0.0.1:3793`
 
 ---
 
-## 3. Eventos enviados
+## 3. Catálogo de eventos
 
-| App | `app_name` | Eventos |
-|-----|------------|---------|
-| Launcher | `tgs_launcher` | `page_view` (hub + troca Pack/Mod/Code), `app_install_start`, `app_install_complete`, `app_update_start`, `app_update_complete`, `app_launch` |
-| Pack Menager | `tgs_pack_manager` | `app_open`, `page_view`, `pack_export_complete` (UI em `http://localhost:3791`) |
-| Mod Menager | `tgs_mod_manager` | `page_view`, `login_success`, `dashboard_open` (UI em `http://127.0.0.1:3793`) |
+Parâmetros comuns em quase todos os eventos:
 
-O Pack Menager mantém o canal separado **`trackAdEvent`** (URL opcional no JSON de ads em `T1NG4/TGS-ads`) — não substitui o GA4.
+| Parâmetro | Uso |
+|-----------|-----|
+| `tgs_product` | `tgs_launcher`, `tgs_pack_manager`, `tgs_mod_manager` |
+| `tgs_category` | `lifecycle`, `navigation`, `export`, `auth`, `engagement` |
+| `tgs_action` | Ação semântica (`install_start`, `export_complete`, …) |
+| `tgs_target_app` | No hub: `pack` ou `mod` |
+
+### Launcher (hub)
+
+| Evento | Quando |
+|--------|--------|
+| `tgs_screen_view` | Troca de modo Pack / Mod / Code / home |
+| `tgs_hub_app_install_start` | Início da **primeira** instalação |
+| `tgs_hub_app_install_complete` | Instalação OK (`duration_ms`) |
+| `tgs_hub_app_install_failed` | Instalação falhou |
+| `tgs_hub_app_update_start` | Atualização de app (`version_from`, `version_to`) |
+| `tgs_hub_app_update_complete` | Atualização OK |
+| `tgs_hub_app_update_failed` | Atualização falhou |
+| `tgs_hub_app_open` | Botão **Executar** (Pack/Mod aberto) |
+| `tgs_launcher_self_update_start` | Update do próprio Launcher disponível |
+| `tgs_launcher_self_update_complete` | Update do Launcher baixado |
+
+Também é enviado `page_view` nas navegações (`trackScreen`).
+
+### Pack Manager
+
+| Evento | Quando |
+|--------|--------|
+| `tgs_pack_open` | App aberto / sessão iniciada |
+| `tgs_pack_export_start` | Export confirmado (após gate de anúncio) |
+| `tgs_pack_export_complete` | Pack gerado (`duration_ms`, `warning_count`) |
+| `tgs_pack_export_failed` | Erro no export ou nas rodas |
+
+Parâmetros úteis: `pack_id`, `pack_name`, `vehicle_count`.
+
+### Mod Manager
+
+| Evento | Quando |
+|--------|--------|
+| `tgs_mod_open` | Página carregada (login, dashboard, …) |
+| `tgs_mod_login_success` | Login com sucesso |
+| `tgs_mod_dashboard_open` | Dashboard montado |
 
 ---
 
-## 4. Desktop (Electron) — por que “Tempo real” ficava em zero?
+## 4. Métricas no painel GA4
 
-O GA4 **não contabiliza bem** tráfego com origem `file://` ou `http://localhost`. Os apps TGS enviam eventos com **`page_location`** em `https://tgs.gamer.gd/...` para aparecer no painel.
+Sugestões em **Admin → Definições personalizadas → Dimensões personalizadas** (escopo: Evento):
 
-**Testar em dev:** no GA4 abre **Admin → DebugView** (não só “Tempo real”). Com `npm run dev`, `debug_mode` fica ativo no Launcher/Pack.
+- `tgs_product`
+- `tgs_target_app`
+- `tgs_category`
+- `tgs_action`
+- `pack_name` (Pack)
 
-**Build portable:** precisa da versão **v2.0.7+** (correção GA) ou dev com app aberto + DebugView.
+Explorar:
 
-## 5. Privacidade e dev
+- **Instalações:** contagem de `tgs_hub_app_install_start` vs `complete` (funil).
+- **Atualizações:** `tgs_hub_app_update_start` / `complete`.
+- **Pack em uso:** `tgs_pack_open` + `tgs_hub_app_open` com `tgs_target_app=pack`.
+- **Exports:** `tgs_pack_export_start` vs `complete` / `failed`.
 
-- `anonymize_ip: true` na config gtag.
-- ID padrão de produção embutido no código (`G-DF8MNV3V66`); podes sobrescrever com `.env`.
-- Para desligar em dev: `VITE_GA_ENABLED=false` (Launcher/Pack) ou `enabledInDev: false` (Mod).
+Eventos antigos (`app_install_start`, `app_open`, `pack_export_complete`, …) deixam de ser emitidos nas versões novas.
 
 ---
 
-## 5. Relacionado
+## 5. Desktop (Electron) e DebugView
+
+O GA4 não contabiliza bem `file://`. Os apps enviam `page_location` em `https://tgs.gamer.gd/...`.
+
+**DebugView:** `localStorage.setItem('TGS_GA_DEBUG','1')` + reload, ou `npm run dev`.
+
+**Console:** `tgsGaEnableDebug()` (Launcher/Pack).
+
+---
+
+## 6. Privacidade
+
+- `anonymize_ip: true`
+- ID padrão embutido (`G-DF8MNV3V66`); sobrescrever via `.env` / `analytics-config.js`
+- Desligar em dev: `VITE_GA_ENABLED=false` ou `enabledInDev: false`
+
+---
+
+## 7. Relacionado
 
 - [DOCUMENTACAO_GERAL.md](DOCUMENTACAO_GERAL.md)
 - [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md)

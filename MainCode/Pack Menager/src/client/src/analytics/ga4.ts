@@ -110,7 +110,6 @@ export async function initGa4(appVersion?: string): Promise<void> {
   }
 
   initialized = true;
-  trackPageView('/', 'TGS Pack Manager');
 
   if (typeof window !== 'undefined') {
     (window as Window & { tgsGaEnableDebug?: () => void }).tgsGaEnableDebug = enableGaDebugMode;
@@ -129,8 +128,34 @@ export function trackPageView(pagePath: string, pageTitle?: string): void {
   window.gtag('event', 'page_view', {
     page_path: path,
     page_title: pageTitle || pagePath,
-    page_location: pageLocation(`/pack-manager${path}`),
+    page_location: pageLocation(path.startsWith('/pack-manager') ? path : `/pack-manager${path}`),
     app_name: APP_NAME,
+    tgs_product: APP_NAME,
+  });
+}
+
+function buildParams(params?: Record<string, string | number | boolean | undefined>) {
+  const clean: Record<string, string | number | boolean> = { app_name: APP_NAME, tgs_product: APP_NAME };
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined) clean[k] = v;
+    }
+  }
+  return clean;
+}
+
+/** Navegação — page_view + evento tipado. */
+export function trackScreen(
+  screenName: string,
+  extra?: Record<string, string | number | boolean | undefined>
+): void {
+  if (!initialized || !window.gtag) return;
+  const path = `/pack-manager/screen/${screenName}`;
+  trackPageView(path, String(extra?.hub_mode || screenName));
+  window.gtag('event', 'tgs_screen_view', {
+    ...buildParams(extra),
+    screen_name: screenName,
+    tgs_category: 'navigation',
   });
 }
 
@@ -139,11 +164,5 @@ export function trackEvent(
   params?: Record<string, string | number | boolean | undefined>
 ): void {
   if (!initialized || !window.gtag) return;
-  const clean: Record<string, string | number | boolean> = { app_name: APP_NAME };
-  if (params) {
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== undefined) clean[k] = v;
-    }
-  }
-  window.gtag('event', eventName, clean);
+  window.gtag('event', eventName, buildParams(params));
 }

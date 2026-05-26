@@ -204,9 +204,8 @@ document.addEventListener('DOMContentLoaded', function() {
         checkPaymentStatusFromURL();
         initializeAdminMenu();
         initializeCreatorMenu();
-        if (window.tgsAnalytics) {
-            window.tgsAnalytics.trackEvent('dashboard_open', { screen: 'dashboard' });
-            window.tgsAnalytics.trackPageView('/mod-manager/dashboard', document.title);
+        if (window.tgsModEvents) {
+            window.tgsModEvents.trackDashboardOpen('dashboard');
         }
     }
     
@@ -421,8 +420,8 @@ function setupLoginPage() {
                         });
                     }
 
-                    if (window.tgsAnalytics) {
-                        window.tgsAnalytics.trackEvent('login_success', { method: 'password' });
+                    if (window.tgsModEvents) {
+                        window.tgsModEvents.trackLoginSuccess('password');
                     }
                     
                     window.location.href = 'dashboard.html';

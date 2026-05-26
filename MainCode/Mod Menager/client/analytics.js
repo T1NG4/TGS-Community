@@ -89,7 +89,11 @@
     return loadGtagScript()
       .then(function () {
         initialized = true;
-        trackPageView('/mod-manager/' + slug, document.title);
+        if (window.tgsModEvents && window.tgsModEvents.trackOpen) {
+          window.tgsModEvents.trackOpen(appVersion);
+        } else {
+          trackPageView('/mod-manager/' + slug, document.title);
+        }
         console.info(
           '[TGS GA4] Ativo —',
           measurementId,
@@ -101,20 +105,8 @@
       });
   }
 
-  function trackPageView(pagePath, pageTitle) {
-    if (!initialized || !window.gtag) return;
-    var path = pagePath.charAt(0) === '/' ? pagePath : '/' + pagePath;
-    window.gtag('event', 'page_view', {
-      page_path: path,
-      page_title: pageTitle || pagePath,
-      page_location: pageLocation(path),
-      app_name: appName,
-    });
-  }
-
-  function trackEvent(eventName, params) {
-    if (!initialized || !window.gtag) return;
-    var payload = { app_name: appName };
+  function buildParams(params) {
+    var payload = { app_name: appName, tgs_product: appName };
     if (params) {
       for (var key in params) {
         if (Object.prototype.hasOwnProperty.call(params, key) && params[key] !== undefined) {
@@ -122,7 +114,37 @@
         }
       }
     }
-    window.gtag('event', eventName, payload);
+    return payload;
+  }
+
+  function trackPageView(pagePath, pageTitle) {
+    if (!initialized || !window.gtag) return;
+    var path = pagePath.charAt(0) === '/' ? pagePath : '/' + pagePath;
+    window.gtag('event', 'page_view', {
+      page_path: path,
+      page_title: pageTitle || pagePath,
+      page_location: pageLocation(path.indexOf('/mod-manager') === 0 ? path : '/mod-manager' + path),
+      app_name: appName,
+      tgs_product: appName,
+    });
+  }
+
+  function trackScreen(screenName, extra) {
+    if (!initialized || !window.gtag) return;
+    var path = '/mod-manager/screen/' + screenName;
+    trackPageView(path, (extra && extra.hub_mode) || screenName);
+    var screenParams = { screen_name: screenName, tgs_category: 'navigation' };
+    if (extra) {
+      for (var k in extra) {
+        if (Object.prototype.hasOwnProperty.call(extra, k)) screenParams[k] = extra[k];
+      }
+    }
+    window.gtag('event', 'tgs_screen_view', buildParams(screenParams));
+  }
+
+  function trackEvent(eventName, params) {
+    if (!initialized || !window.gtag) return;
+    window.gtag('event', eventName, buildParams(params));
   }
 
   function enableGaDebugMode() {
@@ -139,6 +161,7 @@
 
   window.tgsAnalytics = {
     trackPageView: trackPageView,
+    trackScreen: trackScreen,
     trackEvent: trackEvent,
     isEnabled: isEnabled,
     enableGaDebugMode: enableGaDebugMode,
