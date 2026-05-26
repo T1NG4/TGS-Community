@@ -16,6 +16,8 @@ const fsWriteFile = promisify(fs.writeFile);
 const fsReadFile = promisify(fs.readFile);
 const fsRename = promisify(fs.rename);
 const fsUnlink = promisify(fs.unlink);
+const fsOpen = promisify(fs.open);
+const fsClose = promisify(fs.close);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -46,6 +48,63 @@ async function stopManagedApp(appType) {
     /* ignore */
   }
   await sleep(800);
+}
+
+async function writeJsonAtomic(filePath, obj) {
+  const tmpPath = `${filePath}.tmp`;
+  await fsWriteFile(tmpPath, JSON.stringify(obj, null, 2));
+  await fsRename(tmpPath, filePath);
+}
+
+/**
+ * Lock global para evitar instalações simultâneas (pode corromper .partial/.old).
+ * Cria ficheiro de forma exclusiva. Se ficar “preso”, expira por idade.
+ */
+async function acquireInstallLock(lockDir, timeoutMs = 5 * 60 * 1000) {
+  const lockPath = path.join(lockDir, '.tgs-install.lock');
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeoutMs) {
+    try {
+      const fd = await fsOpen(lockPath, 'wx');
+      try {
+        await fsWriteFile(
+          lockPath,
+          JSON.stringify({ pid: process.pid, at: new Date().toISOString() }, null, 2)
+        );
+      } catch {
+        /* ignore */
+      }
+      return { lockPath, fd };
+    } catch {
+      try {
+        const stat = await fs.promises.stat(lockPath);
+        if (Date.now() - stat.mtimeMs > timeoutMs) {
+          await fsUnlink(lockPath);
+          continue;
+        }
+      } catch {
+        /* ignore */
+      }
+      await sleep(250);
+    }
+  }
+
+  throw new Error('Instalação em andamento. Aguarde terminar e tente novamente.');
+}
+
+async function releaseInstallLock(lock) {
+  if (!lock) return;
+  try {
+    if (lock.fd) await fsClose(lock.fd);
+  } catch {
+    /* ignore */
+  }
+  try {
+    if (lock.lockPath) await fsUnlink(lock.lockPath);
+  } catch {
+    /* ignore */
+  }
 }
 
 async function checkSystem() {
@@ -223,6 +282,7 @@ async function startInstallation(config, onProgress) {
   const startTime = Date.now();
   const errors = [];
   const appType = config.appType || 'packManager';
+  let lock = null;
 
   try {
     logger.info('Starting installation', config);
@@ -236,6 +296,11 @@ async function startInstallation(config, onProgress) {
     const dataDir = path.join(baseInstallDir, 'data');
     const appsRootDir = path.join(dataDir, 'apps');
     const appInstallDir = path.join(appsRootDir, appType);
+
+    if (!fs.existsSync(appsRootDir)) {
+      await fsMkdir(appsRootDir, { recursive: true });
+    }
+    lock = await acquireInstallLock(appsRootDir);
 
     if (!fs.existsSync(appInstallDir)) {
       await fsMkdir(appInstallDir, { recursive: true });
@@ -288,8 +353,15 @@ async function startInstallation(config, onProgress) {
         await sleep(500 * attempt);
       }
       try {
+        // Preferir atomicidade: renomeia destino para .old, depois move o .partial
         if (await fsExists(destination)) {
-          await fsUnlink(destination);
+          const backupPath = `${destination}.old`;
+          try {
+            if (await fsExists(backupPath)) await fsUnlink(backupPath);
+          } catch {
+            /* ignore */
+          }
+          await fsRename(destination, backupPath);
         }
         await fsRename(partialPath, destination);
         replaced = true;
@@ -338,20 +410,20 @@ async function startInstallation(config, onProgress) {
 
     const installedVersion = await fetchLatestVersion(appType);
     const versionPath = path.join(appInstallDir, 'version.json');
-    await fsWriteFile(versionPath, JSON.stringify({
+    await writeJsonAtomic(versionPath, {
       appType,
       fileName,
       version: installedVersion,
       installedAt: new Date().toISOString(),
       hash,
-    }, null, 2));
+    });
 
     if (config.createShortcuts) {
       await createShortcuts(appInstallDir);
     }
 
     const configPath = path.join(appInstallDir, 'config.json');
-    await fsWriteFile(configPath, JSON.stringify(config, null, 2));
+    await writeJsonAtomic(configPath, config);
 
     const duration = Date.now() - startTime;
 
@@ -375,6 +447,8 @@ async function startInstallation(config, onProgress) {
   } catch (error) {
     logger.error('Installation failed', error);
     throw error;
+  } finally {
+    await releaseInstallLock(lock);
   }
 }
 
