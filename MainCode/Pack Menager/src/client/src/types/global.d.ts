@@ -8,6 +8,7 @@ declare global {
       closeWindow: () => void;
       minimizeWindow: () => void;
       toggleFullscreen: () => void;
+      toggleDevTools: () => Promise<{ opened: boolean }>;
     };
   }
 }

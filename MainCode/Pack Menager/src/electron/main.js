@@ -6,7 +6,11 @@ const os = require('os');
 const net = require('net');
 const { createApp, setPaths, getOutputPath } = require('../server/src/app');
 const { setupAutoUpdater } = require('./autoUpdater');
-const { setupDevTools, wantDevToolsOnStartup } = require('./devtools');
+const {
+  setupDevTools,
+  wantDevToolsOnStartup,
+  unregisterGlobalDevToolsShortcuts,
+} = require('./devtools');
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 const DEFAULT_PORT = 3791;
@@ -217,4 +221,8 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('will-quit', () => {
+  unregisterGlobalDevToolsShortcuts();
 });

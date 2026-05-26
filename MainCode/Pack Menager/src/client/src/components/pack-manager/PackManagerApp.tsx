@@ -86,7 +86,7 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
-  const [currentVersion, setCurrentVersion] = useState('2.0.14');
+  const [currentVersion, setCurrentVersion] = useState('2.0.15');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
@@ -253,6 +253,19 @@ const PackManagerApp: React.FC = () => {
     void initGa4(currentVersion).then(() => {
       trackPackOpen(currentVersion);
     });
+  }, []);
+
+  /* F12 / Ctrl+Shift+I → DevTools (portable; fallback se atalho do Electron falhar) */
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const f12 = e.key === 'F12';
+      const devCombo = e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i');
+      if (!f12 && !devCombo) return;
+      e.preventDefault();
+      void window.electronAPI?.toggleDevTools?.();
+    };
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
   }, []);
 
   useEffect(() => {
