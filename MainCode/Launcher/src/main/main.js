@@ -5,6 +5,7 @@ const { autoUpdater } = require('electron-updater');
 const logger = require('./logger');
 const installer = require('./installer');
 const config = require('./config');
+const staticServer = require('./staticServer');
 
 let mainWindow;
 
@@ -52,7 +53,17 @@ async function assertLauncherUpToDate() {
 autoUpdater.autoDownload = true; // Baixar automaticamente quando disponível
 autoUpdater.autoInstallOnAppQuit = false; // Aguardar confirmação do usuário (melhor UX)
 
-function createWindow() {
+async function resolveStartUrl() {
+  if (isDev) {
+    return 'http://localhost:5175';
+  }
+  const distPath = path.join(__dirname, '../../dist-renderer');
+  const url = await staticServer.startStaticServer(distPath);
+  logger.info(`[UI] Servindo interface em ${url} (necessário para Google Analytics)`);
+  return url;
+}
+
+function createWindow(startUrl) {
   mainWindow = new BrowserWindow({
     width: 780,
     height: 410,
@@ -72,10 +83,6 @@ function createWindow() {
     backgroundColor: '#060810',
   });
 
-  const startUrl = isDev
-    ? 'http://localhost:5175'
-    : `file://${path.join(__dirname, '../../dist-renderer/index.html')}`;
-
   mainWindow.loadURL(startUrl);
 
   if (isDev) {
@@ -89,12 +96,14 @@ function createWindow() {
   logger.info('Launcher window created');
 }
 
-app.whenReady().then(() => {
-  createWindow();
+app.whenReady().then(async () => {
+  const startUrl = await resolveStartUrl();
+  createWindow(startUrl);
 
-  app.on('activate', () => {
+  app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      const url = await resolveStartUrl();
+      createWindow(url);
     }
   });
 
@@ -147,6 +156,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('before-quit', () => {
+  staticServer.stopStaticServer();
 });
 
 // IPC Handlers
