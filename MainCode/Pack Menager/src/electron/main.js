@@ -15,6 +15,7 @@ const {
 // ─── Configuration ────────────────────────────────────────────────────────────
 const DEFAULT_PORT = 3791;
 const isDev = !app.isPackaged;
+const HOST = '127.0.0.1';
 
 if (isDev) {
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
@@ -52,7 +53,9 @@ function findAvailablePort(startPort, maxAttempts = 20) {
       tester.once('listening', () => {
         tester.close(() => resolve(port));
       });
-      tester.listen(port, '127.0.0.1');
+      // Importante: o Express precisa bindar no mesmo host para evitar falso "livre"
+      // quando outra instância escuta em IPv6/all interfaces (ex.: :::3791).
+      tester.listen(port, HOST);
     };
 
     tryPort(startPort);
@@ -74,9 +77,9 @@ function startServer(port) {
 
   setPaths(BASE_PATH, OUTPUT_PATH, DIST_PATH);
   const expressApp = createApp(!isDev); // serve static only in production
-  expressApp.listen(port, () =>
-    console.log(`[Backend] Express em http://localhost:${port}  |  Output → ${OUTPUT_PATH}`)
-  );
+  expressApp.listen(port, HOST, () => {
+    console.log(`[Backend] Express em http://${HOST}:${port}  |  Output → ${OUTPUT_PATH}`);
+  });
 }
 
 // ─── Window ───────────────────────────────────────────────────────────────────
@@ -103,7 +106,7 @@ function createWindow(port) {
 
   Menu.setApplicationMenu(null);
 
-  const url = isDev ? 'http://localhost:5173' : `http://localhost:${port}`;
+  const url = isDev ? 'http://localhost:5173' : `http://${HOST}:${port}`;
   mainWindow.loadURL(url);
 
   mainWindow.webContents.setWindowOpenHandler(({ url: href }) => {
@@ -226,3 +229,19 @@ app.on('window-all-closed', () => {
 app.on('will-quit', () => {
   unregisterGlobalDevToolsShortcuts();
 });
+
+// ─── Single instance lock (produção) ──────────────────────────────────────────
+// Evita duas instâncias do Pack a correr e a disputar a porta.
+if (!isDev) {
+  const gotLock = app.requestSingleInstanceLock();
+  if (!gotLock) {
+    app.quit();
+  } else {
+    app.on('second-instance', () => {
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
+      }
+    });
+  }
+}
