@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
 @import 'tailwindcss';
 
 .font-audiowide {
-  font-family: 'Audiowide', sans-serif;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .draggable {
