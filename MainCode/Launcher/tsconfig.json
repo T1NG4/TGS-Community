@@ -18,7 +18,8 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@tgs/analytics/*": ["../shared/analytics/*"]
     },
 
     /* Linting */

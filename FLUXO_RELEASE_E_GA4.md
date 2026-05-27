@@ -56,9 +56,11 @@ Workflows na **raiz** `.github/workflows/` (só estes rodam no monorepo):
 
 ## 4. Google Analytics 4
 
-- **Measurement ID:** `G-DF8MNV3V66` (embutido no CI e no código)
+- **Três fluxos Web** na mesma propriedade GA4 (recomendado): secrets `GA_MEASUREMENT_ID_LAUNCHER`, `_PACK`, `_MOD`
+- **Fallback CI:** `G-DF8MNV3V66` se secret vazio
 - **Launcher / Pack:** `VITE_GA_MEASUREMENT_ID` no build
-- **Mod:** `client/analytics-config.js`
+- **Mod:** `analytics-config.js` gerado no CI ou `analytics-config.example.js`
+- **Core partilhado:** `MainCode/shared/analytics/` (fila de eventos)
 
 **DebugView (build GitHub):**
 

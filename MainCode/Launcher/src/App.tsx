@@ -4,12 +4,15 @@ import {
   trackHubAppInstallComplete,
   trackHubAppInstallFailed,
   trackHubAppInstallStart,
+  trackHubAppLaunchFailed,
   trackHubAppOpen,
   trackHubAppUpdateComplete,
   trackHubAppUpdateFailed,
   trackHubAppUpdateStart,
+  trackHubInstallCancelled,
   trackHubScreen,
   trackLauncherUpdateComplete,
+  trackLauncherUpdateFailed,
   trackLauncherUpdateStart,
 } from "./analytics/tgsEvents";
 
@@ -367,9 +370,11 @@ export default function App() {
     };
 
     const onUpdateError = (_: any, err: any) => {
+      const msg = err?.message || "Erro desconhecido";
+      trackLauncherUpdateFailed(msg);
       setUpdateState("error");
-      setUpdateError(err?.message || "Erro desconhecido");
-      addLog(`❌ Erro no auto-update: ${err?.message || "?"}`);
+      setUpdateError(msg);
+      addLog(`❌ Erro no auto-update: ${msg}`);
     };
 
     const onInstallationProgress = (_: any, progress: any) => {
@@ -691,6 +696,9 @@ export default function App() {
 
   const handleCancel = async () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+    if (phase === "installing") {
+      trackHubInstallCancelled(getAppType());
+    }
     // @ts-ignore
     if (phase === "installing" && window.require) {
       // @ts-ignore
@@ -752,6 +760,7 @@ export default function App() {
       addLog(`▶ Aplicativo iniciado`);
     } catch (err: any) {
       const message = err?.message || String(err);
+      trackHubAppLaunchFailed(appType, message);
       addLog(`❌ Falha ao iniciar app: ${message}`);
     }
   };

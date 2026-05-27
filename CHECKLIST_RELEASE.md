@@ -36,18 +36,23 @@ Usar este checklist sempre que publicar uma tag `vX.Y.Z` no monorepo.
 - [ ] Tentar abrir Pack/Mod direto pelo `.exe` → deve bloquear sem token
 - [ ] Abrir pelo Launcher → deve abrir normalmente
 
-## 5) GA4 (DebugView)
+## 5) GA4 — três fluxos + DebugView
 
-- [ ] No GA4 → **Admin → DebugView**
+- [ ] Admin GA4: 3 fluxos Web (Launcher / Pack / Mod) com IDs em secrets `GA_MEASUREMENT_ID_*`
+- [ ] `node scripts/validate-ga-events.mjs` (local, opcional)
+- [ ] DebugView no fluxo **correto** para cada app testado
 - [ ] Launcher:
+  - [ ] `tgs_launcher_session_start`
   - [ ] `tgs_screen_view` / `page_view`
-  - [ ] `tgs_hub_app_install_start` / `complete` (ao instalar)
-  - [ ] `tgs_hub_app_open` (ao clicar Executar)
-- [ ] Pack:
-  - [ ] Abrir DevTools: **F12** (ou Ctrl+Shift+I)
-  - [ ] Console: `tgsGaPing()` → aparece em DebugView
+  - [ ] `tgs_hub_app_install_start` / `complete` (instalar)
+  - [ ] `tgs_hub_app_open` (Executar)
+- [ ] Pack (F12 → console):
+  - [ ] `tgsGaPing()` → `tgs_ga_ping`
+  - [ ] `tgs_pack_open`, `tgs_pack_tab_view`
   - [ ] Export: `tgs_pack_export_start` / `complete`
+  - [ ] Ads (se ativos): `tgs_pack_ad_impression` / `complete`
 - [ ] Mod:
-  - [ ] Login: `tgs_mod_login_success`
-  - [ ] Dashboard: `tgs_mod_dashboard_open`
+  - [ ] `tgs_mod_open`, `tgs_mod_screen_view`
+  - [ ] `tgs_mod_login_success` / `tgs_mod_dashboard_open`
+  - [ ] Toggle mod: `tgs_mod_mod_toggle`
 

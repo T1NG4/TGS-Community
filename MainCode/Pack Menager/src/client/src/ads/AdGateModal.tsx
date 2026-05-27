@@ -4,6 +4,12 @@ import { AdVideoPlayer } from './AdVideoPlayer';
 import { ImaAdPlayer } from './ImaAdPlayer';
 import { trackAdEvent, useAdConfig } from './useAdConfig';
 import { openExternalLink } from '../constants/publicLinks';
+import {
+  trackPackAdComplete,
+  trackPackAdError,
+  trackPackAdImpression,
+  trackPackAdSkipped,
+} from '../analytics/tgsEvents';
 
 type TranslateFn = (key: string) => string;
 
@@ -35,6 +41,7 @@ export const AdGateModal: React.FC<AdGateModalProps> = ({
     setWatchComplete(true);
     setWatchProgress(100);
     if (selectedAd && config) {
+      trackPackAdComplete(selectedAd.id);
       trackAdEvent(config.analyticsUrl, {
         event: 'ad_complete',
         adId: selectedAd.id,
@@ -48,6 +55,7 @@ export const AdGateModal: React.FC<AdGateModalProps> = ({
     (message: string) => {
       setPlayerError(message);
       if (selectedAd && config) {
+        trackPackAdError(selectedAd.id, message);
         trackAdEvent(config.analyticsUrl, {
           event: 'ad_error',
           adId: selectedAd.id,
@@ -67,12 +75,20 @@ export const AdGateModal: React.FC<AdGateModalProps> = ({
 
   React.useEffect(() => {
     if (!open || !selectedAd || !config) return;
-    trackAdEvent(config.analyticsUrl, {
-      event: 'ad_impression',
-      adId: selectedAd.id,
-      app: 'packManager',
-    });
+    if (selectedAd) {
+      trackPackAdImpression(selectedAd.id);
+      trackAdEvent(config.analyticsUrl, {
+        event: 'ad_impression',
+        adId: selectedAd.id,
+        app: 'packManager',
+      });
+    }
   }, [open, selectedAd, config]);
+
+  React.useEffect(() => {
+    if (!open || !config || config.enabled) return;
+    trackPackAdSkipped('ads_disabled');
+  }, [open, config]);
 
   if (!open) return null;
 

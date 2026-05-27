@@ -50,7 +50,7 @@ jobs:
       - name: Build renderer (GA4 embutido)
         run: npm run build:renderer
         env:
-          VITE_GA_MEASUREMENT_ID: G-DF8MNV3V66
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID_LAUNCHER != '' && secrets.GA_MEASUREMENT_ID_LAUNCHER || 'G-DF8MNV3V66' }}
 
       - name: Build & Publish
         run: npm run build:main -- --publish always

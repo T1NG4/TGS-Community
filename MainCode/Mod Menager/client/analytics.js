@@ -1,5 +1,6 @@
 /**
  * Google Analytics 4 — TGS Mod Manager
+ * Sync com MainCode/shared/analytics/ga4Core.ts (fila + init antecipado).
  */
 (function () {
   'use strict';
@@ -9,6 +10,13 @@
   var appName = config.appName || 'tgs_mod_manager';
   var appVersion = config.appVersion || '';
   var pageOrigin = 'https://tgs.gamer.gd';
+  var PREFIX = 'mod-manager';
+  var QUEUE_WARN_MS = 5000;
+
+  var initialized = false;
+  var scriptLoaded = false;
+  var queue = [];
+  var queueWarnTimer = null;
 
   function isGaDebugMode() {
     try {
@@ -33,8 +41,6 @@
     return pageOrigin + p;
   }
 
-  var initialized = false;
-
   function setupGtagQueue() {
     window.dataLayer = window.dataLayer || [];
     if (typeof window.gtag === 'function') return;
@@ -43,9 +49,98 @@
     };
   }
 
+  function buildParams(params) {
+    var payload = { app_name: appName, tgs_product: appName };
+    if (params) {
+      for (var key in params) {
+        if (Object.prototype.hasOwnProperty.call(params, key) && params[key] !== undefined) {
+          payload[key] = params[key];
+        }
+      }
+    }
+    return payload;
+  }
+
+  function logGa(message) {
+    if (isGaDebugMode()) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      console.info.apply(console, ['[TGS GA4] ' + message].concat(args));
+    }
+  }
+
+  function scheduleQueueWarn() {
+    if (queueWarnTimer || !isGaDebugMode()) return;
+    queueWarnTimer = setTimeout(function () {
+      queueWarnTimer = null;
+      if (queue.length > 0 && !scriptLoaded) {
+        console.warn(
+          '[TGS GA4] Eventos na fila há >5s — gtag.js pode estar bloqueado (firewall/DNS)'
+        );
+      }
+    }, QUEUE_WARN_MS);
+  }
+
+  function dispatchItem(item) {
+    if (!window.gtag) return;
+    if (item.kind === 'page_view') {
+      var path = item.path.charAt(0) === '/' ? item.path : '/' + item.path;
+      var fullPath = path.indexOf('/' + PREFIX) === 0 ? path : '/' + PREFIX + path;
+      window.gtag('event', 'page_view', {
+        page_path: fullPath,
+        page_title: item.title || item.path,
+        page_location: pageLocation(fullPath),
+        app_name: appName,
+        tgs_product: appName,
+      });
+      return;
+    }
+    if (item.kind === 'screen') {
+      var screenPath = '/' + PREFIX + '/screen/' + item.screenName;
+      dispatchItem({
+        kind: 'page_view',
+        path: screenPath,
+        title: (item.extra && item.extra.hub_mode) || item.screenName,
+      });
+      var screenParams = { screen_name: item.screenName, tgs_category: 'navigation' };
+      if (item.extra) {
+        for (var k in item.extra) {
+          if (Object.prototype.hasOwnProperty.call(item.extra, k)) screenParams[k] = item.extra[k];
+        }
+      }
+      window.gtag('event', 'tgs_screen_view', buildParams(screenParams));
+      return;
+    }
+    if (item.kind === 'event') {
+      var payload = buildParams(item.params);
+      window.gtag('event', item.name, payload);
+      logGa('evento →', item.name, payload);
+    }
+  }
+
+  function flushQueue() {
+    while (queue.length > 0) {
+      dispatchItem(queue.shift());
+    }
+    if (queueWarnTimer) {
+      clearTimeout(queueWarnTimer);
+      queueWarnTimer = null;
+    }
+  }
+
+  function enqueue(item) {
+    if (!isEnabled()) return;
+    if (initialized && window.gtag) {
+      dispatchItem(item);
+      return;
+    }
+    queue.push(item);
+    scheduleQueueWarn();
+  }
+
   function loadGtagScript() {
     return new Promise(function (resolve, reject) {
       if (document.querySelector('script[data-tgs-ga="' + measurementId + '"]')) {
+        scriptLoaded = true;
         resolve();
         return;
       }
@@ -55,6 +150,7 @@
         'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(measurementId);
       script.dataset.tgsGa = measurementId;
       script.onload = function () {
+        scriptLoaded = true;
         resolve();
       };
       script.onerror = function () {
@@ -73,6 +169,7 @@
     if (!isEnabled() || initialized) return Promise.resolve();
 
     setupGtagQueue();
+    initialized = true;
 
     var slug = currentPageSlug();
     window.gtag('js', new Date());
@@ -86,14 +183,19 @@
       page_title: 'TGS Mod Manager',
     });
 
+    flushQueue();
+
     return loadGtagScript()
       .then(function () {
-        initialized = true;
+        flushQueue();
         if (window.tgsModEvents && window.tgsModEvents.trackOpen) {
           window.tgsModEvents.trackOpen(appVersion);
         } else {
           trackPageView('/mod-manager/' + slug, document.title);
         }
+        window.tgsModEvents &&
+          window.tgsModEvents.trackScreenView &&
+          window.tgsModEvents.trackScreenView(slug);
         console.info(
           '[TGS GA4] Ativo —',
           measurementId,
@@ -105,46 +207,23 @@
       });
   }
 
-  function buildParams(params) {
-    var payload = { app_name: appName, tgs_product: appName };
-    if (params) {
-      for (var key in params) {
-        if (Object.prototype.hasOwnProperty.call(params, key) && params[key] !== undefined) {
-          payload[key] = params[key];
-        }
-      }
-    }
-    return payload;
-  }
-
   function trackPageView(pagePath, pageTitle) {
-    if (!initialized || !window.gtag) return;
-    var path = pagePath.charAt(0) === '/' ? pagePath : '/' + pagePath;
-    window.gtag('event', 'page_view', {
-      page_path: path,
-      page_title: pageTitle || pagePath,
-      page_location: pageLocation(path.indexOf('/mod-manager') === 0 ? path : '/mod-manager' + path),
-      app_name: appName,
-      tgs_product: appName,
-    });
+    enqueue({ kind: 'page_view', path: pagePath, title: pageTitle });
   }
 
   function trackScreen(screenName, extra) {
-    if (!initialized || !window.gtag) return;
-    var path = '/mod-manager/screen/' + screenName;
-    trackPageView(path, (extra && extra.hub_mode) || screenName);
-    var screenParams = { screen_name: screenName, tgs_category: 'navigation' };
-    if (extra) {
-      for (var k in extra) {
-        if (Object.prototype.hasOwnProperty.call(extra, k)) screenParams[k] = extra[k];
-      }
-    }
-    window.gtag('event', 'tgs_screen_view', buildParams(screenParams));
+    enqueue({ kind: 'screen', screenName: screenName, extra: extra });
   }
 
   function trackEvent(eventName, params) {
-    if (!initialized || !window.gtag) return;
-    window.gtag('event', eventName, buildParams(params));
+    if (!isEnabled()) return;
+    if (!initialized) {
+      init().then(function () {
+        trackEvent(eventName, params);
+      });
+      return;
+    }
+    enqueue({ kind: 'event', name: eventName, params: params });
   }
 
   function enableGaDebugMode() {
@@ -160,6 +239,7 @@
   }
 
   window.tgsAnalytics = {
+    init: init,
     trackPageView: trackPageView,
     trackScreen: trackScreen,
     trackEvent: trackEvent,

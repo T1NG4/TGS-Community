@@ -54,7 +54,7 @@ jobs:
       - name: Build client (GA4 embutido)
         run: npm run build:client
         env:
-          VITE_GA_MEASUREMENT_ID: G-DF8MNV3V66
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID_PACK != '' && secrets.GA_MEASUREMENT_ID_PACK || 'G-DF8MNV3V66' }}
 
       - name: Build & Publish portable
         run: npm run build:electron -- --publish always

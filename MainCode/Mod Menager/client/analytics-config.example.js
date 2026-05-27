@@ -1,10 +1,11 @@
 /**
- * Copie para analytics-config.js e preencha o Measurement ID (G-XXXXXXXXXX).
- * O ficheiro analytics-config.js pode ficar fora do git se preferir (adicione ao .gitignore).
+ * Copie para analytics-config.js (ou deixe o CI gerar no release).
+ * Crie 3 fluxos Web na mesma propriedade GA4 — um ID por app.
  */
 window.TGS_ANALYTICS_CONFIG = {
+  /** Fluxo "TGS Mod Manager Desktop" */
   measurementId: 'G-XXXXXXXXXX',
-  enabledInDev: false,
   appName: 'tgs_mod_manager',
-  appVersion: '2.0.1',
+  appVersion: '2.0.23',
+  enabledInDev: true,
 };

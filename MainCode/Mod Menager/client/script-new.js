@@ -428,6 +428,12 @@ function setupLoginPage() {
                 } else {
                     // Show error message
                     errorMessage.style.display = 'flex';
+
+                    if (window.tgsModEvents) {
+                        window.tgsModEvents.trackLoginFailed(
+                            authResult.error || 'invalid_credentials'
+                        );
+                    }
                     
                     // Mensagens específicas para diferentes tipos de erro
                     if (authResult.error) {
@@ -451,6 +457,9 @@ function setupLoginPage() {
             } catch (error) {
                 errorText.textContent = 'Erro ao validar credenciais. Tente novamente.';
                 errorMessage.style.display = 'flex';
+                if (window.tgsModEvents) {
+                    window.tgsModEvents.trackLoginFailed(error?.message || 'exception');
+                }
                 console.error('Login error:', error);
             }
         });
@@ -970,6 +979,10 @@ async function toggleMod(modId) {
         `${mod.name} ${mod.enabled ? 'ativado' : 'desativado'} com sucesso`,
         'success'
     );
+
+    if (window.tgsModEvents) {
+        window.tgsModEvents.trackModToggle(modId, mod.enabled);
+    }
 }
 
 // Update enabled count
@@ -1005,6 +1018,14 @@ function filterMods(searchTerm) {
             card.style.display = 'none';
         }
     });
+
+    if (window.tgsModEvents) {
+        var visible = 0;
+        cards.forEach(function (card) {
+            if (card.style.display !== 'none') visible++;
+        });
+        window.tgsModEvents.trackSearch(searchTerm, visible);
+    }
 }
 
 // Launch FiveM with enabled mods
@@ -1016,6 +1037,10 @@ async function launchFiveM() {
     if (enabledMods.length === 0) {
         showNotification('Nenhum mod selecionado. Selecione ao menos um mod antes de iniciar.', 'warning');
         return;
+    }
+
+    if (window.tgsModEvents) {
+        window.tgsModEvents.trackFivemLaunch();
     }
 
     try {
@@ -1081,6 +1106,10 @@ async function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     localStorage.removeItem('remoteMode');
+
+    if (window.tgsModEvents) {
+        window.tgsModEvents.trackLogout();
+    }
 
     window.location.href = 'login.html';
 }
@@ -1345,6 +1374,10 @@ function setupEnabledModsActions() {
     
     if (applyAllBtn) {
         applyAllBtn.addEventListener('click', () => {
+            if (window.tgsModEvents) {
+                var enabledCount = modsData.filter(function (m) { return m.enabled; }).length;
+                window.tgsModEvents.trackModApplyAll(enabledCount);
+            }
             launchFiveM();
         });
     }

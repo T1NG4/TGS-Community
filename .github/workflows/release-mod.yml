@@ -45,6 +45,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Configure GA4 (fluxo Mod)
+        shell: pwsh
+        run: |
+          $id = '${{ secrets.GA_MEASUREMENT_ID_MOD }}'
+          if (-not $id) { $id = 'G-DF8MNV3V66' }
+          @"
+          window.TGS_ANALYTICS_CONFIG = {
+            measurementId: '$id',
+            appName: 'tgs_mod_manager',
+            enabledInDev: true
+          };
+          "@ | Set-Content -Path analytics-config.js -Encoding utf8NoBOM
+
       - name: Build client
         run: npm run build
 
