@@ -157,10 +157,11 @@ function isValidAdConfig(data) {
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://imasdk.googleapis.com https://www.googletagmanager.com",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: https: blob:",
   "media-src 'self' https: blob: data:",
-  "connect-src 'self' https:",
+  "connect-src 'self' https: https://fonts.googleapis.com https://fonts.gstatic.com",
   "frame-src 'self' https:",
 ].join('; ');
 
