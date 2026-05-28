@@ -73,7 +73,10 @@ const PackManagerApp: React.FC = () => {
     | 'edit-carcols'
     | 'add-wheels-brand'
     | 'add-audio-config'
+    | 'confirm-delete-pack'
   >('new-pack');
+  const [packIdToDelete, setPackIdToDelete] = useState<string | null>(null);
+  const newPackNameInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVehicle, setUploadingVehicle] = useState<{
     brandId: string;
     vehicle: Vehicle;
@@ -294,10 +297,14 @@ const PackManagerApp: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (packs.length > 0) {
-      localStorage.setItem('fivemPacks', JSON.stringify(packs));
-    }
+    localStorage.setItem('fivemPacks', JSON.stringify(packs));
   }, [packs]);
+
+  useEffect(() => {
+    if (!showModal || modalType !== 'new-pack') return;
+    const timer = window.setTimeout(() => newPackNameInputRef.current?.focus(), 0);
+    return () => window.clearTimeout(timer);
+  }, [showModal, modalType]);
 
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -935,22 +942,28 @@ const PackManagerApp: React.FC = () => {
     showToast(`Pack "${newPack.name}" created successfully!`);
   };
 
-  const deletePack = (packId: string) => {
-    if (!window.confirm('Are you sure you want to delete this pack? This action cannot be undone.')) {
-      return;
-    }
+  const openDeletePackConfirm = (packId: string) => {
+    setPackIdToDelete(packId);
+    setModalType('confirm-delete-pack');
+    setShowModal(true);
+  };
 
+  const confirmDeletePack = () => {
+    if (!packIdToDelete) return;
+
+    const packId = packIdToDelete;
     const updatedPacks = packs.filter((p) => p.id !== packId);
     setPacks(updatedPacks);
 
-    // If deleting current pack, clear it
-    if (currentPack && currentPack.id === packId) {
+    if (currentPack?.id === packId) {
       setCurrentPack(null);
       setCurrentTab('packs');
+      setEditingVehicle(null);
+      setUploadingVehicle(null);
     }
 
-    // Save to localStorage
-    localStorage.setItem('fivemPacks', JSON.stringify(updatedPacks));
+    setPackIdToDelete(null);
+    setShowModal(false);
 
     showToast('Pack deleted successfully', 'success');
     addLog('info', `Pack ${packId} deleted`);
@@ -1675,6 +1688,7 @@ const PackManagerApp: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    setPackIdToDelete(null);
                     setNewPackName('');
                     setNewPackDesc('');
                     setShowModal(true);
@@ -1721,7 +1735,7 @@ const PackManagerApp: React.FC = () => {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    deletePack(pack.id);
+                                    openDeletePackConfirm(pack.id);
                                   }}
                                   className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-500 p-2 transition-colors"
                                   title="Delete Pack"
@@ -2462,16 +2476,47 @@ const PackManagerApp: React.FC = () => {
       {/* MODALS */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          className="no-drag fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
           onClick={() => {
             setShowModal(false);
+            setPackIdToDelete(null);
             clearPendingFiles();
           }}
         >
           <div
-            className={`bg-zinc-900 w-full rounded-3xl overflow-hidden ${modalType === 'upload-files' || modalType === 'export' ? 'max-w-6xl' : 'max-w-2xl'}`}
+            className={`no-drag bg-zinc-900 w-full rounded-3xl overflow-hidden ${modalType === 'upload-files' || modalType === 'export' ? 'max-w-6xl' : 'max-w-2xl'}`}
             onClick={(e) => e.stopPropagation()}
           >
+            {modalType === 'confirm-delete-pack' && (
+              <>
+                <div className="px-8 pt-8">
+                  <div className="text-xl font-semibold mb-1">Delete pack?</div>
+                  <div className="text-sm text-zinc-400">
+                    This cannot be undone. Staged files on disk are not removed automatically.
+                  </div>
+                </div>
+                <div className="bg-black p-5 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPackIdToDelete(null);
+                      setShowModal(false);
+                    }}
+                    className="no-drag flex-1 py-4 text-sm border border-zinc-700 rounded-2xl"
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmDeletePack}
+                    className="no-drag flex-1 py-4 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-2xl"
+                  >
+                    DELETE
+                  </button>
+                </div>
+              </>
+            )}
+
             {/* New Pack Modal */}
             {modalType === 'new-pack' && (
               <>
@@ -2484,11 +2529,13 @@ const PackManagerApp: React.FC = () => {
                   <div>
                     <div className="text-xs text-zinc-400 mb-2">PACK NAME</div>
                     <input
+                      ref={newPackNameInputRef}
                       type="text"
                       value={newPackName}
                       onChange={(e) => setNewPackName(e.target.value)}
-                      className="w-full bg-black border border-zinc-700 focus:border-cyan-400 rounded-2xl px-5 h-14 outline-none text-lg placeholder:text-zinc-600"
+                      className="no-drag w-full bg-black border border-zinc-700 focus:border-cyan-400 rounded-2xl px-5 h-14 outline-none text-lg placeholder:text-zinc-600"
                       placeholder="MyAwesomeCars"
+                      autoFocus
                     />
                   </div>
                   <div>
@@ -2496,7 +2543,7 @@ const PackManagerApp: React.FC = () => {
                     <textarea
                       value={newPackDesc}
                       onChange={(e) => setNewPackDesc(e.target.value)}
-                      className="w-full bg-black border border-zinc-700 focus:border-cyan-400 rounded-3xl px-5 py-4 outline-none h-28 resize-y text-sm"
+                      className="no-drag w-full bg-black border border-zinc-700 focus:border-cyan-400 rounded-3xl px-5 py-4 outline-none h-28 resize-y text-sm"
                       placeholder="Collection of tuned Japanese cars for FiveM"
                     />
                   </div>
