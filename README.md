@@ -20,6 +20,6 @@ TGS Community/
 
 ## Documentação
 
-- **Launcher**: `TGS Launcher/README.md` e `TGS Launcher/docs/README.md`
-- **Site**: `TGS Site/README.md` e `TGS Site/docs/README.md`
-- **Obsidian**: `Notas/Home.md`
+- **Launcher**: [`TGS Launcher/README.md`](TGS%20Launcher/README.md) e [`TGS Launcher/docs/README.md`](TGS%20Launcher/docs/README.md)
+- **Site**: [`TGS Site/README.md`](TGS%20Site/README.md) e [`TGS Site/docs/README.md`](TGS%20Site/docs/README.md)
+- **Obsidian**: [`Notas/Home.md`](Notas/Home.md)

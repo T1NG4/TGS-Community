@@ -1,86 +1,21 @@
 {
-  "nodes": [
-    {
-      "id": "n0",
-      "type": "text",
-      "x": -1560,
-      "y": -520,
-      "width": 560,
-      "height": 240,
-      "text": "# Fluxo - Pack Menager (export)\n\nObjetivo: preparar veículos/arquivos e exportar um pack FiveM (resources com `fxmanifest.lua`).\n\nReferência de código: `TGS Launcher/MainCode/Pack Menager/`"
-    },
-    {
-      "id": "n1",
-      "type": "text",
-      "x": -920,
-      "y": -520,
-      "width": 600,
-      "height": 320,
-      "text": "## App (arquitetura)\n\n- Electron (portable)\n- Client: `src/client` (React/Vite)\n- Server: `src/server` (Express)\n\nScripts raiz:\n- `npm run dev` (server + client + electron)\n- `npm run test:run` (server + testes de pack)"
-    },
-    {
-      "id": "n2",
-      "type": "text",
-      "x": -920,
-      "y": -140,
-      "width": 600,
-      "height": 320,
-      "text": "## Entrada / UI\n\n- Usuário seleciona/importa conteúdo\n- UI mostra lista/estado de itens\n- UI chama endpoints do server local\n\nArquivos principais variam, mas o client vive em `src/client/`."
-    },
-    {
-      "id": "n3",
-      "type": "text",
-      "x": -260,
-      "y": -520,
-      "width": 620,
-      "height": 300,
-      "text": "## Engine (Server)\n\n`src/server` (Express)\n\nResponsável por:\n- validações\n- manipulação de arquivos\n- merges/templates\n- geração/organização do pack\n\nDeps-chave: `fs-extra`, `multer`, `xml2js`, `zod`"
-    },
-    {
-      "id": "n4",
-      "type": "text",
-      "x": -260,
-      "y": -160,
-      "width": 620,
-      "height": 300,
-      "text": "## Testes do fluxo de pack (server)\n\nScripts úteis:\n- `test:pack-template`\n- `test:pack-merge`\n- `test:run` (vitest + scripts)\n\nArquivo base: `src/server/src/index.js`"
-    },
-    {
-      "id": "n5",
-      "type": "text",
-      "x": 420,
-      "y": -520,
-      "width": 620,
-      "height": 320,
-      "text": "## Template base (`[TGS-Fivem-Pack]`)\n\nDiretório incluído no build (`extraResources`).\n\nContém resources (exemplos):\n- `TGS-VehiclesPack`\n- `TGS-SoundsPack`\n- `TGS-WheelsPack`\n\nCada resource possui `fxmanifest.lua`."
-    },
-    {
-      "id": "n6",
-      "type": "text",
-      "x": 420,
-      "y": -140,
-      "width": 620,
-      "height": 340,
-      "text": "## Output (export final)\n\nTende a ir para algo como:\n- `TGS Launcher/usuario/output/[TGS]/...`\n\nSaída esperada:\n- resources prontos para `resources/[TGS]/...`\n- `fxmanifest.lua`\n- arquivos meta/stream conforme o pack"
-    },
-    {
-      "id": "n7",
-      "type": "text",
-      "x": 1080,
-      "y": -520,
-      "width": 560,
-      "height": 360,
-      "text": "## Integração com o Hub\n\nO Hub baixa/executa o portable:\n- `TGS-Pack-Manager-Portable.exe`\n\nFonte: GitHub Releases (`TGS-pack-manager-releases`).\n\nO Hub bloqueia execução se:\n- Hub desatualizado\n- App desatualizado"
-    }
-  ],
-  "edges": [
-    { "id": "e01", "fromNode": "n0", "toNode": "n1" },
-    { "id": "e02", "fromNode": "n1", "toNode": "n2" },
-    { "id": "e03", "fromNode": "n1", "toNode": "n3" },
-    { "id": "e04", "fromNode": "n3", "toNode": "n4" },
-    { "id": "e05", "fromNode": "n5", "toNode": "n6" },
-    { "id": "e06", "fromNode": "n3", "toNode": "n6" },
-    { "id": "e07", "fromNode": "n7", "toNode": "n1" }
-  ]
+	"nodes":[
+		{"id":"n0","type":"text","x":-1560,"y":-520,"width":560,"height":240,"text":"# Fluxo - Pack Menager (export)\n\nObjetivo: preparar veículos/arquivos e exportar um pack FiveM (resources com `fxmanifest.lua`).\n\nReferência de código: `TGS Launcher/MainCode/Pack Menager/`"},
+		{"id":"n1","type":"text","x":-920,"y":-520,"width":600,"height":320,"text":"## App (arquitetura)\n\n- Electron (portable)\n- Client: `src/client` (React/Vite)\n- Server: `src/server` (Express)\n\nScripts raiz:\n- `npm run dev` (server + client + electron)\n- `npm run test:run` (server + testes de pack)"},
+		{"id":"n2","type":"text","x":-920,"y":-140,"width":600,"height":320,"text":"## Entrada / UI\n\n- Usuário seleciona/importa conteúdo\n- UI mostra lista/estado de itens\n- UI chama endpoints do server local\n\nArquivos principais variam, mas o client vive em `src/client/`."},
+		{"id":"n3","type":"text","x":-260,"y":-520,"width":620,"height":300,"text":"## Engine (Server)\n\n`src/server` (Express)\n\nResponsável por:\n- validações\n- manipulação de arquivos\n- merges/templates\n- geração/organização do pack\n\nDeps-chave: `fs-extra`, `multer`, `xml2js`, `zod`"},
+		{"id":"n4","type":"text","x":-260,"y":-160,"width":620,"height":300,"text":"## Testes do fluxo de pack (server)\n\nScripts úteis:\n- `test:pack-template`\n- `test:pack-merge`\n- `test:run` (vitest + scripts)\n\nArquivo base: `src/server/src/index.js`"},
+		{"id":"n5","type":"text","x":420,"y":-520,"width":620,"height":320,"text":"## Template base (`[TGS-Fivem-Pack]`)\n\nDiretório incluído no build (`extraResources`).\n\nContém resources (exemplos):\n- `TGS-VehiclesPack`\n- `TGS-SoundsPack`\n- `TGS-WheelsPack`\n\nCada resource possui `fxmanifest.lua`."},
+		{"id":"n6","type":"text","x":420,"y":-140,"width":620,"height":340,"text":"## Output (export final)\n\nTende a ir para algo como:\n- `TGS Launcher/usuario/output/[TGS]/...`\n\nSaída esperada:\n- resources prontos para `resources/[TGS]/...`\n- `fxmanifest.lua`\n- arquivos meta/stream conforme o pack"},
+		{"id":"n7","type":"text","x":1080,"y":-520,"width":560,"height":360,"text":"## Integração com o Hub\n\nO Hub baixa/executa o portable:\n- `TGS-Pack-Manager-Portable.exe`\n\nFonte: GitHub Releases (`TGS-pack-manager-releases`).\n\nO Hub bloqueia execução se:\n- Hub desatualizado\n- App desatualizado"}
+	],
+	"edges":[
+		{"id":"e01","fromNode":"n0","toNode":"n1","fromSide":"right","toSide":"left"},
+		{"id":"e02","fromNode":"n1","toNode":"n2","fromSide":"bottom","toSide":"top"},
+		{"id":"e03","fromNode":"n1","toNode":"n3","fromSide":"right","toSide":"left"},
+		{"id":"e04","fromNode":"n3","toNode":"n4","fromSide":"bottom","toSide":"top"},
+		{"id":"e05","fromNode":"n5","toNode":"n6","fromSide":"bottom","toSide":"top"},
+		{"id":"e06","fromNode":"n3","toNode":"n6","fromSide":"bottom","toSide":"top"},
+		{"id":"e07","fromNode":"n7","toNode":"n1","fromSide":"left","toSide":"right"}
+	]
 }
-

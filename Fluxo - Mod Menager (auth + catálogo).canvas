@@ -1,76 +1,19 @@
 {
-  "nodes": [
-    {
-      "id": "n0",
-      "type": "text",
-      "x": -1560,
-      "y": -520,
-      "width": 600,
-      "height": 240,
-      "text": "# Fluxo - Mod Menager (auth + catálogo)\n\nObjetivo: autenticar usuário e gerenciar catálogo/mods.\n\nReferência de código: `TGS Launcher/MainCode/Mod Menager/`"
-    },
-    {
-      "id": "n1",
-      "type": "text",
-      "x": -900,
-      "y": -520,
-      "width": 620,
-      "height": 300,
-      "text": "## App (visão geral)\n\nPortable (Electron)\n\n- Client: `client/` (UI)\n- Server: `server/` (API)\n\nScript root:\n- `npm run dev` (server + client)"
-    },
-    {
-      "id": "n2",
-      "type": "text",
-      "x": -900,
-      "y": -160,
-      "width": 620,
-      "height": 320,
-      "text": "## Client (UI)\n\nResponsável por:\n- login/registro (se existir)\n- listar catálogo\n- acionar endpoints (download/ativar/gerir)\n\nObs: stack do client parece mais antiga que o Hub (Vite 4 / Electron 24)."
-    },
-    {
-      "id": "n3",
-      "type": "text",
-      "x": -220,
-      "y": -520,
-      "width": 660,
-      "height": 320,
-      "text": "## Server (API)\n\n`server/` (Express)\n\nDeps-chave:\n- `mysql2` (DB)\n- `jsonwebtoken` (JWT)\n- `bcryptjs` (hash)\n- `mercadopago` (pagamentos)\n- `nodemailer` (email)\n\nEntry (package): `app.js`"
-    },
-    {
-      "id": "n4",
-      "type": "text",
-      "x": -220,
-      "y": -160,
-      "width": 660,
-      "height": 340,
-      "text": "## Fluxo: autenticação (macro)\n\n1) Client envia credenciais\n2) Server valida (DB)\n3) Server gera JWT\n4) Client armazena sessão/token\n5) Requests ao catálogo passam com token\n\n(Detalhe exato depende das rotas do server.)"
-    },
-    {
-      "id": "n5",
-      "type": "text",
-      "x": 500,
-      "y": -520,
-      "width": 660,
-      "height": 340,
-      "text": "## Fluxo: catálogo/mods (macro)\n\n1) Client busca lista de mods\n2) Server responde com catálogo (DB)\n3) Client exibe cards/detalhes\n4) Ações:\n- baixar\n- ativar/desativar\n- atualizar\n\n(Detalhe exato depende das rotas.)"
-    },
-    {
-      "id": "n6",
-      "type": "text",
-      "x": 500,
-      "y": -140,
-      "width": 660,
-      "height": 280,
-      "text": "## Integração com o Hub\n\nO Hub baixa/executa o portable:\n- `TGS-Mod-Manager-Portable.exe`\n\nFonte: GitHub Releases (`TGS-mod-manager-releases`).\n\nHub pode forçar update antes de executar."
-    }
-  ],
-  "edges": [
-    { "id": "e01", "fromNode": "n0", "toNode": "n1" },
-    { "id": "e02", "fromNode": "n1", "toNode": "n2" },
-    { "id": "e03", "fromNode": "n1", "toNode": "n3" },
-    { "id": "e04", "fromNode": "n3", "toNode": "n4" },
-    { "id": "e05", "fromNode": "n3", "toNode": "n5" },
-    { "id": "e06", "fromNode": "n5", "toNode": "n6" }
-  ]
+	"nodes":[
+		{"id":"n0","type":"text","x":-1560,"y":-520,"width":600,"height":240,"text":"# Fluxo - Mod Menager (auth + catálogo)\n\nObjetivo: autenticar usuário e gerenciar catálogo/mods.\n\nReferência de código: `TGS Launcher/MainCode/Mod Menager/`"},
+		{"id":"n1","type":"text","x":-900,"y":-520,"width":620,"height":300,"text":"## App (visão geral)\n\nPortable (Electron)\n\n- Client: `client/` (UI)\n- Server: `server/` (API)\n\nScript root:\n- `npm run dev` (server + client)"},
+		{"id":"n2","type":"text","x":-900,"y":-160,"width":620,"height":320,"text":"## Client (UI)\n\nResponsável por:\n- login/registro (se existir)\n- listar catálogo\n- acionar endpoints (download/ativar/gerir)\n\nObs: stack do client parece mais antiga que o Hub (Vite 4 / Electron 24)."},
+		{"id":"n3","type":"text","x":-220,"y":-520,"width":660,"height":320,"text":"## Server (API)\n\n`server/` (Express)\n\nDeps-chave:\n- `mysql2` (DB)\n- `jsonwebtoken` (JWT)\n- `bcryptjs` (hash)\n- `mercadopago` (pagamentos)\n- `nodemailer` (email)\n\nEntry (package): `app.js`"},
+		{"id":"n4","type":"text","x":-220,"y":-160,"width":660,"height":340,"text":"## Fluxo: autenticação (macro)\n\n1) Client envia credenciais\n2) Server valida (DB)\n3) Server gera JWT\n4) Client armazena sessão/token\n5) Requests ao catálogo passam com token\n\n(Detalhe exato depende das rotas do server.)"},
+		{"id":"n5","type":"text","x":500,"y":-520,"width":660,"height":340,"text":"## Fluxo: catálogo/mods (macro)\n\n1) Client busca lista de mods\n2) Server responde com catálogo (DB)\n3) Client exibe cards/detalhes\n4) Ações:\n- baixar\n- ativar/desativar\n- atualizar\n\n(Detalhe exato depende das rotas.)"},
+		{"id":"n6","type":"text","x":500,"y":-140,"width":660,"height":280,"text":"## Integração com o Hub\n\nO Hub baixa/executa o portable:\n- `TGS-Mod-Manager-Portable.exe`\n\nFonte: GitHub Releases (`TGS-mod-manager-releases`).\n\nHub pode forçar update antes de executar."}
+	],
+	"edges":[
+		{"id":"e01","fromNode":"n0","toNode":"n1","fromSide":"right","toSide":"left"},
+		{"id":"e02","fromNode":"n1","toNode":"n2","fromSide":"bottom","toSide":"top"},
+		{"id":"e03","fromNode":"n1","toNode":"n3","fromSide":"right","toSide":"left"},
+		{"id":"e04","fromNode":"n3","toNode":"n4","fromSide":"bottom","toSide":"top"},
+		{"id":"e05","fromNode":"n3","toNode":"n5","fromSide":"right","toSide":"left"},
+		{"id":"e06","fromNode":"n5","toNode":"n6","fromSide":"bottom","toSide":"top"}
+	]
 }
-
