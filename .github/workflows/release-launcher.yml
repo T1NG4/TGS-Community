@@ -1,4 +1,4 @@
-name: Build & Release TGS Launcher
+﻿name: Build & Release TGS Launcher
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versão para release (ex: v1.2.3)'
+        description: 'VersÃ£o para release (ex: v1.2.3)'
         required: false
         type: string
 
@@ -22,7 +22,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: MainCode/Launcher
+        working-directory: TGS Launcher/MainCode/Launcher
 
     steps:
       - name: Checkout code
@@ -65,6 +65,7 @@ jobs:
         continue-on-error: true
         with:
           name: tgs-launcher-build
-          path: MainCode/Launcher/release/
+          path: TGS Launcher/MainCode/Launcher/release/
           retention-days: 7
           if-no-files-found: ignore
+

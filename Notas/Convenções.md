@@ -25,7 +25,7 @@
 
 ## Links
 
-- Para docs nos repos: use caminho relativo Markdown, ex. `[Doc](../TGS Launcher/docs/DOCUMENTACAO_LAUNCHER.md)`
+- Para docs nos repos: use caminho relativo Markdown, ex. `[Doc](../TGS%20Launcher/docs/DOCUMENTACAO_LAUNCHER.md)`
 - Entre notas do vault: `[[Nome da nota]]` ou links Markdown
 
 ## Workflow diário

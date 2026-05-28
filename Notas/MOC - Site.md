@@ -4,9 +4,9 @@ Landing page estática + catálogo em JS.
 
 ## Documentação (repo)
 
-- [README](../TGS Site/README.md)
-- [docs/README](../TGS Site/docs/README.md)
-- [guia-catalogo](../TGS Site/docs/guia-catalogo.md)
+- [README](../TGS%20Site/README.md)
+- [docs/README](../TGS%20Site/docs/README.md)
+- [guia-catalogo](../TGS%20Site/docs/guia-catalogo.md)
 
 ## Código principal
 

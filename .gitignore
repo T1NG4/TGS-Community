@@ -1,7 +1,7 @@
 # Obsidian (vault settings/cache)
 .obsidian/
 
-# Pastas temporárias usadas durante migração para monorepo
+# Pastas temporárias usadas durante migração para monorepo (já removidas)
 _TGS Launcher_repo/
 _TGS Launcher_work/
 _TGS Site_repo/

@@ -4,9 +4,9 @@ App para catálogo de mods com autenticação (JWT, MySQL, pagamentos).
 
 ## Documentação (repo)
 
-- [DOCUMENTACAO_MOD_MENAGER](../TGS Launcher/docs/DOCUMENTACAO_MOD_MENAGER.md)
-- [DOCUMENTACAO_LAUNCHER](../TGS Launcher/docs/DOCUMENTACAO_LAUNCHER.md)
-- [DOCUMENTACAO_HOSPEDAGEM](../TGS Launcher/docs/DOCUMENTACAO_HOSPEDAGEM.md)
+- [DOCUMENTACAO_MOD_MENAGER](../TGS%20Launcher/docs/DOCUMENTACAO_MOD_MENAGER.md)
+- [DOCUMENTACAO_LAUNCHER](../TGS%20Launcher/docs/DOCUMENTACAO_LAUNCHER.md)
+- [DOCUMENTACAO_HOSPEDAGEM](../TGS%20Launcher/docs/DOCUMENTACAO_HOSPEDAGEM.md)
 
 ## Código principal
 

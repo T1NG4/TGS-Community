@@ -1,4 +1,4 @@
-name: Build & Release TGS Pack Manager
+﻿name: Build & Release TGS Pack Manager
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: MainCode/Pack Menager
+        working-directory: TGS Launcher/MainCode/Pack Menager
 
     steps:
       - name: Checkout code
@@ -97,6 +97,7 @@ jobs:
         continue-on-error: true
         with:
           name: tgs-pack-manager-build
-          path: MainCode/Pack Menager/release/
+          path: TGS Launcher/MainCode/Pack Menager/release/
           retention-days: 7
           if-no-files-found: ignore
+

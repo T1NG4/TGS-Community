@@ -4,13 +4,13 @@ Hub desktop: instala, atualiza e executa Pack/Mod Menager.
 
 ## Documentação (repo)
 
-- [README](../TGS Launcher/README.md)
-- [docs/README](../TGS Launcher/docs/README.md)
-- [DOCUMENTACAO_LAUNCHER](../TGS Launcher/docs/DOCUMENTACAO_LAUNCHER.md)
-- [DOCUMENTACAO_GERAL](../TGS Launcher/docs/DOCUMENTACAO_GERAL.md)
-- [AUTO_UPDATE_SETUP](../TGS Launcher/MainCode/Launcher/AUTO_UPDATE_SETUP.md)
-- [GITHUB_SETUP](../TGS Launcher/docs/GITHUB_SETUP_COMPLETE_GUIDE.md)
-- [CHECKLIST_RELEASE](../TGS Launcher/docs/CHECKLIST_RELEASE.md)
+- [README](../TGS%20Launcher/README.md)
+- [docs/README](../TGS%20Launcher/docs/README.md)
+- [DOCUMENTACAO_LAUNCHER](../TGS%20Launcher/docs/DOCUMENTACAO_LAUNCHER.md)
+- [DOCUMENTACAO_GERAL](../TGS%20Launcher/docs/DOCUMENTACAO_GERAL.md)
+- [AUTO_UPDATE_SETUP](../TGS%20Launcher/MainCode/Launcher/AUTO_UPDATE_SETUP.md)
+- [GITHUB_SETUP](../TGS%20Launcher/docs/GITHUB_SETUP_COMPLETE_GUIDE.md)
+- [CHECKLIST_RELEASE](../TGS%20Launcher/docs/CHECKLIST_RELEASE.md)
 
 ## Código principal
 
