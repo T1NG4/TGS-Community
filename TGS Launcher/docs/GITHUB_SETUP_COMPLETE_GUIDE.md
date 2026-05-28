@@ -93,15 +93,18 @@ electron-updater no app cliente detecta nova versão -> baixa -> instala
 
 ---
 
-## Passo 2: Adicionar o PAT como Secret em CADA repositório privado
+## Passo 2: Adicionar o PAT como Secret no monorepo
 
-Para cada repositório privado (`tgs-launcher`, `TGS-pack-manager`, `TGS-mod-manager`):
+No repositório **`T1NG4/TGS-Community`** (monorepo — os workflows de release rodam aqui):
 
-1. **Settings → Secrets and variables → Actions → New repository secret**
-2. **Name**: `RELEASES_REPO_TOKEN`
-3. **Secret**: cole o PAT criado no passo anterior
+1. Abra [github.com/T1NG4/TGS-Community/settings/secrets/actions](https://github.com/T1NG4/TGS-Community/settings/secrets/actions)
+2. **New repository secret**
+3. **Name**: `RELEASES_REPO_TOKEN` (exatamente este nome)
+4. **Secret**: cole o PAT criado no passo anterior
 
-> Sem esse secret, o workflow falha ao tentar publicar com a mensagem `404 Not Found` ou `Resource not accessible by integration`.
+> Sem esse secret, o build compila mas falha ao publicar: `GitHub Personal Access Token is not set` / `GH_TOKEN` vazio nos logs.
+
+Repositórios antigos (`tgs-launcher`, etc.) **não** disparam mais os workflows — só o monorepo precisa deste secret (a menos que ainda uses Actions nesses repos).
 
 ---
 

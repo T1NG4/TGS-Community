@@ -55,3 +55,18 @@ npm run site:serve
 
 Obs: o CI usa secrets do GitHub para GA4 quando aplicável.
 
+## Publicar release (CI)
+
+Ao criar uma tag `vX.Y.Z` no monorepo, três workflows publicam nos repos `*-releases`.
+
+**Obrigatório** no [Secrets do TGS-Community](https://github.com/T1NG4/TGS-Community/settings/secrets/actions):
+
+| Secret | Uso |
+|--------|-----|
+| `RELEASES_REPO_TOKEN` | PAT com permissão de escrever releases em `TGS-launcher-releases`, `TGS-pack-manager-releases`, `TGS-mod-manager-releases` |
+
+Sem esse secret, o build termina com erro `GH_TOKEN is not set`.
+
+Guia completo: `TGS Launcher/docs/GITHUB_SETUP_COMPLETE_GUIDE.md`  
+Checklist pós-tag: `TGS Launcher/docs/CHECKLIST_RELEASE.md`
+

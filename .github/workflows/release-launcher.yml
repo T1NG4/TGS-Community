@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'VersÃ£o para release (ex: v1.2.3)'
+        description: 'Versão para release (ex: v1.2.3)'
         required: false
         type: string
 
@@ -27,6 +27,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Verificar secret RELEASES_REPO_TOKEN
+        shell: pwsh
+        run: |
+          if ('${{ secrets.RELEASES_REPO_TOKEN }}' -eq '') {
+            Write-Error @"
+          RELEASES_REPO_TOKEN não configurado no repositório TGS-Community.
+
+          1. Crie um PAT em https://github.com/settings/tokens (escopo repo, ou fine-grained com write nos *-releases)
+          2. Settings → Secrets and variables → Actions → New repository secret
+          3. Nome: RELEASES_REPO_TOKEN | Valor: o PAT
+          4. Reexecute os workflows (Actions → Run workflow ou re-run no job v2.0.24)
+
+          Guia: TGS Launcher/docs/GITHUB_SETUP_COMPLETE_GUIDE.md
+          "@
+            exit 1
+          }
 
       - name: Verify package.json version matches tag
         if: startsWith(github.ref, 'refs/tags/v')
