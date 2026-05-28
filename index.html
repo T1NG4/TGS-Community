@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGS Store - Scripts e Mods FiveM</title>
+    <link rel="icon" type="image/png" href="midias/TGS/TGS_logo.svg">
+    <link rel="stylesheet" href="colors/colors.css">
+    <link rel="stylesheet" href="base/base.css">
+    <link rel="stylesheet" href="buttons/buttons.css">
+    <link rel="stylesheet" href="filters/filters.css">
+    <link rel="stylesheet" href="form/form.css">
+    <link rel="stylesheet" href="modal/modal.css">
+    <link rel="stylesheet" href="animations/animations.css">
+    <link rel="stylesheet" href="loading/loading.css">
+    <link rel="stylesheet" href="scroll/scroll.css">
+    <link rel="stylesheet" href="section-header/section-header.css">
+    <!-- Section-specific styles -->
+    <link rel="stylesheet" href="header/header_desktop.css">
+    <link rel="stylesheet" href="header/header_mobile.css">
+    <link rel="stylesheet" href="hero/hero.css">
+    <link rel="stylesheet" href="products/products.css">
+    <link rel="stylesheet" href="features/features.css">
+    <link rel="stylesheet" href="About/about.css">
+    <link rel="stylesheet" href="Footer/footer.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="midias/TGS/TGS_logo.svg" alt="TGS Logo" class="logo-svg logo-white">
+                    <img src="midias/TGS/TGS_logo_black.svg" alt="TGS Logo" class="logo-svg logo-black">
+                    <span>TGS Store</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link">Início</a></li>
+                    <li><a href="#products" class="nav-link">Produtos</a></li>
+                    <li><a href="#about" class="nav-link">Sobre</a></li>
+                </ul>
+                <div class="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Scripts e Mods Premium para FiveM</h1>
+                <p class="hero-subtitle">Transforme seu servidor com scripts de alta qualidade e suporte especializado</p>
+                <div class="hero-buttons">
+                    <a href="#products" class="btn btn-primary">Ver Produtos</a>
+                    <a href="#about" class="btn btn-secondary">Saiba Mais</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-graphic">
+                    <img src="midias/TGS/TGS_logo_black_3d.png" alt="TGS Logo 3D" class="hero-logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <div class="container">
+            <div class="section-header">
+                <h2>Nossos Produtos</h2>
+                <p>Scripts otimizados e mods exclusivos para seu servidor</p>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="scripts">Scripts</button>
+                <button class="filter-btn" data-filter="mods">Mods</button>
+                <button class="filter-btn" data-filter="graphics">Graphics</button>
+            </div>
+
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Performance Otimizada</h3>
+                    <p>Scripts desenvolvidos com foco em performance e estabilidade</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Suporte Ticket Ativo</h3>
+                    <p>Suporte técnico especializado via ticket</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h3>Atualizações Gratuitas</h3>
+                    <p>Receba atualizações e melhorias sem custo adicional</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Comunidade Ativa</h3>
+                    <p>Participe de nossa comunidade de desenvolvedores</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Sobre a TGS Store</h2>
+                    <p>Somos especialistas em desenvolvimento de scripts e mods para FiveM, oferecendo soluções personalizadas e de alta qualidade para servidores de roleplay.</p>
+                    <p>Nossa equipe possui anos de experiência no desenvolvimento de recursos para FiveM, garantindo produtos estáveis, otimizados e com suporte completo.</p>
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Clientes Satisfeitos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Scripts Disponíveis</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number no-wrap">suporte ✓</span>
+                            <span class="stat-label">Sistema de Suporte</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="about-graphic">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <img src="midias/TGS/TGS_logo.svg" alt="TGS Logo" class="logo-svg">
+                        <span>TGS Store</span>
+                    </div>
+                    <p>Scripts e mods premium para FiveM</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#products">Produtos</a></li>
+                        <li><a href="#about">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Redes Sociais</h4>
+                    <div class="social-links">
+                        <a href="https://discord.gg/cYv7W4XCXv" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i></a>
+                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
+                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                    </div>
+                    <div class="footer-email" style="margin-top: 20px;">
+                        <p><i class="fas fa-envelope"></i> tgs.storeoficial@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TGS Store. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <!-- Modal content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="utils/notification.js"></script>
+    <script src="products/products.js"></script>
+    <script src="header/header_desktop.js"></script>
+    <script src="header/header_mobile.js"></script>
+    <script src="animations/animations.js"></script>
+</body>
+</html>

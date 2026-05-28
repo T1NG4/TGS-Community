@@ -1,0 +1,25 @@
+/* Features section styles */
+.features { padding: 6rem 0; background: var(--color-white); }
+
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+
+.feature-card {
+    text-align: center;
+    padding: 2rem;
+    background: var(--rgba-white-25);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid var(--rgba-white-18);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-light); }
+
+.feature-icon { width:80px; height:80px; background: var(--gradient-dark-multi); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; font-size:2rem; color:var(--color-light); }
+
+.feature-card h3 { font-size:1.25rem; font-weight:600; margin-bottom:1rem; color:var(--color-primary); }
+
+.feature-card p { color:var(--color-gray); line-height:1.6; }
+
+/* Mobile features */
+@media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }

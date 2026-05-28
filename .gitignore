@@ -149,3 +149,7 @@ config.local.json
 
 # Build artifacts from electron-builder
 electron-builder.yml
+# OS / editor (extras)
+Desktop.ini
+*.tmp
+*.temp

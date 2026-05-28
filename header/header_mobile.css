@@ -1,0 +1,71 @@
+/* Header Mobile Styles */
+@media (max-width: 768px) {
+    .header {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        top: auto;
+        transform: translateX(-50%);
+        width: 95vw;
+        height: 70px; /* Altura fixa de 70px */
+        max-width: 500px;
+        border-radius: 30px;
+        padding: 0 1.5rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        transition: width 0.4s cubic-bezier(.4,0,.2,1), padding 0.4s cubic-bezier(.4,0,.2,1);
+        overflow: hidden; /* Garante que nada ultrapasse a altura fixa */
+    }
+    .header.retract {
+        width: 70px;
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 70px;
+        left: 80vw;
+        right: 20px;
+        transform: none;
+    }
+    .header .logo {
+        transition: opacity 0.3s cubic-bezier(.4,0,.2,1), visibility 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    .header.retract .logo {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    .header .nav-toggle {
+        transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+        position: absolute;
+        top: 50%;
+        right: 30px;
+        transform: translateY(-50%);
+        margin: 0;
+    }
+    .header.retract .nav-toggle {
+        right: 30px;
+        transform: translateY(-50%);
+    }
+    .nav-container {
+        padding: 0.5rem 0.5rem;
+    }
+    .nav-menu {
+        display: none; /* Removido no mobile */
+    }
+    .nav-menu.active { display: none; }
+    .nav-toggle {
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+    }
+    .nav-toggle span {
+        width: 25px;
+        height: 3px;
+        background: #1a1a1a;
+        margin: 3px 0;
+        transition: 0.3s;
+    }
+    .header.over-dark-area .nav-toggle span { background: #fff; }
+    .header:not(.over-dark-area) .nav-toggle span { background: #1a1a1a; }
+}

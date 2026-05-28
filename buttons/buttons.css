@@ -1,0 +1,48 @@
+/* Botões */
+.btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: var(--gradient-dark);
+    color: var(--color-light);
+    box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.btn-secondary {
+    background: var(--rgba-white-25);
+    color: var(--color-light);
+    border: 1px solid var(--rgba-white-18);
+    backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+    background: var(--rgba-white-20);
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--color-secondary);
+    color: var(--color-secondary);
+}
+
+.btn-outline:hover {
+    background: var(--gradient-dark);
+    color: var(--color-light);
+    border-color: var(--color-secondary);
+}
