@@ -1,0 +1,22 @@
+{
+	"nodes":[
+		{"id":"n0","type":"text","x":-1540,"y":-520,"width":520,"height":230,"text":"# Fluxo - Launcher (Hub)\n\nObjetivo: instalar/atualizar/executar apps (Pack/Mod) e atualizar o próprio Hub.\n\nReferência de código: `TGS Launcher/MainCode/Launcher/`"},
+		{"id":"n1","type":"text","x":-940,"y":-520,"width":560,"height":300,"text":"## Startup\n\n1) Resolve URL da UI\n- Dev: `http://localhost:5175`\n- Prod: serve `dist-renderer/` via `staticServer`\n\n2) Cria janela (BrowserWindow)\n\nArquivo: `src/main/main.js`"},
+		{"id":"n2","type":"text","x":-940,"y":-160,"width":560,"height":320,"text":"## Config / installPath\n\n- Config em `userData/config.json`\n- Resolve default e migração de legado\n- Estrutura alvo:\n  `<installPath>/data/apps/...`\n\nArquivo: `src/main/config.js`"},
+		{"id":"n3","type":"text","x":-280,"y":-520,"width":560,"height":320,"text":"## Auto-update do Hub\n\n- `electron-updater`\n- Checa update (prod) após 5s\n- Eventos → renderer:\n  `update-available`, `download-progress`, `update-downloaded`, `update-error`\n\nArquivo: `src/main/main.js`"},
+		{"id":"n4","type":"text","x":-280,"y":-140,"width":560,"height":340,"text":"## Instalar / Atualizar apps (Pack/Mod)\n\n1) Renderer chama `start-installation`\n2) Main faz `assertLauncherUpToDate`\n3) `installer.startInstallation` baixa portable\n4) Grava `version.json`\n5) Progresso por evento `installation-progress`\n\nArquivos: `src/main/main.js`, `src/main/installer.js`"},
+		{"id":"n5","type":"text","x":380,"y":-520,"width":580,"height":300,"text":"## GitHub Releases (fontes)\n\nDefinido em `src/main/constants.js`:\n- `RELEASES_REPOS`\n- `DOWNLOAD_URLS`\n\nO Hub consulta:\n- API de release latest\n- `latest.yml`\n- download direto do `.exe` portable"},
+		{"id":"n6","type":"text","x":380,"y":-160,"width":580,"height":300,"text":"## Executar app\n\n1) Checa update do Hub\n2) Checa update do app (via version.json vs release)\n3) Se ok, executa o portable do app\n\n(Fluxo exposto por IPC: `launch-app`)\nArquivo: `src/main/main.js`"},
+		{"id":"n7","type":"text","x":1020,"y":-520,"width":560,"height":440,"text":"## IPC principais (renderer ↔ main)\n\n- `load-config` / `save-config`\n- `pick-install-folder`\n- `check-system`\n- `start-installation` / `cancel-installation`\n- `get-installed-apps`\n- `check-launcher-update`\n- `check-app-update`\n- `launch-app`\n- `check-updates` / `install-update`\n\nArquivo: `src/main/main.js`"}
+	],
+	"edges":[
+		{"id":"e01","fromNode":"n0","toNode":"n1","fromSide":"right","toSide":"left"},
+		{"id":"e02","fromNode":"n1","toNode":"n2","fromSide":"bottom","toSide":"top"},
+		{"id":"e03","fromNode":"n1","toNode":"n3","fromSide":"right","toSide":"left"},
+		{"id":"e04","fromNode":"n2","toNode":"n4","fromSide":"right","toSide":"left"},
+		{"id":"e05","fromNode":"n5","toNode":"n3","fromSide":"left","toSide":"right"},
+		{"id":"e06","fromNode":"n5","toNode":"n4","fromSide":"bottom","toSide":"right"},
+		{"id":"e07","fromNode":"n4","toNode":"n6","fromSide":"right","toSide":"left"},
+		{"id":"e08","fromNode":"n1","toNode":"n7","fromSide":"right","toSide":"left"}
+	]
+}

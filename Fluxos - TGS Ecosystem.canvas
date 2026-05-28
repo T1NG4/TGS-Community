@@ -1,0 +1,29 @@
+{
+	"nodes":[
+		{"id":"n-workspace","type":"text","x":-1600,"y":-420,"width":420,"height":220,"text":"# Workspace: TGS Community\n\n- TGS Launcher (repo)\n- TGS Site (repo)\n- Obsidian vault (.obsidian)\n\nEste canvas mostra os fluxos macro entre os módulos."},
+		{"id":"n-launcher","type":"text","x":-1040,"y":-540,"width":520,"height":280,"text":"## TGS Launcher (Hub)\n\nStack: Electron + React + Vite\n\nResponsável por:\n- escolher/guardar installPath\n- baixar portables (Pack/Mod)\n- validar versões\n- executar apps\n- auto-update do próprio hub"},
+		{"id":"n-installpath","type":"text","x":-1040,"y":-200,"width":520,"height":220,"text":"## installPath / pasta de dados\n\n- Config fica no userData do Electron\n- Estrutura esperada:\n  <installPath>/data/apps/{packManager|modManager}/\n\nO hub resolve migração de caminho legado quando necessário."},
+		{"id":"n-releases","type":"text","x":-380,"y":-540,"width":520,"height":260,"text":"## GitHub Releases (público)\n\nFontes de download:\n- Launcher releases\n- Pack Manager releases\n- Mod Manager releases\n\nO Hub consulta \"latest\" e decide:\n- atualizar Hub (electron-updater)\n- forçar update de app antes de executar"},
+		{"id":"n-pack","type":"text","x":-380,"y":-200,"width":520,"height":280,"text":"## Pack Menager (App)\n\nElectron (portable)\n- Client: React/Vite\n- Server: Node/Express\n\nFluxo principal:\n- importar/organizar veículos\n- gerar/exportar pack FiveM\n- produzir estrutura com fxmanifest.lua"},
+		{"id":"n-pack-template","type":"text","x":260,"y":-200,"width":520,"height":260,"text":"## Template FiveM ([TGS-Fivem-Pack])\n\nBase usada pelo Pack Menager para exportação.\n\nContém resources como:\n- TGS-VehiclesPack\n- TGS-SoundsPack\n- TGS-WheelsPack\n\nCada um com `fxmanifest.lua`."},
+		{"id":"n-output","type":"text","x":260,"y":120,"width":520,"height":240,"text":"## Output (gerado)\n\nPasta típica:\n- TGS Launcher/usuario/output/[TGS]/...\n\nAqui ficam exports finais do pack\n(com fxmanifest.lua e assets)."},
+		{"id":"n-mod","type":"text","x":-380,"y":140,"width":520,"height":300,"text":"## Mod Menager (App)\n\nPortable\n- Client (Electron/Vite)\n- Server (Node/Express)\n\nServidor inclui:\n- Auth (JWT)\n- MySQL\n- Integrações (ex.: MercadoPago, email)"},
+		{"id":"n-site","type":"text","x":260,"y":-540,"width":520,"height":260,"text":"## TGS Site (TGS Store)\n\nSite estático (HTML/CSS/JS)\n\nFluxo:\n- catálogo local em `products/products.js`\n- assets em `midias/`\n- deploy em host estático (Pages/Netlify/etc.)"},
+		{"id":"n-fluxo-install","type":"text","x":860,"y":-540,"width":560,"height":260,"text":"## Fluxo: Instalar App (macro)\n\n1) Hub verifica versão do Hub\n2) Hub resolve installPath\n3) Hub baixa portable do app (GitHub Releases)\n4) Hub grava version.json\n5) Hub habilita Executar/Atualizar"},
+		{"id":"n-fluxo-run","type":"text","x":860,"y":-200,"width":560,"height":260,"text":"## Fluxo: Executar App (macro)\n\n1) Hub checa update do Hub\n2) Hub checa update do app\n3) Se ok, executa o portable\n4) App usa sua lógica (Pack/Mod)\n5) Output/dados ficam nas pastas do app"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"n-workspace","toNode":"n-launcher","fromSide":"right","toSide":"left"},
+		{"id":"e2","fromNode":"n-workspace","toNode":"n-site","fromSide":"right","toSide":"left"},
+		{"id":"e3","fromNode":"n-launcher","toNode":"n-installpath","fromSide":"bottom","toSide":"top"},
+		{"id":"e4","fromNode":"n-launcher","toNode":"n-releases","fromSide":"right","toSide":"left"},
+		{"id":"e5","fromNode":"n-releases","toNode":"n-pack","fromSide":"bottom","toSide":"top"},
+		{"id":"e6","fromNode":"n-releases","toNode":"n-mod","fromSide":"bottom","toSide":"top"},
+		{"id":"e7","fromNode":"n-launcher","toNode":"n-pack","fromSide":"right","toSide":"left"},
+		{"id":"e8","fromNode":"n-launcher","toNode":"n-mod","fromSide":"bottom","toSide":"top"},
+		{"id":"e9","fromNode":"n-pack","toNode":"n-pack-template","fromSide":"right","toSide":"left"},
+		{"id":"e10","fromNode":"n-pack-template","toNode":"n-output","fromSide":"bottom","toSide":"top"},
+		{"id":"e11","fromNode":"n-launcher","toNode":"n-fluxo-install","fromSide":"right","toSide":"left"},
+		{"id":"e12","fromNode":"n-launcher","toNode":"n-fluxo-run","fromSide":"right","toSide":"left"}
+	]
+}
