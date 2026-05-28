@@ -2487,35 +2487,64 @@ const PackManagerApp: React.FC = () => {
             className={`no-drag bg-zinc-900 w-full rounded-3xl overflow-hidden ${modalType === 'upload-files' || modalType === 'export' ? 'max-w-6xl' : 'max-w-2xl'}`}
             onClick={(e) => e.stopPropagation()}
           >
-            {modalType === 'confirm-delete-pack' && (
-              <>
-                <div className="px-8 pt-8">
-                  <div className="text-xl font-semibold mb-1">Delete pack?</div>
-                  <div className="text-sm text-zinc-400">
-                    This cannot be undone. Staged files on disk are not removed automatically.
+            {modalType === 'confirm-delete-pack' && (() => {
+              const packToDelete = packs.find((p) => p.id === packIdToDelete);
+              return (
+                <>
+                  <div className="px-8 pt-8 pb-2">
+                    <div className="text-red-400/90 text-sm font-medium mb-1 tracking-wide">
+                      CONFIRMAÇÃO
+                    </div>
+                    <h2 className="text-2xl font-bold tracking-tight">Excluir pack?</h2>
+                    <p className="text-sm text-zinc-400 mt-2 leading-relaxed">
+                      Esta ação não pode ser desfeita. Os ficheiros em staging no disco não são
+                      apagados automaticamente.
+                    </p>
                   </div>
-                </div>
-                <div className="bg-black p-5 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPackIdToDelete(null);
-                      setShowModal(false);
-                    }}
-                    className="no-drag flex-1 py-4 text-sm border border-zinc-700 rounded-2xl"
-                  >
-                    CANCEL
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmDeletePack}
-                    className="no-drag flex-1 py-4 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-2xl"
-                  >
-                    DELETE
-                  </button>
-                </div>
-              </>
-            )}
+
+                  <div className="px-8 py-6">
+                    <div className="flex gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-500/25 bg-red-500/10">
+                        <Trash2 className="h-5 w-5 text-red-400" />
+                      </div>
+                      <div className="min-w-0 text-left">
+                        <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">
+                          Pack selecionado
+                        </div>
+                        <div className="truncate text-lg font-semibold text-white">
+                          {packToDelete?.name ?? '—'}
+                        </div>
+                        {packToDelete?.description && (
+                          <p className="mt-1 line-clamp-2 text-sm text-zinc-400">
+                            {packToDelete.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 bg-black p-5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPackIdToDelete(null);
+                        setShowModal(false);
+                      }}
+                      className="no-drag flex-1 rounded-2xl border border-zinc-700 py-4 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={confirmDeletePack}
+                      className="no-drag flex-1 rounded-2xl border border-red-500/40 bg-red-500/10 py-4 text-sm font-semibold text-red-300 transition-colors hover:border-red-400/60 hover:bg-red-500/20 hover:text-red-200"
+                    >
+                      Excluir pack
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
 
             {/* New Pack Modal */}
             {modalType === 'new-pack' && (
