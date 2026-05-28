@@ -2,6 +2,7 @@
 
 const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const os = require('os');
 const net = require('net');
 const { createApp, setPaths, getOutputPath } = require('../server/src/app');
@@ -85,6 +86,15 @@ function startServer(port) {
 // ─── Window ───────────────────────────────────────────────────────────────────
 let mainWindow;
 
+/** Ícone na barra de tarefas (runtime). Empacotado via src/electron/icons/ */
+function getWindowIcon() {
+  const ico = path.join(__dirname, 'icons', 'icon.ico');
+  const png = path.join(__dirname, 'icons', 'icon.png');
+  if (process.platform === 'win32' && fs.existsSync(ico)) return ico;
+  if (fs.existsSync(png)) return png;
+  return undefined;
+}
+
 function createWindow(port) {
   mainWindow = new BrowserWindow({
     width: 1100,
@@ -92,6 +102,7 @@ function createWindow(port) {
     minWidth: 1100,
     minHeight: 680,
     title: 'FiveM Car Pack Manager',
+    icon: getWindowIcon(),
     backgroundColor: '#09090b',
     frame: false,
     titleBarStyle: 'hidden',

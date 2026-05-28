@@ -27,7 +27,7 @@ O ecossistema TGS usa três apps Electron (Launcher, Pack Menager, Mod Menager).
 | Build (portable `.exe`) | `build/TGS_logo.ico` | OK |
 | buildResources | `directories.buildResources = "build"` | OK |
 | Config | `package.json` → `win.icon: build/TGS_logo.ico` | OK |
-| Runtime | `build/TGS_logo.png` existe; **não** ligado no `main.js` | Opcional |
+| Runtime | `src/electron/icons/icon.ico` + `icon` no `BrowserWindow` | OK |
 | Git | pasta `build/` versionada (exceção no `.gitignore` raiz) | OK |
 
 ### Mod Menager
@@ -88,7 +88,7 @@ Mod:       midias/TGS/TGS_logo.ico      + package só --win
 
 ### Pendente
 
-1. (Opcional) Ligar `TGS_logo.png` no `Pack Menager/src/electron/main.js` para ícone na taskbar.
+1. Nova release (ex. v2.0.25) após fix do ícone runtime do Pack.
 2. Checklist pós-release: `TGS Launcher/docs/CHECKLIST_RELEASE.md`.
 
 ## Arquivos envolvidos
