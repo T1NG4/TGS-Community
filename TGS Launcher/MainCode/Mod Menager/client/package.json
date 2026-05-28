@@ -7,10 +7,8 @@
     "start": "electron .",
     "dev": "vite",
     "build": "vite build",
-    "package": "electron-builder",
-    "package:win": "electron-builder --win",
-    "package:mac": "electron-builder --mac",
-    "package:linux": "electron-builder --linux"
+    "package": "electron-builder --win",
+    "package:win": "electron-builder --win"
   },
   "keywords": [
     "fivem",
@@ -68,23 +66,6 @@
     },
     "portable": {
       "artifactName": "TGS-Mod-Manager-Portable.exe"
-    },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "category": "public.app-category.games",
-      "icon": "assets/icon.icns"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb",
-        "rpm"
-      ],
-      "category": "Game",
-      "icon": "assets/icon.png"
     }
   }
 }

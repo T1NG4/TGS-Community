@@ -6,8 +6,8 @@ yarn-error.log*
 
 # Build outputs
 dist/
-build/
 release/
+# build/ = ícones versionados do electron-builder (TGS_logo.ico / .png)
 *.exe
 *.dmg
 *.pkg

@@ -17,6 +17,9 @@ yarn-error.log*
 dist/
 dist-renderer/
 build/
+# Ícones versionados do Pack Menager (electron-builder buildResources)
+!TGS Launcher/MainCode/Pack Menager/build/
+!TGS Launcher/MainCode/Pack Menager/build/**
 *.exe
 *.dmg
 *.pkg

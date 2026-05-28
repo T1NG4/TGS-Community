@@ -1,84 +1,104 @@
-	# Spec — Padronizar ícones dos executáveis
+# Spec — Padronizar ícones dos executáveis
 
-**Status:** rascunho  
+**Status:** em progresso (assets no repo; falta validar builds)  
 **Projeto:** Launcher | Pack | Mod  
-**Data:** 2026-05-28
+**Data:** 2026-05-28  
+**Última atualização:** 2026-05-28
 
 ## Contexto
 
-Hoje o ecossistema usa ícones de formas diferentes e existem referências para arquivos que **não estão no repo**, causando `.exe`/app abrir com ícone padrão ou gerar confusão no build.
+O ecossistema TGS usa três apps Electron (Launcher, Pack Menager, Mod Menager). Cada um precisa de `.ico` no **build** (ícone do `.exe` no Explorer) e, opcionalmente, `.png` no **runtime** (barra de tarefas / `BrowserWindow`).
 
-Achados (estado atual):
+## Estado atual (por app)
 
-- **Launcher (Hub)**:
-  - Build (electron-builder) usa `.ico` em `resources/icons/icon.ico` (existe).
-  - Runtime (BrowserWindow) referencia `resources/icons/icon.png` (não existe).
-    - Arquivo: `TGS Launcher/MainCode/Launcher/src/main/main.js`
-    - Path esperado: `TGS Launcher/MainCode/Launcher/resources/icons/icon.png`
-- **Pack Menager**:
-  - `package.json` define `build.directories.buildResources = "build"`, mas a pasta `build/` não existe no projeto.
-    - Arquivo: `TGS Launcher/MainCode/Pack Menager/package.json`
-- **Mod Menager**:
-  - `package.json` aponta para `midias/TGS/TGS_logo.ico` e o arquivo existe.
+### Launcher (Hub)
+
+| Uso | Path | Status |
+|-----|------|--------|
+| Build (NSIS / `.exe`) | `resources/icons/icon.ico` | OK |
+| Runtime (`BrowserWindow`) | `resources/icons/icon.png` | OK |
+| Config | `package.json` → `win.icon`, `nsis.*Icon` | OK |
+| Código | `src/main/main.js` linha `icon:` | OK |
+
+### Pack Menager
+
+| Uso | Path | Status |
+|-----|------|--------|
+| Build (portable `.exe`) | `build/TGS_logo.ico` | OK |
+| buildResources | `directories.buildResources = "build"` | OK |
+| Config | `package.json` → `win.icon: build/TGS_logo.ico` | OK |
+| Runtime | `build/TGS_logo.png` existe; **não** ligado no `main.js` | Opcional |
+| Git | pasta `build/` versionada (exceção no `.gitignore` raiz) | OK |
+
+### Mod Menager
+
+| Uso | Path | Status |
+|-----|------|--------|
+| Build (portable `.exe`, só Windows) | `midias/TGS/TGS_logo.ico` | OK |
+| Config | `package.json` → `win.icon`; sem `mac`/`linux` | OK |
+| Runtime | não configurado | Opcional |
 
 ## Objetivo
 
-Padronizar e garantir que **todos os executáveis** (Launcher/Pack/Mod):
-
-- tenham ícone correto no build (`.ico`)
-- tenham ícone correto em runtime onde aplicável (`.png` opcional, mas consistente)
-- não referenciem arquivos inexistentes
-- tenham paths claros e repetíveis no monorepo
+- Ícone TGS correto em todos os `.exe` Windows.
+- Nenhuma referência a ficheiros inexistentes.
+- Paths documentados e repetíveis no monorepo.
 
 ## Escopo
 
 ### Inclui
 
-- Definir um **ícone oficial** (fonte) e gerar derivados:
-  - `icon.ico` (Windows)
-  - `icon.png` (runtime/UI)
-- Corrigir referências de paths no Launcher.
-- Corrigir/introduzir `buildResources` do Pack Menager (criar pasta ou ajustar config).
-- Checar Mod Menager para garantir padrão (mesmo que já funcione).
+- Assets `.ico` (e `.png` onde já usado) versionados no Git.
+- `electron-builder` apontando para paths reais.
+- Mod Menager: **apenas Windows** (removidos targets macOS/Linux).
 
 ### Não inclui
 
-- Redesign completo de branding/identidade visual.
-- Assinatura de executáveis.
+- Redesign de branding.
+- Assinatura de código.
+- Ícone na taskbar do Pack/Mod (runtime) — só se pedido depois.
 
-## Decisões / padrões propostos
+## Padrão por app
 
-- **Fonte única**: usar um ícone “master” versionado (ex.: `TGS_logo.svg` ou PNG grande).
-- **Derivados versionados** (evita depender de geração manual):
-  - Launcher: manter `resources/icons/icon.ico` e adicionar `resources/icons/icon.png`
-  - Pack: criar `build/icon.ico` (ou equivalente) e apontar `win.icon` (se necessário)
-  - Mod: manter `midias/TGS/TGS_logo.ico` (ou mover para padrão equivalente, se fizer sentido)
+```
+Launcher:  resources/icons/icon.{ico,png}
+Pack:      build/TGS_logo.{ico,png}     + win.icon explícito
+Mod:       midias/TGS/TGS_logo.ico      + package só --win
+```
+
+**Runtime** = ícone enquanto a app corre (`icon` no `BrowserWindow`). Só o Launcher usa hoje.
 
 ## Critérios de aceite
 
-- [ ] `TGS Launcher/MainCode/Launcher/resources/icons/icon.png` existe e o Launcher usa esse arquivo sem erro.
-- [ ] Pack Menager tem `buildResources` válido (pasta existente) **ou** config ajustada para um path existente.
-- [ ] Em builds Windows (portable/NSIS), o `.exe` mostra o ícone correto no Explorer.
-- [ ] Nenhum `package.json`/código referencia `.ico/.png` inexistente.
+- [x] Launcher: `icon.ico` + `icon.png` existem e estão referenciados.
+- [x] Pack: `build/TGS_logo.ico` existe e `win.icon` configurado.
+- [x] Mod: `TGS_logo.ico` existe; build só Windows.
+- [x] Nenhum `package.json` referencia `assets/icon.icns` ou `assets/icon.png` (Mod).
+- [ ] Build local ou CI: `.exe` de Launcher, Pack e Mod mostram ícone TGS no Explorer.
+- [ ] (Opcional) Pack/Mod com `icon` no `BrowserWindow` para taskbar.
 
-## Plano de implementação (rascunho)
+## Plano — feito vs pendente
 
-1) Escolher/confirmar “ícone master” (arquivo fonte) a ser usado como base.  
-2) Gerar/exportar:
-   - `icon.ico` (multi-size: 16/32/48/256)
-   - `icon.png` (256x256 ou 512x512)
-3) Aplicar no Launcher:
-   - adicionar `resources/icons/icon.png`
-   - manter `.ico` no build
-4) Aplicar no Pack:
-   - criar pasta `build/` com ícone e recursos necessários
-   - atualizar `package.json` do Pack se precisar de `win.icon`/`mac.icon`
-5) Validar localmente (build rápido) e validar no CI (tag/release quando fizer sentido).
+### Feito
 
-## Arquivos envolvidos (referência)
+1. Launcher: `icon.png` + `icon.ico` em `resources/icons/`.
+2. Pack: pasta `build/` com `TGS_logo.ico` / `TGS_logo.png`; `win.icon` no `package.json`.
+3. Pack: `.gitignore` local e raiz do monorepo permitem versionar `Pack Menager/build/`.
+4. Mod: removidos `package:mac`, `package:linux` e blocos `mac`/`linux` do `build`.
 
+### Pendente
+
+1. Correr `npm run build:electron` (Pack) e `npm run package` (Mod) e confirmar ícone no Explorer.
+2. Tag/release no CI quando conveniente.
+3. (Opcional) Ligar `TGS_logo.png` no `Pack Menager/src/electron/main.js` se quiser ícone na taskbar.
+
+## Arquivos envolvidos
+
+- `TGS Launcher/MainCode/Launcher/package.json`
 - `TGS Launcher/MainCode/Launcher/src/main/main.js`
-- `TGS Launcher/MainCode/Launcher/resources/icons/icon.ico`
+- `TGS Launcher/MainCode/Launcher/resources/icons/`
 - `TGS Launcher/MainCode/Pack Menager/package.json`
+- `TGS Launcher/MainCode/Pack Menager/build/`
+- `TGS Launcher/MainCode/Pack Menager/.gitignore`
 - `TGS Launcher/MainCode/Mod Menager/client/package.json`
-
+- `.gitignore` (raiz — exceção `Pack Menager/build/`)
