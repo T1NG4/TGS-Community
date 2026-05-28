@@ -2,6 +2,7 @@
 .obsidian/
 
 # Pastas temporárias usadas durante migração para monorepo (já removidas)
+# (mantém ignorado caso reapareçam localmente)
 _TGS Launcher_repo/
 _TGS Launcher_work/
 _TGS Site_repo/

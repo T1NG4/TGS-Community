@@ -1,0 +1,22 @@
+{
+  "name": "tgs-community",
+  "private": true,
+  "description": "Monorepo do ecossistema TGS (Launcher, Pack, Mod e Site).",
+  "volta": {
+    "node": "22.19.0",
+    "npm": "10.9.3"
+  },
+  "scripts": {
+    "launcher:dev": "npm run dev --prefix \"TGS Launcher/MainCode/Launcher\"",
+    "launcher:build": "npm run build --prefix \"TGS Launcher/MainCode/Launcher\"",
+
+    "pack:dev": "npm run dev --prefix \"TGS Launcher/MainCode/Pack Menager\"",
+    "pack:test": "npm run test:run --prefix \"TGS Launcher/MainCode/Pack Menager\"",
+    "pack:build": "npm run build:electron --prefix \"TGS Launcher/MainCode/Pack Menager\"",
+
+    "mod:dev": "npm run dev --prefix \"TGS Launcher/MainCode/Mod Menager\"",
+
+    "site:serve": "npx --yes serve \"TGS Site\""
+  }
+}
+
