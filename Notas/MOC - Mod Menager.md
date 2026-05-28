@@ -18,6 +18,10 @@ App para catálogo de mods com autenticação (JWT, MySQL, pagamentos).
 - [[Fluxo - Mod Menager (auth + catálogo)]]
 - [[Fluxos - TGS Ecosystem]]
 
+## Specs / trabalho
+
+- [[Spec - Padronizar ícones dos executáveis]]
+
 ## Relacionado
 
 - [[MOC - Launcher]]

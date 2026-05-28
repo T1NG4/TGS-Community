@@ -23,6 +23,10 @@ Hub desktop: instala, atualiza e executa Pack/Mod Menager.
 - [[Fluxo - Launcher (Hub)]]
 - [[Fluxos - TGS Ecosystem]]
 
+## Specs / trabalho
+
+- [[Spec - Padronizar ícones dos executáveis]]
+
 ## Relacionado
 
 - [[MOC - Pack Menager]]

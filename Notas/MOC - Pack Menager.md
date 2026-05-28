@@ -20,6 +20,10 @@ App para criar/exportar packs FiveM (veículos, sons, rodas).
 - [[Fluxo - Pack Menager (export)]]
 - [[Fluxos - TGS Ecosystem]]
 
+## Specs / trabalho
+
+- [[Spec - Padronizar ícones dos executáveis]]
+
 ## Relacionado
 
 - [[MOC - Launcher]]
