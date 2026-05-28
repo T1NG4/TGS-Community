@@ -1,6 +1,6 @@
 # Spec — Padronizar ícones dos executáveis
 
-**Status:** em progresso (assets no repo; falta validar builds)  
+**Status:** concluído (release v2.0.24)  
 **Projeto:** Launcher | Pack | Mod  
 **Data:** 2026-05-28  
 **Última atualização:** 2026-05-28
@@ -74,7 +74,7 @@ Mod:       midias/TGS/TGS_logo.ico      + package só --win
 - [x] Pack: `build/TGS_logo.ico` existe e `win.icon` configurado.
 - [x] Mod: `TGS_logo.ico` existe; build só Windows.
 - [x] Nenhum `package.json` referencia `assets/icon.icns` ou `assets/icon.png` (Mod).
-- [ ] Build local ou CI: `.exe` de Launcher, Pack e Mod mostram ícone TGS no Explorer.
+- [x] Build local: Pack e Mod validados; Launcher no CI v2.0.24.
 - [ ] (Opcional) Pack/Mod com `icon` no `BrowserWindow` para taskbar.
 
 ## Plano — feito vs pendente
@@ -88,9 +88,8 @@ Mod:       midias/TGS/TGS_logo.ico      + package só --win
 
 ### Pendente
 
-1. Correr `npm run build:electron` (Pack) e `npm run package` (Mod) e confirmar ícone no Explorer.
-2. Tag/release no CI quando conveniente.
-3. (Opcional) Ligar `TGS_logo.png` no `Pack Menager/src/electron/main.js` se quiser ícone na taskbar.
+1. (Opcional) Ligar `TGS_logo.png` no `Pack Menager/src/electron/main.js` para ícone na taskbar.
+2. Checklist pós-release: `TGS Launcher/docs/CHECKLIST_RELEASE.md`.
 
 ## Arquivos envolvidos
 
