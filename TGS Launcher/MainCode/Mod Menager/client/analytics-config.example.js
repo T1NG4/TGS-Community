@@ -6,6 +6,6 @@ window.TGS_ANALYTICS_CONFIG = {
   /** Fluxo "TGS Mod Manager Desktop" */
   measurementId: 'G-XXXXXXXXXX',
   appName: 'tgs_mod_manager',
-  appVersion: '2.0.26',
+  appVersion: '2.0.27',
   enabledInDev: true,
 };

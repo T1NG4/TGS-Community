@@ -1,6 +1,6 @@
 const APP_NAME = 'TGS FiveM Pack Manager';
 const APP_VERSION = '2.0.0';
-const LAUNCHER_VERSION = '2.0.26';
+const LAUNCHER_VERSION = '2.0.27';
 
 const MIN_NODE_VERSION = '20.0.0';
 const MIN_DISK_SPACE = 2 * 1024 * 1024 * 1024; // 2GB in bytes

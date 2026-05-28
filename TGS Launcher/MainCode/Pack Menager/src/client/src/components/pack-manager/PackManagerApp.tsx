@@ -91,7 +91,7 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
-  const [currentVersion, setCurrentVersion] = useState('2.0.26');
+  const [currentVersion, setCurrentVersion] = useState('2.0.27');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
@@ -2497,8 +2497,7 @@ const PackManagerApp: React.FC = () => {
                     </div>
                     <h2 className="text-2xl font-bold tracking-tight">Excluir pack?</h2>
                     <p className="text-sm text-zinc-400 mt-2 leading-relaxed">
-                      Esta ação não pode ser desfeita. Os ficheiros em staging no disco não são
-                      apagados automaticamente.
+                      Esta ação não pode ser desfeita.
                     </p>
                   </div>
 
