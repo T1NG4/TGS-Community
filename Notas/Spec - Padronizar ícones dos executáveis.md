@@ -75,7 +75,7 @@ Mod:       midias/TGS/TGS_logo.ico      + package só --win
 - [x] Mod: `TGS_logo.ico` existe; build só Windows.
 - [x] Nenhum `package.json` referencia `assets/icon.icns` ou `assets/icon.png` (Mod).
 - [x] Build local: Pack e Mod validados; Launcher no CI v2.0.24.
-- [ ] (Opcional) Pack/Mod com `icon` no `BrowserWindow` para taskbar.
+- [x] (Opcional) Pack/Mod com `icon` no `BrowserWindow` para taskbar.
 
 ## Plano — feito vs pendente
 
