@@ -366,7 +366,7 @@ Repositórios de **código** (privados): `tgs-launcher` (monorepo), `TGS-pack-ma
 Repositórios de **releases** (públicos): `TGS-launcher-releases`, `TGS-pack-manager-releases`, `TGS-mod-manager-releases`.  
 Config de anúncios (Pack): branch `main` em `T1NG4/TGS-ads` (`pack-manager.json`).
 
-Documentação privada (este monorepo): `DOCUMENTACAO_*.md`, `README.md`.  
+Documentação privada (este monorepo): pasta `docs/` (`DOCUMENTACAO_*.md`) e `README.md` na raiz.  
 Documentação pública do Pack: `MainCode/Pack Menager/releases-public/` → sincronizada pelo workflow de release.
 
 ---

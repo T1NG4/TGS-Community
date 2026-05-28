@@ -1,6 +1,6 @@
 ﻿# Migração e Padronização para `MainCode/`
 
-> **Estado (2026):** a estrutura em `MainCode/` e a documentação na raiz do repositório (`README.md`, `DOCUMENTACAO_*.md`, `GITHUB_SETUP_COMPLETE_GUIDE.md`) refletem o estado actual. Este ficheiro conserva o plano original da migração.
+> **Estado (2026):** a estrutura em `MainCode/` e a documentação em `docs/` (`DOCUMENTACAO_*.md`, `GITHUB_SETUP_COMPLETE_GUIDE.md`) + `README.md` na raiz refletem o estado actual. Este ficheiro conserva o plano original da migração.
 
 Este plano migra o Launcher, Pack Menager e Mod Menager para `MainCode/` com estrutura padronizada e dependências unificadas em `Dependence/`, copiando apenas o necessário para funcionamento.
 

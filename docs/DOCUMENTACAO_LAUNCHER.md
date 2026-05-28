@@ -125,7 +125,7 @@ A UI usa `check-app-update` para estado e **`start-installation`** de novo para 
 ## Auto-update do próprio Launcher
 
 - Configuração de publicação: `package.json` → `build.publish` (GitHub, repo de releases).
-- Guia passo a passo: [MainCode/Launcher/AUTO_UPDATE_SETUP.md](MainCode/Launcher/AUTO_UPDATE_SETUP.md).
+- Guia passo a passo: [MainCode/Launcher/AUTO_UPDATE_SETUP.md](../MainCode/Launcher/AUTO_UPDATE_SETUP.md).
 - Ecossistema completo (PAT, repos, portables): [GITHUB_SETUP_COMPLETE_GUIDE.md](GITHUB_SETUP_COMPLETE_GUIDE.md).
 
 ---

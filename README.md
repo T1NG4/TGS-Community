@@ -33,9 +33,7 @@ TGS Launcher (hub)
 ## Estrutura do repositório
 
 ```
-├── DOCUMENTACAO_*.md          # Documentação por componente
-├── COMO_ADICIONAR_NOVAS_VERSOES.md
-├── GITHUB_SETUP_COMPLETE_GUIDE.md
+├── docs/                      # Documentação por componente
 ├── MainCode/
 │   ├── Launcher/              # Hub Electron
 │   ├── Pack Menager/
@@ -83,19 +81,21 @@ Gera o instalador NSIS na pasta `release/` (conforme `electron-builder`).
 Guias:
 
 - [MainCode/Launcher/AUTO_UPDATE_SETUP.md](MainCode/Launcher/AUTO_UPDATE_SETUP.md) — passos rápidos
-- [GITHUB_SETUP_COMPLETE_GUIDE.md](GITHUB_SETUP_COMPLETE_GUIDE.md) — PAT `RELEASES_REPO_TOKEN`, seis repositórios, portables
-- [COMO_ADICIONAR_NOVAS_VERSOES.md](COMO_ADICIONAR_NOVAS_VERSOES.md) — versionamento e tags
+- [docs/GITHUB_SETUP_COMPLETE_GUIDE.md](docs/GITHUB_SETUP_COMPLETE_GUIDE.md) — PAT `RELEASES_REPO_TOKEN`, seis repositórios, portables
+- [docs/COMO_ADICIONAR_NOVAS_VERSOES.md](docs/COMO_ADICIONAR_NOVAS_VERSOES.md) — versionamento e tags
 
 ## Documentação
 
 | Documento | Conteúdo |
 |-----------|----------|
-| [DOCUMENTACAO_GERAL.md](DOCUMENTACAO_GERAL.md) | Ecossistema, fluxos, auto-update, estrutura |
-| [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md) | Hub: pastas, IPC, instalação, troubleshooting |
-| [DOCUMENTACAO_PACK_MENAGER.md](DOCUMENTACAO_PACK_MENAGER.md) | Pack Menager |
-| [DOCUMENTACAO_MOD_MENAGER.md](DOCUMENTACAO_MOD_MENAGER.md) | Mod Menager |
-| [DOCUMENTACAO_HOSPEDAGEM.md](DOCUMENTACAO_HOSPEDAGEM.md) | Deploy / custo zero |
-| [DOCUMENTACAO_ANALYTICS.md](DOCUMENTACAO_ANALYTICS.md) | Google Analytics 4 (Launcher + apps) |
+| [docs/DOCUMENTACAO_GERAL.md](docs/DOCUMENTACAO_GERAL.md) | Ecossistema, fluxos, auto-update, estrutura |
+| [docs/DOCUMENTACAO_LAUNCHER.md](docs/DOCUMENTACAO_LAUNCHER.md) | Hub: pastas, IPC, instalação, troubleshooting |
+| [docs/DOCUMENTACAO_PACK_MENAGER.md](docs/DOCUMENTACAO_PACK_MENAGER.md) | Pack Menager |
+| [docs/DOCUMENTACAO_MOD_MENAGER.md](docs/DOCUMENTACAO_MOD_MENAGER.md) | Mod Menager |
+| [docs/DOCUMENTACAO_HOSPEDAGEM.md](docs/DOCUMENTACAO_HOSPEDAGEM.md) | Deploy / custo zero |
+| [docs/DOCUMENTACAO_ANALYTICS.md](docs/DOCUMENTACAO_ANALYTICS.md) | Google Analytics 4 (Launcher + apps) |
+| [docs/CHECKLIST_RELEASE.md](docs/CHECKLIST_RELEASE.md) | Checklist pós-release |
+| [docs/FLUXO_RELEASE_E_GA4.md](docs/FLUXO_RELEASE_E_GA4.md) | Release + GA4 |
 
 ## Contribuição
 

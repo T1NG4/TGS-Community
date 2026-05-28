@@ -1,6 +1,6 @@
 # Google Analytics 4 — Ecossistema TGS
 
-Integração **GA4** (gtag.js) no **TGS Launcher**, **Pack Menager** e **Mod Menager**. Eventos com prefixo **`tgs_`**, fila de envio até o `gtag.js` carregar, e código partilhado em [`MainCode/shared/analytics/`](MainCode/shared/analytics/).
+Integração **GA4** (gtag.js) no **TGS Launcher**, **Pack Menager** e **Mod Menager**. Eventos com prefixo **`tgs_`**, fila de envio até o `gtag.js` carregar, e código partilhado em [`MainCode/shared/analytics/`](../MainCode/shared/analytics/).
 
 ---
 
@@ -36,8 +36,8 @@ Se o secret estiver vazio, o CI usa o fallback `G-DF8MNV3V66`.
 
 | Camada | Caminho |
 |--------|---------|
-| Schema (nomes + tipos) | [`MainCode/shared/analytics/tgsSchema.ts`](MainCode/shared/analytics/tgsSchema.ts) |
-| Core (fila, init, gtag) | [`MainCode/shared/analytics/ga4Core.ts`](MainCode/shared/analytics/ga4Core.ts) |
+| Schema (nomes + tipos) | [`MainCode/shared/analytics/tgsSchema.ts`](../MainCode/shared/analytics/tgsSchema.ts) |
+| Core (fila, init, gtag) | [`MainCode/shared/analytics/ga4Core.ts`](../MainCode/shared/analytics/ga4Core.ts) |
 | Launcher | `src/analytics/ga4.ts` + `tgsEvents.ts` |
 | Pack | `src/client/src/analytics/ga4.ts` + `tgsEvents.ts` |
 | Mod | `client/analytics.js` + `tgsEvents.js` (espelho do core) |

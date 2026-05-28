@@ -208,9 +208,7 @@ Configuração, IDs, CSP e lista de eventos: **[DOCUMENTACAO_ANALYTICS.md](DOCUM
 
 ```
 TGS Launcher/
-├── DOCUMENTACAO_*.md              # Documentação (Geral, Launcher, Pack, Mod, Hospedagem, …)
-├── COMO_ADICIONAR_NOVAS_VERSOES.md
-├── GITHUB_SETUP_COMPLETE_GUIDE.md
+├── docs/                          # Documentação (Geral, Launcher, Pack, Mod, Hospedagem, …)
 ├── MainCode/
 │   ├── Launcher/                  # Hub (Electron + React + Vite)
 │   ├── Pack Menager/             # App 1 (portable + auto-update próprio)
@@ -391,7 +389,7 @@ npm run dev
 
 ### Canais de Suporte
 
-- **Documentação** — Ficheiros `DOCUMENTACAO_*.md`, `COMO_ADICIONAR_NOVAS_VERSOES.md`, `GITHUB_SETUP_COMPLETE_GUIDE.md` e [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md)
+- **Documentação** — Pasta `docs/` (`DOCUMENTACAO_*.md`, `COMO_ADICIONAR_NOVAS_VERSOES.md`, `GITHUB_SETUP_COMPLETE_GUIDE.md`) e [DOCUMENTACAO_LAUNCHER.md](DOCUMENTACAO_LAUNCHER.md)
 - **Issues** — GitHub para bugs e features
 - **Comunidade** — Discord TGS para suporte rápido
 - **Email** — Contato direto com equipe TGS
