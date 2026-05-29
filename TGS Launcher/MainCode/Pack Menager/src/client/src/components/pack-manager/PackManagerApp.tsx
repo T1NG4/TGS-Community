@@ -91,7 +91,7 @@ const PackManagerApp: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('offline');
-  const [currentVersion, setCurrentVersion] = useState('2.0.27');
+  const [currentVersion, setCurrentVersion] = useState('2.0.28');
 
   const t = (key: keyof typeof translations.en) => {
     return translations[language][key] || translations.en[key];
