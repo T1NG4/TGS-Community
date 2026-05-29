@@ -90,7 +90,7 @@ const PackManagerApp: React.FC = () => {
   const [smartUploadMode, setSmartUploadMode] = useState(true);
   const [language, setLanguage] = useState<'en' | 'pt'>('en');
   const [packsDirectory, setPacksDirectory] = useState('C:\\Users\\Tigas\\Documents\\FiveM\\app car pack\\output');
-  const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('online');
+  const [connectionStatus, setConnectionStatus] = useState<'online' | 'update' | 'offline'>('offline');
   const [currentVersion, setCurrentVersion] = useState('2.0.27');
 
   const t = (key: keyof typeof translations.en) => {
@@ -113,13 +113,19 @@ const PackManagerApp: React.FC = () => {
     return false;
   };
 
-  // Verificação de versão via backend (evita CORS no dev)
+  // Internet = conseguir release no GitHub via backend (não usar /api/reference — é só local)
   useEffect(() => {
     const checkVersion = async () => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setConnectionStatus('offline');
+        return;
+      }
+
       try {
-        const response = await fetch(`${API}/api/releases/latest`);
+        const response = await fetch(`${API}/api/releases/latest`, { cache: 'no-store' });
         if (!response.ok) {
-          throw new Error('Failed to fetch release info');
+          setConnectionStatus('offline');
+          return;
         }
 
         const releaseData = await response.json();
@@ -138,19 +144,22 @@ const PackManagerApp: React.FC = () => {
           setConnectionStatus('online');
         }
       } catch {
-        try {
-          const health = await fetch(`${API}/api/reference`);
-          setConnectionStatus(health.ok ? 'online' : 'offline');
-        } catch {
-          setConnectionStatus('offline');
-        }
+        setConnectionStatus('offline');
       }
     };
 
-    checkVersion();
-    const interval = setInterval(checkVersion, 300000);
+    const onBrowserOffline = () => setConnectionStatus('offline');
 
-    return () => clearInterval(interval);
+    checkVersion();
+    const interval = setInterval(checkVersion, 60_000);
+    window.addEventListener('online', checkVersion);
+    window.addEventListener('offline', onBrowserOffline);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('online', checkVersion);
+      window.removeEventListener('offline', onBrowserOffline);
+    };
   }, [API, currentVersion]);
 
   const getStatusConfig = () => {
