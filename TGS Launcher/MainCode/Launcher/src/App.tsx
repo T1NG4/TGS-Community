@@ -20,6 +20,15 @@ type Phase = "idle" | "installing" | "done";
 type Mode = "dark" | "light" | "code";
 type UpdateState = "checking" | "available" | "downloading" | "ready" | "error" | "idle";
 
+function ButtonSpinner() {
+  return (
+    <span
+      className="inline-block h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-white/30 border-t-white"
+      aria-hidden
+    />
+  );
+}
+
 /* ─── Theme definitions ─────────────────────────────────────── */
 const THEMES = {
   dark: {
@@ -279,6 +288,7 @@ export default function App() {
     currentVersion: "",
     latestVersion: "",
   });
+  const [isLaunching, setIsLaunching] = useState(false);
 
   const t = THEMES[mode];
 
@@ -483,7 +493,6 @@ export default function App() {
     // @ts-ignore
     const { ipcRenderer } = window.require("electron");
     const appType = getAppType();
-    const appLabel = getAppLabel();
 
     const checkAppUpdate = async () => {
       try {
@@ -502,12 +511,6 @@ export default function App() {
           latestVersion: result.latestVersion ?? null,
           notInstalled: !!result.notInstalled,
         });
-
-        if (result.hasUpdate) {
-          addLog(
-            `🔄 Update ${appLabel}: v${result.installedVersion} → v${result.latestVersion}`
-          );
-        }
       } catch {
         /* ignore */
       }
@@ -604,15 +607,6 @@ export default function App() {
       appUpdate.hasUpdate &&
       appUpdate.installedVersion &&
       appUpdate.latestVersion;
-
-    if (isAppUpdate) {
-      const confirmed = window.confirm(
-        `Atualizar ${appLabel} para v${appUpdate.latestVersion}?\n\n` +
-          'Feche o aplicativo se estiver aberto (obrigatório para substituir o .exe). ' +
-          'O Launcher vai baixar a versão mais recente.'
-      );
-      if (!confirmed) return;
-    }
 
     setProgress(0);
     setStepIndex(0);
@@ -718,7 +712,7 @@ export default function App() {
 
   const handleLaunch = async () => {
     // @ts-ignore
-    if (!window.require) return;
+    if (!window.require || isLaunching) return;
 
     if (launcherBlocksHub) {
       addLog(
@@ -729,17 +723,13 @@ export default function App() {
       return;
     }
 
-    if (appUpdate.hasUpdate && appUpdate.latestVersion) {
-      addLog(
-        `⚠️ Atualize para v${appUpdate.latestVersion} antes de abrir o app (instalada: v${appUpdate.installedVersion || "?"})`
-      );
-      return;
-    }
+    if (appUpdate.hasUpdate) return;
 
     // @ts-ignore
     const { ipcRenderer } = window.require("electron");
     const appType = getAppType();
 
+    setIsLaunching(true);
     try {
       const fresh = await ipcRenderer.invoke("check-app-update", appType, installPath);
       if (fresh?.hasUpdate) {
@@ -749,9 +739,6 @@ export default function App() {
           latestVersion: fresh.latestVersion ?? null,
           notInstalled: !!fresh.notInstalled,
         });
-        addLog(
-          `⚠️ Atualização obrigatória: v${fresh.installedVersion || "?"} → v${fresh.latestVersion || "?"}`
-        );
         return;
       }
 
@@ -762,6 +749,8 @@ export default function App() {
       const message = err?.message || String(err);
       trackHubAppLaunchFailed(appType, message);
       addLog(`❌ Falha ao iniciar app: ${message}`);
+    } finally {
+      setIsLaunching(false);
     }
   };
 
@@ -923,53 +912,6 @@ export default function App() {
                 </button>
               )}
             </div>
-          </div>
-        )}
-
-        {/* ── Update do app (Pack / Mod / Code) ─────────────── */}
-        {!minimized && isDone && appUpdate.hasUpdate && appUpdate.latestVersion && (
-          <div
-            className="absolute left-0 right-0 z-20 px-4 py-2 flex items-center justify-between"
-            style={{
-              top:
-                updateState !== "idle" && updateState !== "checking" ? "6.25rem" : "3rem",
-              background: t.accentAlt,
-              borderBottom: `1px solid ${t.border}`,
-              transition: "all 0.3s ease",
-            }}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <span style={{ color: t.textPrimary }}>
-                🔄 {getAppLabel()}: nova versão disponível
-              </span>
-              <span style={{ color: t.textSecondary, fontSize: "12px" }} className="truncate">
-                v{appUpdate.installedVersion} → v{appUpdate.latestVersion}
-              </span>
-            </div>
-            <button
-              onClick={handleInstall}
-              disabled={isRunning}
-              className="shrink-0 px-3 py-1 text-xs font-semibold rounded transition-all duration-200"
-              style={{
-                background: t.windowBg,
-                color: t.accent,
-                border: `1px solid ${t.border}`,
-                cursor: isRunning ? "not-allowed" : "pointer",
-                opacity: isRunning ? 0.6 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (!isRunning) {
-                  e.currentTarget.style.background = t.accent;
-                  e.currentTarget.style.color = t.windowBg;
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = t.windowBg;
-                e.currentTarget.style.color = t.accent;
-              }}
-            >
-              {isRunning ? "Atualizando..." : "Atualizar agora"}
-            </button>
           </div>
         )}
 
@@ -1321,24 +1263,25 @@ export default function App() {
                     </button>
                     <button
                       onClick={appUpdate.hasUpdate ? handleInstall : handleLaunch}
-                      disabled={launcherBlocksHub}
-                      className="px-6 py-2 text-sm font-semibold text-white transition-all duration-200 shadow-lg"
+                      disabled={launcherBlocksHub || isLaunching || (appUpdate.hasUpdate && isRunning)}
+                      className="px-6 py-2 text-sm font-semibold text-white transition-all duration-200 shadow-lg inline-flex items-center justify-center gap-2 min-w-[9.5rem]"
                       style={{
-                        background: launcherBlocksHub
+                        background: launcherBlocksHub || isLaunching || (appUpdate.hasUpdate && isRunning)
                           ? t.disabledBg
                           : appUpdate.hasUpdate
                             ? t.accentGradient
                             : t.doneGradient,
-                        boxShadow: launcherBlocksHub
+                        boxShadow: launcherBlocksHub || isLaunching || (appUpdate.hasUpdate && isRunning)
                           ? "none"
                           : appUpdate.hasUpdate
                             ? `0 0 18px ${t.accentGlow}`
                             : `0 0 18px ${t.doneGlow}`,
-                        color: launcherBlocksHub ? t.disabledText : "#fff",
-                        cursor: launcherBlocksHub ? "not-allowed" : "pointer",
+                        color: launcherBlocksHub || isLaunching || (appUpdate.hasUpdate && isRunning) ? t.disabledText : "#fff",
+                        cursor: launcherBlocksHub || isLaunching || (appUpdate.hasUpdate && isRunning) ? "not-allowed" : "pointer",
                         transition: "background 0.5s ease, box-shadow 0.5s ease",
                       }}
                       onMouseEnter={(e) => {
+                        if (launcherBlocksHub || isLaunching || (appUpdate.hasUpdate && isRunning)) return;
                         if (appUpdate.hasUpdate) {
                           e.currentTarget.style.background = t.accentGradientHover;
                           e.currentTarget.style.boxShadow = `0 0 28px ${t.accentGlow}`;
@@ -1348,6 +1291,7 @@ export default function App() {
                         }
                       }}
                       onMouseLeave={(e) => {
+                        if (launcherBlocksHub || isLaunching || (appUpdate.hasUpdate && isRunning)) return;
                         if (appUpdate.hasUpdate) {
                           e.currentTarget.style.background = t.accentGradient;
                           e.currentTarget.style.boxShadow = `0 0 18px ${t.accentGlow}`;
@@ -1357,9 +1301,21 @@ export default function App() {
                         }
                       }}
                     >
-                      {appUpdate.hasUpdate
-                        ? `Atualizar (v${appUpdate.latestVersion})`
-                        : "Executar App ↗"}
+                      {isLaunching ? (
+                        <>
+                          <ButtonSpinner />
+                          Abrindo...
+                        </>
+                      ) : appUpdate.hasUpdate && isRunning ? (
+                        <>
+                          <ButtonSpinner />
+                          Atualizando...
+                        </>
+                      ) : appUpdate.hasUpdate ? (
+                        "Atualizar"
+                      ) : (
+                        "Executar App"
+                      )}
                     </button>
                   </>
                 )}
