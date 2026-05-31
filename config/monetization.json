@@ -1,0 +1,33 @@
+{
+  "adsEnabled": false,
+  "site": {
+    "adsense": {
+      "clientId": "ca-pub-7315528866117152",
+      "autoAds": true,
+      "units": {
+        "afterHero": {
+          "slot": "",
+          "format": "auto",
+          "fullWidthResponsive": true
+        },
+        "catalogMid": {
+          "slot": "",
+          "format": "auto",
+          "fullWidthResponsive": true
+        },
+        "preFooter": {
+          "slot": "",
+          "format": "auto",
+          "fullWidthResponsive": true
+        }
+      }
+    }
+  },
+  "packManager": {
+    "version": 1,
+    "enabled": false,
+    "ads": [],
+    "vastTagUrl": "",
+    "analyticsUrl": null
+  }
+}

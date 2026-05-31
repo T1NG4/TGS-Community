@@ -17,6 +17,7 @@ import { XmlMetaEditor } from './XmlMetaEditor';
 import { buildExportPreview } from './exportPreview';
 import { useApiBase } from '../../hooks/useApiBase';
 import { AdGateModal } from '../../ads/AdGateModal';
+import { isValidAdConfig, readCachedConfig } from '../../ads/config';
 import {
   openExternalLink,
   PACK_MANAGER_PUBLIC_DOCS_URL,
@@ -251,6 +252,7 @@ const PackManagerApp: React.FC = () => {
   const [validationProgress, setValidationProgress] = useState(0);
   const [isValidating, setIsValidating] = useState(false);
   const [showAdGate, setShowAdGate] = useState(false);
+  const [adsGateRequired, setAdsGateRequired] = useState<boolean | null>(null);
   const [validationStep, setValidationStep] = useState('');
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedVehicle, setSelectedVehicle] = useState<string>('');
@@ -268,6 +270,31 @@ const PackManagerApp: React.FC = () => {
       trackPackOpen(currentVersion);
     });
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAdsGateSetting() {
+      try {
+        const response = await fetch(`${API}/api/ads/config`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data: unknown = await response.json();
+        if (!cancelled && isValidAdConfig(data)) {
+          setAdsGateRequired(data.enabled);
+        }
+      } catch {
+        if (!cancelled) {
+          const cached = readCachedConfig();
+          setAdsGateRequired(cached?.enabled ?? true);
+        }
+      }
+    }
+
+    if (API) void loadAdsGateSetting();
+    return () => {
+      cancelled = true;
+    };
+  }, [API]);
 
   useEffect(() => {
     trackPackTabView(currentTab);
@@ -1380,6 +1407,10 @@ const PackManagerApp: React.FC = () => {
 
   const handleExportClick = () => {
     if (!currentPack || isValidating) return;
+    if (adsGateRequired === false) {
+      executeExport();
+      return;
+    }
     setShowAdGate(true);
   };
 

@@ -43,6 +43,10 @@
     "asar": true,
     "extraResources": [
       {
+        "from": "../../../config/monetization.json",
+        "to": "config/monetization.json"
+      },
+      {
         "from": "[TGS-Fivem-Pack]",
         "to": "[TGS-Fivem-Pack]",
         "filter": [

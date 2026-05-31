@@ -133,6 +133,67 @@ const upload = multer({
 const ADS_CONFIG_REMOTE_URL =
   'https://raw.githubusercontent.com/T1NG4/TGS-ads/main/pack-manager.json';
 
+const ADS_DISABLED_CONFIG = {
+  version: 1,
+  enabled: false,
+  ads: [],
+  vastTagUrl: '',
+  analyticsUrl: null,
+};
+
+function getMonetizationConfigPaths() {
+  const candidates = [
+    process.env.TGS_MONETIZATION_CONFIG,
+    path.join(process.resourcesPath || '', 'config', 'monetization.json'),
+    path.join(__dirname, '../../../../config/monetization.json'),
+    path.join(__dirname, '../../../../../../config/monetization.json'),
+  ].filter(Boolean);
+  return [...new Set(candidates)];
+}
+
+async function loadMonetizationConfig() {
+  for (const filePath of getMonetizationConfigPaths()) {
+    try {
+      if (!(await fsExtra.pathExists(filePath))) continue;
+      const data = await fsExtra.readJson(filePath);
+      if (data && typeof data === 'object') return data;
+    } catch (error) {
+      logger.warn('[monetization] Failed to read config', { filePath, error: error.message });
+    }
+  }
+  return null;
+}
+
+function isAdsGloballyEnabled(monetization) {
+  if (process.env.TGS_ADS_ENABLED === '0' || process.env.TGS_ADS_ENABLED === 'false') {
+    return false;
+  }
+  if (monetization && typeof monetization.adsEnabled === 'boolean') {
+    return monetization.adsEnabled;
+  }
+  return true;
+}
+
+function buildPackAdConfig(monetization, remoteConfig) {
+  if (!isAdsGloballyEnabled(monetization)) {
+    return { ...ADS_DISABLED_CONFIG };
+  }
+
+  const localPack = monetization?.packManager;
+  if (localPack && typeof localPack === 'object' && localPack.enabled === false) {
+    return { ...ADS_DISABLED_CONFIG, ...localPack, enabled: false };
+  }
+
+  if (remoteConfig && isValidAdConfig(remoteConfig)) {
+    if (monetization?.adsEnabled === false) {
+      return { ...remoteConfig, enabled: false };
+    }
+    return remoteConfig;
+  }
+
+  return null;
+}
+
 function isValidAdConfig(data) {
   if (!data || typeof data !== 'object') return false;
   const hasValidAds =
@@ -192,26 +253,37 @@ function createApp(serveStatic = false) {
 
   app.get('/api/ads/config', async (_req, res) => {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10_000);
-      const response = await fetch(ADS_CONFIG_REMOTE_URL, {
-        headers: { 'User-Agent': 'TGS-Pack-Manager' },
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
+      const monetization = await loadMonetizationConfig();
 
-      if (!response.ok) {
-        return res.status(502).json({ error: `Upstream HTTP ${response.status}` });
+      if (!isAdsGloballyEnabled(monetization)) {
+        return res.json(buildPackAdConfig(monetization, null));
       }
 
-      const data = await response.json();
-      if (!isValidAdConfig(data)) {
-        return res.status(502).json({ error: 'Invalid ads config format' });
+      let remoteConfig = null;
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10_000);
+        const response = await fetch(ADS_CONFIG_REMOTE_URL, {
+          headers: { 'User-Agent': 'TGS-Pack-Manager' },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          remoteConfig = await response.json();
+        }
+      } catch (error) {
+        logger.warn('Failed to fetch remote ads config', error);
       }
 
-      res.json(data);
+      const resolved = buildPackAdConfig(monetization, remoteConfig);
+      if (resolved) {
+        return res.json(resolved);
+      }
+
+      return res.status(502).json({ error: 'Invalid ads config format' });
     } catch (error) {
-      logger.warn('Failed to fetch remote ads config', error);
+      logger.warn('Failed to resolve ads config', error);
       res.status(502).json({ error: error.message || 'Failed to fetch ads config' });
     }
   });
