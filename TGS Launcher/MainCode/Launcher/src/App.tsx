@@ -15,6 +15,7 @@ import {
   trackLauncherUpdateFailed,
   trackLauncherUpdateStart,
 } from "./analytics/tgsEvents";
+import { formatPublicVersion } from "./shared/formatPublicVersion";
 
 type Phase = "idle" | "installing" | "done";
 type Mode = "dark" | "light" | "code";
@@ -354,7 +355,7 @@ export default function App() {
         hasUpdate: true,
         latestVersion: info?.version || prev.latestVersion,
       }));
-      addLog(`🔄 Update disponível: v${info?.version || "?"}`);
+      addLog(`🔄 Update disponível: v${formatPublicVersion(info?.version) || "?"}`);
     };
 
     const onUpdateNotAvailable = () => {
@@ -443,7 +444,7 @@ export default function App() {
           });
           if (result.hasUpdate) {
             addLog(
-              `⚠️ Launcher desatualizado (v${result.currentVersion} → v${result.latestVersion}). Atualize o hub antes de instalar/abrir apps.`
+              `⚠️ Launcher desatualizado (v${formatPublicVersion(result.currentVersion)} → v${formatPublicVersion(result.latestVersion)}). Atualize o hub antes de instalar/abrir apps.`
             );
           }
         }
@@ -596,7 +597,7 @@ export default function App() {
     if (launcherBlocksHub) {
       addLog(
         launcherUpdate.hasUpdate
-          ? `⚠️ Atualize o TGS Launcher (v${launcherUpdate.currentVersion} → v${launcherUpdate.latestVersion}) antes de instalar apps.`
+          ? `⚠️ Atualize o TGS Launcher (v${formatPublicVersion(launcherUpdate.currentVersion)} → v${formatPublicVersion(launcherUpdate.latestVersion)}) antes de instalar apps.`
           : "⚠️ Conclua a atualização do TGS Launcher (banner no topo) antes de instalar apps."
       );
       return;
@@ -717,7 +718,7 @@ export default function App() {
     if (launcherBlocksHub) {
       addLog(
         launcherUpdate.hasUpdate
-          ? `⚠️ Atualize o TGS Launcher (v${launcherUpdate.currentVersion} → v${launcherUpdate.latestVersion}) antes de abrir apps.`
+          ? `⚠️ Atualize o TGS Launcher (v${formatPublicVersion(launcherUpdate.currentVersion)} → v${formatPublicVersion(launcherUpdate.latestVersion)}) antes de abrir apps.`
           : "⚠️ Conclua a atualização do TGS Launcher (banner no topo) antes de abrir apps."
       );
       return;
@@ -808,7 +809,7 @@ export default function App() {
                   className="text-[10px] ml-0.5 transition-colors duration-500"
                   style={{ color: t.accent }}
                 >
-                  v{appVersion || "…"}
+                  v{formatPublicVersion(appVersion) || "…"}
                 </sup>
               </span>
             </span>
@@ -858,7 +859,7 @@ export default function App() {
               </span>
               {updateVersion && updateState === "available" && (
                 <span style={{ color: t.textSecondary, fontSize: "12px" }}>
-                  (v{updateVersion})
+                  (v{formatPublicVersion(updateVersion)})
                 </span>
               )}
             </div>
