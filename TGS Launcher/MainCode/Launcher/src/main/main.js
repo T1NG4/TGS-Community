@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const isDev = !app.isPackaged;
 const { autoUpdater } = require('electron-updater');
 const logger = require('./logger');
@@ -73,6 +74,16 @@ async function resolveStartUrl() {
   return url;
 }
 
+/** Ícone na barra de tarefas — .ico no Windows; empacotado em resources/icons/ */
+function getWindowIcon() {
+  const iconsDir = path.join(__dirname, '../../resources/icons');
+  const ico = path.join(iconsDir, 'icon.ico');
+  const png = path.join(iconsDir, 'icon.png');
+  if (process.platform === 'win32' && fs.existsSync(ico)) return ico;
+  if (fs.existsSync(png)) return png;
+  return undefined;
+}
+
 function createWindow(startUrl) {
   mainWindow = new BrowserWindow({
     width: 780,
@@ -89,7 +100,7 @@ function createWindow(startUrl) {
       enableRemoteModule: true,
       devTools: !isProduction,
     },
-    icon: path.join(__dirname, '../../resources/icons/icon.png'),
+    icon: getWindowIcon(),
     title: 'TGS Launcher',
     backgroundColor: '#060810',
   });
@@ -108,6 +119,9 @@ function createWindow(startUrl) {
 }
 
 app.whenReady().then(async () => {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.tgs.launcher');
+  }
   const startUrl = await resolveStartUrl();
   createWindow(startUrl);
 

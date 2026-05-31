@@ -1,6 +1,6 @@
 {
   "name": "tgs-launcher",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Launcher de instalação e Hub para TGS Ecosystem",
   "repository": {
     "type": "git",
@@ -61,6 +61,7 @@
       "package.json",
       "src/main/**/*",
       "dist-renderer/**/*",
+      "resources/icons/**/*",
       "!**/*.map"
     ],
     "publish": [
