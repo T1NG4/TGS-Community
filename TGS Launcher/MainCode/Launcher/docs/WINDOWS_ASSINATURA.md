@@ -42,7 +42,9 @@ No repositório do Launcher → **Settings → Secrets and variables → Actions
 
 | Variable | Valor |
 |----------|--------|
-| `CODE_SIGNING_ENABLED` | `true` — falha o CI se o `.exe` sair sem assinatura válida |
+| `CODE_SIGNING_ENABLED` | `true` — usa `WIN_CSC_LINK` no CI e exige assinatura válida |
+
+**Importante:** não crie `WIN_CSC_LINK` como secret/variable com um caminho de pasta. O valor deve ser o conteúdo **Base64 do ficheiro `.pfx`**, ou deixe o secret **apagado** até ter certificado.
 
 Depois de assinar releases, altere em `src/main/main.js`:
 

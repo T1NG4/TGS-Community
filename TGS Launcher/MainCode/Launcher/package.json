@@ -81,8 +81,7 @@
       "publisherName": "TGS Community",
       "legalTrademarks": "TGS Community",
       "requestedExecutionLevel": "asInvoker",
-      "signingHashAlgorithms": ["sha256"],
-      "signDlls": false
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
