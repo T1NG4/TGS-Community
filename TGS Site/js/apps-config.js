@@ -1,0 +1,81 @@
+﻿const TGS_APPS = [
+  {
+    id: 'pack-manager',
+    name: 'TGS Pack Manager',
+    tagline: 'Car packs for FiveM',
+    description:
+      'TGS Community desktop tool to create, manage, and export vehicle, sound, and wheel packs. Ready to drop into your FiveM server resources folder.',
+    published: true,
+    logo: 'assets/apps/pack-manager/logo.png',
+    icon: 'fas fa-car-side',
+    theme: {
+      accent: '#00e5cc',
+      accentAlt: '#00b4a0',
+      logoBg: 'linear-gradient(145deg, #1e2a28 0%, #2a3f3b 100%)',
+      visualBg: '#ecfbf8',
+      taglineBg: 'rgba(0, 229, 204, 0.12)',
+      taglineColor: '#007a6e',
+    },
+    features: [
+      'Pack creation (vehicles, sounds, wheels)',
+      'Direct export to resources',
+      'Automatic updates via TGS Launcher',
+      'Windows — free TGS Community app',
+    ],
+    ctaLabel: 'Install via Launcher',
+    ctaHref:
+      'https://github.com/T1NG4/TGS-launcher-releases/releases/latest/download/TGS-Launcher-Setup.exe',
+  },
+  {
+    id: 'mod-manager',
+    name: 'TGS Mod Manager',
+    tagline: 'TGS Community catalog',
+    description:
+      'Browse, purchase, and manage TGS Community mods from one desktop app. Visual catalog, organized installation, and full TGS Launcher integration.',
+    published: true,
+    logo: 'assets/brand/TGS_logo_black.svg',
+    icon: 'fas fa-th-large',
+    theme: {
+      accent: '#7c5cbf',
+      accentAlt: '#9b7fdb',
+      logoBg: 'linear-gradient(135deg, #f5f5f8 0%, #ececf2 50%, #dddde8 100%)',
+      visualBg: '#f3f0fa',
+      taglineBg: 'rgba(124, 92, 191, 0.12)',
+      taglineColor: '#5a3f9e',
+    },
+    features: [
+      'Visual catalog of TGS Community scripts and mods',
+      'Centralized license management',
+      'Installation and updates via TGS Launcher',
+      'Windows — part of the TGS Community ecosystem',
+    ],
+    ctaLabel: 'Coming Soon',
+    ctaHref: '#',
+  },
+  {
+    id: 'tgs-code',
+    name: 'TGS Code',
+    tagline: 'Code tools for FiveM',
+    description:
+      'TGS Community development environment for creating FiveM resources. Templates, snippets, and a workflow aligned with Pack Manager and the rest of the ecosystem.',
+    published: true,
+    logo: 'assets/apps/tgs-code/logo.svg',
+    icon: 'fas fa-terminal',
+    theme: {
+      accent: '#76b900',
+      accentAlt: '#808080',
+      logoBg: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
+      visualBg: '#f2f2f2',
+      taglineBg: 'rgba(118, 185, 0, 0.12)',
+      taglineColor: '#4a7300',
+    },
+    features: [
+      'Environment focused on FiveM resources',
+      'Integrated with TGS Community apps',
+      'Templates and productivity tools',
+      'Windows — in development',
+    ],
+    ctaLabel: 'Coming Soon',
+    ctaHref: '#',
+  },
+];

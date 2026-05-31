@@ -1,216 +1,472 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGS Store - Scripts e Mods FiveM</title>
-    <link rel="icon" type="image/png" href="midias/TGS/TGS_logo.svg">
-    <link rel="stylesheet" href="colors/colors.css">
-    <link rel="stylesheet" href="base/base.css">
-    <link rel="stylesheet" href="buttons/buttons.css">
-    <link rel="stylesheet" href="filters/filters.css">
-    <link rel="stylesheet" href="form/form.css">
-    <link rel="stylesheet" href="modal/modal.css">
-    <link rel="stylesheet" href="animations/animations.css">
-    <link rel="stylesheet" href="loading/loading.css">
-    <link rel="stylesheet" href="scroll/scroll.css">
-    <link rel="stylesheet" href="section-header/section-header.css">
-    <!-- Section-specific styles -->
-    <link rel="stylesheet" href="header/header_desktop.css">
-    <link rel="stylesheet" href="header/header_mobile.css">
-    <link rel="stylesheet" href="hero/hero.css">
-    <link rel="stylesheet" href="products/products.css">
-    <link rel="stylesheet" href="features/features.css">
-    <link rel="stylesheet" href="About/about.css">
-    <link rel="stylesheet" href="Footer/footer.css">
+
+    <meta name="description" content="TGS Community — premium FiveM scripts, mods, graphics packs and desktop apps distributed via TGS Launcher.">
+
+    <title>TGS Community — FiveM Scripts, Mods & Apps</title>
+
+    <link rel="icon" type="image/png" href="assets/brand/TGS_logo.svg">
+
+    <link rel="stylesheet" href="css/main.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
-<body>
+
+<body class="immersive-body">
+
+    <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-bar"></div></div>
+
+    <div class="cursor-glow" aria-hidden="true"></div>
+
     <!-- Header -->
+
     <header class="header">
+
         <nav class="nav">
+
             <div class="nav-container">
+
                 <div class="logo">
-                    <img src="midias/TGS/TGS_logo.svg" alt="TGS Logo" class="logo-svg logo-white">
-                    <img src="midias/TGS/TGS_logo_black.svg" alt="TGS Logo" class="logo-svg logo-black">
-                    <span>TGS Store</span>
+
+                    <img src="assets/brand/TGS_logo.svg" alt="TGS Logo" class="logo-svg logo-white">
+
+                    <img src="assets/brand/TGS_logo_black.svg" alt="TGS Logo" class="logo-svg logo-black">
+
+                    <span>TGS Community</span>
+
                 </div>
+
                 <ul class="nav-menu">
-                    <li><a href="#home" class="nav-link">Início</a></li>
-                    <li><a href="#products" class="nav-link">Produtos</a></li>
-                    <li><a href="#about" class="nav-link">Sobre</a></li>
+
+                    <li><a href="#home" class="nav-link">Home</a></li>
+
+                    <li><a href="#apps" class="nav-link">Apps</a></li>
+
+                    <li><a href="#products" class="nav-link">Products</a></li>
+
+                    <li><a href="#about" class="nav-link">About</a></li>
+
                 </ul>
+
                 <div class="nav-toggle">
+
                     <span></span>
+
                     <span></span>
+
                     <span></span>
+
                 </div>
+
             </div>
+
         </nav>
+
     </header>
 
+
+
     <!-- Hero Section -->
+
     <section id="home" class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1 class="hero-title">Scripts e Mods Premium para FiveM</h1>
-                <p class="hero-subtitle">Transforme seu servidor com scripts de alta qualidade e suporte especializado</p>
-                <div class="hero-buttons">
-                    <a href="#products" class="btn btn-primary">Ver Produtos</a>
-                    <a href="#about" class="btn btn-secondary">Saiba Mais</a>
-                </div>
-            </div>
-            <div class="hero-image">
-                <div class="hero-graphic">
-                    <img src="midias/TGS/TGS_logo_black_3d.png" alt="TGS Logo 3D" class="hero-logo">
-                </div>
-            </div>
+
+        <canvas id="heroCanvas" class="hero-canvas" aria-hidden="true"></canvas>
+
+        <div class="hero-orbs" aria-hidden="true">
+
+            <div class="hero-orb hero-orb-1"></div>
+
+            <div class="hero-orb hero-orb-2"></div>
+
+            <div class="hero-orb hero-orb-3"></div>
+
         </div>
+
+        <div class="hero-grid-3d" aria-hidden="true"></div>
+
+        <div class="hero-container">
+
+            <div class="hero-content">
+
+                <h1 class="hero-title">Premium Scripts & Mods for FiveM</h1>
+
+                <p class="hero-subtitle">TGS Community builds premium resources for FiveM — scripts, mods, graphics and desktop tools with dedicated support.</p>
+
+                <div class="hero-buttons">
+
+                    <a href="https://github.com/T1NG4/TGS-launcher-releases/releases/latest/download/TGS-Launcher-Setup.exe" data-tgs-launcher-download class="btn btn-primary btn-hero-cta" target="_blank" rel="noopener noreferrer">
+
+                        <i class="fas fa-download"></i> Download Launcher
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="hero-image">
+
+                <div class="hero-graphic tilt-3d" data-tilt-intensity="14">
+
+                    <div class="hero-logo-wrap">
+
+                        <div class="hero-logo-glow"></div>
+
+                        <img src="assets/brand/TGS_logo_black_3d.png" alt="TGS Logo 3D" class="hero-logo">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </section>
+
+
+
+    <div class="container">
+        <aside class="tgs-ad-slot tgs-ad-slot--hero" data-tgs-ad="afterHero" aria-label="Advertisement">
+            <div class="tgs-ad-slot__inner">
+                <span class="tgs-ad-slot__label">Advertisement</span>
+            </div>
+        </aside>
+    </div>
+
+
+
+    <!-- Apps Section -->
+
+    <section id="apps" class="apps parallax-section">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2>Apps</h2>
+
+                <p>Official TGS Community desktop apps — installed and updated through TGS Launcher</p>
+
+            </div>
+
+        </div>
+
+        <div class="apps-scroll-wrap" id="appsScrollWrap">
+
+            <div class="apps-scroll" id="appsScroll">
+
+                <div class="apps-scroll-track" id="appsCarouselTrack"></div>
+
+            </div>
+
+            <p class="apps-scroll-hint" aria-hidden="true">
+
+                <i class="fas fa-arrows-alt-h"></i> Swipe — the centered app is selected
+
+            </p>
+
+        </div>
+
+    </section>
+
+
 
     <!-- Products Section -->
-    <section id="products" class="products">
+
+    <section id="products" class="products parallax-section">
+
         <div class="container">
-            <div class="section-header">
-                <h2>Nossos Produtos</h2>
-                <p>Scripts otimizados e mods exclusivos para seu servidor</p>
+
+            <div class="section-header reveal">
+
+                <h2>Our Products</h2>
+
+                <p>Explore the TGS Community catalog — optimized resources and graphics packs</p>
+
             </div>
-            
+
+
+
             <div class="filters">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="scripts">Scripts</button>
-                <button class="filter-btn" data-filter="mods">Mods</button>
+
+                <button class="filter-btn active" data-filter="all">All</button>
+
+                <button class="filter-btn" data-filter="resources">Resources</button>
+
                 <button class="filter-btn" data-filter="graphics">Graphics</button>
+
             </div>
+
+
 
             <div class="products-grid" id="productsGrid">
+
                 <!-- Products will be loaded dynamically -->
+
             </div>
+
+            <aside class="tgs-ad-slot tgs-ad-slot--section" data-tgs-ad="catalogMid" aria-label="Advertisement">
+                <div class="tgs-ad-slot__inner">
+                    <span class="tgs-ad-slot__label">Advertisement</span>
+                </div>
+            </aside>
+
         </div>
+
     </section>
+
+
 
     <!-- Features Section -->
-    <section class="features">
+
+    <section class="features parallax-section">
+
         <div class="container">
-            <div class="features-grid">
-                <div class="feature-card">
+
+            <div class="features-grid reveal">
+
+                <div class="feature-card reveal-item tilt-3d" data-tilt-intensity="8">
+
                     <div class="feature-icon">
+
                         <i class="fas fa-rocket"></i>
+
                     </div>
-                    <h3>Performance Otimizada</h3>
-                    <p>Scripts desenvolvidos com foco em performance e estabilidade</p>
+
+                    <h3>Optimized Performance</h3>
+
+                    <p>Scripts built with a focus on performance and stability</p>
+
                 </div>
-                <div class="feature-card">
+
+                <div class="feature-card reveal-item tilt-3d" data-tilt-intensity="8">
+
                     <div class="feature-icon">
+
                         <i class="fas fa-shield-alt"></i>
+
                     </div>
-                    <h3>Suporte Ticket Ativo</h3>
-                    <p>Suporte técnico especializado via ticket</p>
+
+                    <h3>Active Ticket Support</h3>
+
+                    <p>Dedicated technical support via ticket system</p>
+
                 </div>
-                <div class="feature-card">
+
+                <div class="feature-card reveal-item tilt-3d" data-tilt-intensity="8">
+
                     <div class="feature-icon">
+
                         <i class="fas fa-code-branch"></i>
+
                     </div>
-                    <h3>Atualizações Gratuitas</h3>
-                    <p>Receba atualizações e melhorias sem custo adicional</p>
+
+                    <h3>Free Updates</h3>
+
+                    <p>Receive updates and improvements at no extra cost</p>
+
                 </div>
-                <div class="feature-card">
+
+                <div class="feature-card reveal-item tilt-3d" data-tilt-intensity="8">
+
                     <div class="feature-icon">
+
                         <i class="fas fa-users"></i>
+
                     </div>
-                    <h3>Comunidade Ativa</h3>
-                    <p>Participe de nossa comunidade de desenvolvedores</p>
+
+                    <h3>Active Community</h3>
+
+                    <p>Join the TGS Community of developers and server owners building on FiveM</p>
+
                 </div>
+
             </div>
+
         </div>
+
     </section>
 
+
+
     <!-- About Section -->
-    <section id="about" class="about">
+
+    <section id="about" class="about parallax-section">
+
         <div class="container">
-            <div class="about-content">
-                <div class="about-text">
-                    <h2>Sobre a TGS Store</h2>
-                    <p>Somos especialistas em desenvolvimento de scripts e mods para FiveM, oferecendo soluções personalizadas e de alta qualidade para servidores de roleplay.</p>
-                    <p>Nossa equipe possui anos de experiência no desenvolvimento de recursos para FiveM, garantindo produtos estáveis, otimizados e com suporte completo.</p>
-                    <div class="stats">
-                        <div class="stat">
-                            <span class="stat-number">500+</span>
-                            <span class="stat-label">Clientes Satisfeitos</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number">50+</span>
-                            <span class="stat-label">Scripts Disponíveis</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number no-wrap">suporte ✓</span>
-                            <span class="stat-label">Sistema de Suporte</span>
-                        </div>
-                    </div>
+
+            <div class="about-content reveal">
+
+                <div class="about-text reveal-item">
+
+                    <h2>About TGS Community</h2>
+
+                    <p><strong>TGS Community</strong> is an ecosystem for FiveM creators and server owners — premium scripts, mods, graphics packs and Windows desktop apps, all distributed through <strong>TGS Launcher</strong>.</p>
+
+                    <p>Active since <span id="aboutFounded">2023</span>, we focus on stable, optimized releases with ticket support and free lifetime updates for our products.</p>
+
+                    <div class="stats" id="aboutStats"></div>
+
+                    <p class="about-stats-updated" id="aboutStatsUpdated" aria-live="polite"></p>
+
                 </div>
-                <div class="about-image">
-                    <div class="about-graphic">
+
+                <div class="about-image reveal-item">
+
+                    <div class="about-graphic tilt-3d" data-tilt-intensity="12">
+
                         <i class="fas fa-laptop-code"></i>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
+
     </section>
+
+
+
+    <div class="container">
+        <aside class="tgs-ad-slot tgs-ad-slot--footer" data-tgs-ad="preFooter" aria-label="Advertisement">
+            <div class="tgs-ad-slot__inner">
+                <span class="tgs-ad-slot__label">Advertisement</span>
+            </div>
+        </aside>
+    </div>
+
 
 
     <!-- Footer -->
+
     <footer class="footer">
+
         <div class="container">
+
             <div class="footer-content">
+
                 <div class="footer-section">
+
                     <div class="logo">
-                        <img src="midias/TGS/TGS_logo.svg" alt="TGS Logo" class="logo-svg">
-                        <span>TGS Store</span>
+
+                        <img src="assets/brand/TGS_logo.svg" alt="TGS Logo" class="logo-svg">
+
+                        <span>TGS Community</span>
+
                     </div>
-                    <p>Scripts e mods premium para FiveM</p>
+
+                    <p>The official home of TGS Community — FiveM scripts, mods & desktop apps</p>
+
                 </div>
+
                 <div class="footer-section">
-                    <h4>Links Rápidos</h4>
+
+                    <h4>Quick Links</h4>
+
                     <ul>
-                        <li><a href="#home">Início</a></li>
-                        <li><a href="#products">Produtos</a></li>
-                        <li><a href="#about">Sobre</a></li>
+
+                        <li><a href="#home">Home</a></li>
+
+                        <li><a href="#apps">Apps</a></li>
+
+                        <li><a href="#products">Products</a></li>
+
+                        <li><a href="#about">About</a></li>
+
                     </ul>
+
                 </div>
+
                 <div class="footer-section">
-                    <h4>Redes Sociais</h4>
-                    <div class="social-links">
-                        <a href="https://discord.gg/cYv7W4XCXv" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i></a>
-                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
-                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
-                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    </div>
-                    <div class="footer-email" style="margin-top: 20px;">
-                        <p><i class="fas fa-envelope"></i> tgs.storeoficial@gmail.com</p>
-                    </div>
+
+                    <h4>Social Media</h4>
+
+                    <ul class="footer-social-list" id="footerSocialLinks"></ul>
+
                 </div>
+
             </div>
+
             <div class="footer-bottom">
-                <p>&copy; 2024 TGS Store. Todos os direitos reservados.</p>
+
+                <p>&copy; <span id="footerYear">2026</span> TGS Community. All rights reserved.</p>
+
             </div>
+
         </div>
+
     </footer>
 
+
+
     <!-- Product Modal -->
+
     <div class="modal" id="productModal">
+
         <div class="modal-content">
-            <span class="close">&times;</span>
+
             <div class="modal-body">
+
                 <!-- Modal content will be loaded dynamically -->
+
             </div>
+
         </div>
+
     </div>
 
-    <script src="utils/notification.js"></script>
-    <script src="products/products.js"></script>
-    <script src="header/header_desktop.js"></script>
-    <script src="header/header_mobile.js"></script>
-    <script src="animations/animations.js"></script>
+
+
+    <!-- App Modal -->
+
+    <div class="modal" id="appModal">
+
+        <div class="modal-content">
+
+            <div class="modal-body" id="appModalBody"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <script src="js/site-config.js"></script>
+    <script src="js/adsense.js"></script>
+    <script src="js/download.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/notification.js"></script>
+
+    <script src="js/apps-config.js"></script>
+
+    <script src="js/immersive.js"></script>
+
+    <script src="js/apps.js"></script>
+
+    <script src="js/products.js"></script>
+
+    <script src="js/live-stats.js"></script>
+
+    <script src="js/about.js"></script>
+
+    <script src="js/header.js"></script>
+
+    <script src="js/animations.js"></script>
+
 </body>
+
 </html>
+

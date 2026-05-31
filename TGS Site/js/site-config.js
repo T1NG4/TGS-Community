@@ -51,7 +51,11 @@ window.TGS_SITE = {
     github: 'https://github.com/T1NG4',
     tebex: 'https://tgs-mods.tebex.io',
     launcherReleases: 'https://github.com/T1NG4/TGS-launcher-releases/releases/latest',
-    launcherDownload: 'https://github.com/T1NG4/TGS-launcher-releases/releases/latest',
+    launcherAssetName: 'TGS-Launcher-Setup.exe',
+    launcherDownloadDirect:
+      'https://github.com/T1NG4/TGS-launcher-releases/releases/latest/download/TGS-Launcher-Setup.exe',
+    launcherDownload:
+      'https://github.com/T1NG4/TGS-launcher-releases/releases/latest/download/TGS-Launcher-Setup.exe',
   },
 
   /**
