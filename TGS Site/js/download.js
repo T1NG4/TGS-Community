@@ -4,7 +4,6 @@
 
   const REPO = 'T1NG4/TGS-launcher-releases';
   const ASSET_NAME = cfg.links.launcherAssetName || 'TGS-Launcher-Setup.exe';
-  const RELEASES_PAGE = cfg.links.launcherReleases || `https://github.com/${REPO}/releases/latest`;
   /** Sempre aponta para o .exe da release latest — funciona sem API (CORS/rate limit). */
   const DIRECT_EXE =
     cfg.links.launcherDownloadDirect ||
@@ -46,25 +45,11 @@
     return DIRECT_EXE;
   }
 
-  async function resolveLauncherVersion() {
-    try {
-      const data = await fetchLatestRelease();
-      const tag = String(data.tag_name || data.name || '').replace(/^v/i, '');
-      return tag || null;
-    } catch {
-      return null;
-    }
-  }
-
-  function applyLauncherUrl(url, version) {
+  function applyLauncherUrl(url) {
     cfg.links.launcherDownload = url;
 
     document.querySelectorAll('[data-tgs-launcher-download]').forEach((el) => {
       el.href = url;
-      if (version && el.dataset.tgsLauncherShowVersion !== 'false') {
-        const label = el.dataset.tgsLauncherLabel || 'Download Launcher';
-        el.innerHTML = `<i class="fas fa-download"></i> ${label} v${version}`;
-      }
     });
 
     if (Array.isArray(window.TGS_APPS)) {
@@ -79,16 +64,11 @@
   document.addEventListener('DOMContentLoaded', async function () {
     applyLauncherUrl(DIRECT_EXE);
     try {
-      const [url, version] = await Promise.all([
-        resolveLauncherExeUrl(),
-        resolveLauncherVersion(),
-      ]);
-      applyLauncherUrl(url, version);
+      applyLauncherUrl(await resolveLauncherExeUrl());
     } catch {
       applyLauncherUrl(DIRECT_EXE);
     }
   });
 
   window.tgsResolveLauncherDownload = resolveLauncherExeUrl;
-  window.tgsResolveLauncherVersion = resolveLauncherVersion;
 })();
