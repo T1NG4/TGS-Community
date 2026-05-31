@@ -70,14 +70,12 @@ jobs:
           VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID_LAUNCHER != '' && secrets.GA_MEASUREMENT_ID_LAUNCHER || 'G-DF8MNV3V66' }}
 
       - name: Build & Publish
-        run: npm run build:main -- --publish always
+        run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
           EP_GH_OWNER: T1NG4
           EP_GH_REPO: TGS-launcher-releases
           EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
-          CSC_LINK: ${{ vars.CODE_SIGNING_ENABLED == 'true' && secrets.WIN_CSC_LINK || '' }}
-          CSC_KEY_PASSWORD: ${{ vars.CODE_SIGNING_ENABLED == 'true' && secrets.WIN_CSC_KEY_PASSWORD || '' }}
 
       - name: Verify installer signature
         if: vars.CODE_SIGNING_ENABLED == 'true'
