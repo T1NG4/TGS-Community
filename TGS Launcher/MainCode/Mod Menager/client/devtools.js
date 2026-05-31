@@ -1,10 +1,15 @@
 'use strict';
 
+const { app } = require('electron');
+
 function wantDevToolsOnStartup(argv = process.argv) {
+  if (app.isPackaged) return false;
   return argv.includes('--devtools') || argv.includes('--ga-debug');
 }
 
 function setupDevTools(window, options = {}) {
+  if (app.isPackaged) return;
+
   const { openOnStart = false } = options;
   if (!window?.webContents) return;
 

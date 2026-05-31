@@ -1,11 +1,19 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
-const isDev = require('electron-is-dev');
+const isDev = !app.isPackaged;
 const { autoUpdater } = require('electron-updater');
 const logger = require('./logger');
 const installer = require('./installer');
 const config = require('./config');
 const staticServer = require('./staticServer');
+
+const isProduction = !isDev;
+
+if (isProduction) {
+  app.on('web-contents-created', (_event, contents) => {
+    contents.on('devtools-opened', () => contents.closeDevTools());
+  });
+}
 
 let mainWindow;
 
@@ -50,8 +58,10 @@ async function assertLauncherUpToDate() {
 }
 
 // Configuração do auto-updater
-autoUpdater.autoDownload = true; // Baixar automaticamente quando disponível
-autoUpdater.autoInstallOnAppQuit = false; // Aguardar confirmação do usuário (melhor UX)
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = false;
+// Ativar `true` após publicar releases assinadas (docs/WINDOWS_ASSINATURA.md)
+autoUpdater.verifyUpdateCodeSignature = false;
 
 async function resolveStartUrl() {
   if (isDev) {
@@ -77,6 +87,7 @@ function createWindow(startUrl) {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      devTools: !isProduction,
     },
     icon: path.join(__dirname, '../../resources/icons/icon.png'),
     title: 'TGS Launcher',

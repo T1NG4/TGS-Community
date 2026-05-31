@@ -1,13 +1,13 @@
 {
   "name": "tgs-launcher",
-  "version": "2.0.30",
+  "version": "2.1.0",
   "description": "Launcher de instalação e Hub para TGS Ecosystem",
   "repository": {
     "type": "git",
     "url": "https://github.com/T1NG4/tgs-launcher.git"
   },
   "main": "src/main/main.js",
-  "author": "TGS",
+  "author": "TGS Community",
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\"",
@@ -51,6 +51,7 @@
   "build": {
     "appId": "com.tgs.launcher",
     "productName": "TGS Launcher",
+    "copyright": "Copyright © 2026 TGS Community",
     "directories": {
       "output": "release",
       "buildResources": "resources"
@@ -70,18 +71,32 @@
       }
     ],
     "win": {
-      "target": ["nsis"],
-      "icon": "resources/icons/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "resources/icons/icon.ico",
+      "publisherName": "TGS Community",
+      "legalTrademarks": "TGS Community",
+      "requestedExecutionLevel": "asInvoker",
+      "signingHashAlgorithms": ["sha256"],
+      "signDlls": false
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
+      "artifactName": "TGS-Launcher-Setup.exe",
       "installerIcon": "resources/icons/icon.ico",
       "uninstallerIcon": "resources/icons/icon.ico",
       "installerHeaderIcon": "resources/icons/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "TGS Launcher"
+      "shortcutName": "TGS Launcher",
+      "uninstallDisplayName": "TGS Launcher",
+      "installerLanguages": ["pt_BR", "en_US"],
+      "language": "1046"
     }
   }
 }

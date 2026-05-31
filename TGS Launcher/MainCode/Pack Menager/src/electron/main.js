@@ -18,6 +18,12 @@ const DEFAULT_PORT = 3791;
 const isDev = !app.isPackaged;
 const HOST = '127.0.0.1';
 
+if (!isDev) {
+  app.on('web-contents-created', (_event, contents) => {
+    contents.on('devtools-opened', () => contents.closeDevTools());
+  });
+}
+
 if (isDev) {
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 }
@@ -110,7 +116,7 @@ function createWindow(port) {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
-      devTools: true,
+      devTools: isDev,
     },
     show: false,
   });
@@ -126,7 +132,7 @@ function createWindow(port) {
   });
 
   setupDevTools(mainWindow, {
-    openOnStart: isDev || wantDevToolsOnStartup(),
+    openOnStart: isDev && wantDevToolsOnStartup(),
   });
 
   mainWindow.once('ready-to-show', () => {
@@ -174,6 +180,7 @@ ipcMain.on('minimize-window', () => {
 });
 
 ipcMain.handle('toggle-devtools', () => {
+  if (!isDev) return { opened: false };
   if (!mainWindow?.webContents) return { opened: false };
   const wc = mainWindow.webContents;
   if (wc.isDevToolsOpened()) {

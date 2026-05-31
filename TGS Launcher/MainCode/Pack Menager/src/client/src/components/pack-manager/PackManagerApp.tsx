@@ -273,8 +273,9 @@ const PackManagerApp: React.FC = () => {
     trackPackTabView(currentTab);
   }, [currentTab]);
 
-  /* F12 / Ctrl+Shift+I → DevTools (portable; fallback se atalho do Electron falhar) */
+  /* DevTools só em npm run dev */
   useEffect(() => {
+    if (!import.meta.env.DEV) return;
     const onKeyDown = (e: KeyboardEvent) => {
       const f12 = e.key === 'F12';
       const devCombo = e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i');

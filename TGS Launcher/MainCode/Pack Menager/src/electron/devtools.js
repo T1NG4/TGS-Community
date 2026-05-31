@@ -1,9 +1,10 @@
 'use strict';
 
-const { globalShortcut } = require('electron');
+const { app } = require('electron');
 
-/** DevTools no portable: F12, Ctrl+Shift+I, --devtools / --ga-debug */
+/** DevTools só em desenvolvimento (--devtools / --ga-debug ignorados no portable) */
 function wantDevToolsOnStartup(argv = process.argv) {
+  if (app.isPackaged) return false;
   return argv.includes('--devtools') || argv.includes('--ga-debug');
 }
 
@@ -43,6 +44,9 @@ function unregisterGlobalDevToolsShortcuts() {
 }
 
 function setupDevTools(window, options = {}) {
+  if (app.isPackaged) return;
+
+  const { globalShortcut } = require('electron');
   const { openOnStart = false } = options;
   if (!window?.webContents) return;
 

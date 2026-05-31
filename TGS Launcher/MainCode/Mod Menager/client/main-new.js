@@ -18,6 +18,12 @@ const MODS_STATE_PATH = path.join(APP_DATA_PATH, 'mods-state.json');
 
 const isDev = !app.isPackaged;
 
+if (!isDev) {
+    app.on('web-contents-created', (_event, contents) => {
+        contents.on('devtools-opened', () => contents.closeDevTools());
+    });
+}
+
 // Segurança: Garantir que o App seja executado apenas pelo Launcher
 if (!isDev && !process.argv.includes('--token=TGS_SECURE_AUTH_2026')) {
   console.error('Acesso Negado: Este aplicativo deve ser iniciado pelo TGS Launcher.');
@@ -64,7 +70,7 @@ async function createWindow() {
             contextIsolation: false,
             enableRemoteModule: true,
             preload: path.join(__dirname, 'preload.js'),
-            devTools: true,
+            devTools: isDev,
         },
         frame: false,
         titleBarStyle: 'hidden',
@@ -98,7 +104,7 @@ async function createWindow() {
     });
 
     setupDevTools(mainWindow, {
-        openOnStart: isDev || wantDevToolsOnStartup(),
+        openOnStart: isDev && wantDevToolsOnStartup(),
     });
 
     mainWindow.on('closed', function () {

@@ -15,6 +15,9 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+  CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+  REQUIRE_SIGNATURE: ${{ vars.CODE_SIGNING_ENABLED }}
 
 jobs:
   build:
@@ -76,6 +79,24 @@ jobs:
           EP_GH_OWNER: T1NG4
           EP_GH_REPO: TGS-launcher-releases
           EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
+
+      - name: Verify installer signature
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path release -Filter "TGS-Launcher-Setup*.exe" | Select-Object -First 1
+          if (-not $exe) { throw "Installer not found in release/" }
+          $sig = Get-AuthenticodeSignature $exe.FullName
+          Write-Host "File:" $exe.Name
+          Write-Host "Status:" $sig.Status
+          if ($sig.SignerCertificate) { Write-Host "Publisher:" $sig.SignerCertificate.Subject }
+          if ($sig.Status -eq 'Valid') {
+            Write-Host "Code signing OK"
+            exit 0
+          }
+          Write-Warning "Build UNSIGNED — Windows SmartScreen vai bloquear. Configure WIN_CSC_LINK (docs/WINDOWS_ASSINATURA.md)"
+          if ($env:REQUIRE_SIGNATURE -eq 'true') {
+            throw "Signature required but status is $($sig.Status)"
+          }
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
