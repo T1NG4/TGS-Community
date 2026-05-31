@@ -49,6 +49,7 @@
     "vite-plugin-singlefile": "2.3.0"
   },
   "build": {
+    "forceCodeSigning": false,
     "appId": "com.tgs.launcher",
     "productName": "TGS Launcher",
     "copyright": "Copyright © 2026 TGS Community",

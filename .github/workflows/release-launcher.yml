@@ -70,17 +70,32 @@ jobs:
           VITE_GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID_LAUNCHER != '' && secrets.GA_MEASUREMENT_ID_LAUNCHER || 'G-DF8MNV3V66' }}
 
       - name: Build & Publish
-        run: npx electron-builder --win --publish always
+        shell: pwsh
+        run: |
+          # Nunca usar WIN_CSC_LINK="" — o electron-builder tenta resolver e falha.
+          # Remove secrets/vars de assinatura injectados no runner (ex.: WIN_CSC_LINK com caminho de pasta).
+          @('CSC_LINK','CSC_KEY_PASSWORD','WIN_CSC_LINK','WIN_CSC_KEY_PASSWORD') | ForEach-Object {
+            Remove-Item -Path "Env:$_" -ErrorAction SilentlyContinue
+          }
+          $env:CSC_IDENTITY_AUTO_DISCOVERY = 'false'
+          if ('${{ vars.CODE_SIGNING_ENABLED }}' -eq 'true') {
+            $csc = '${{ secrets.WIN_CSC_LINK }}'
+            if ($csc) {
+              $env:CSC_LINK = $csc
+              $env:CSC_KEY_PASSWORD = '${{ secrets.WIN_CSC_KEY_PASSWORD }}'
+              Write-Host 'Code signing enabled (CSC_LINK from secret)'
+            } else {
+              Write-Host 'CODE_SIGNING_ENABLED=true but WIN_CSC_LINK empty — build unsigned'
+            }
+          } else {
+            Write-Host 'Code signing disabled'
+          }
+          npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
           EP_GH_OWNER: T1NG4
           EP_GH_REPO: TGS-launcher-releases
           EP_GH_TOKEN: ${{ secrets.RELEASES_REPO_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-          CSC_LINK: ''
-          CSC_KEY_PASSWORD: ''
-          WIN_CSC_LINK: ''
-          WIN_CSC_KEY_PASSWORD: ''
 
       - name: Verify installer signature
         if: vars.CODE_SIGNING_ENABLED == 'true'
