@@ -83,7 +83,7 @@
       "publisherName": "TGS Community",
       "legalTrademarks": "TGS Community",
       "requestedExecutionLevel": "asInvoker",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": true
     },
     "nsis": {
       "oneClick": false,

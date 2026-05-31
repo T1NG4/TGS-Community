@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const isDev = !app.isPackaged;
@@ -9,6 +9,10 @@ const config = require('./config');
 const staticServer = require('./staticServer');
 
 const isProduction = !isDev;
+
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.tgs.launcher');
+}
 
 if (isProduction) {
   app.on('web-contents-created', (_event, contents) => {
@@ -74,17 +78,30 @@ async function resolveStartUrl() {
   return url;
 }
 
-/** Ícone na barra de tarefas — .ico no Windows; empacotado em resources/icons/ */
+/** Ícone na barra de tarefas — mesmo padrão do Pack Manager (src/main/icons/) */
+function getWindowIconPath() {
+  const dirs = [
+    path.join(__dirname, 'icons'),
+    path.join(__dirname, '../../resources/icons'),
+  ];
+  for (const dir of dirs) {
+    const ico = path.join(dir, 'icon.ico');
+    const png = path.join(dir, 'icon.png');
+    if (process.platform === 'win32' && fs.existsSync(ico)) return ico;
+    if (fs.existsSync(png)) return png;
+  }
+  return null;
+}
+
 function getWindowIcon() {
-  const iconsDir = path.join(__dirname, '../../resources/icons');
-  const ico = path.join(iconsDir, 'icon.ico');
-  const png = path.join(iconsDir, 'icon.png');
-  if (process.platform === 'win32' && fs.existsSync(ico)) return ico;
-  if (fs.existsSync(png)) return png;
-  return undefined;
+  const iconPath = getWindowIconPath();
+  if (!iconPath) return undefined;
+  const image = nativeImage.createFromPath(iconPath);
+  return image.isEmpty() ? undefined : image;
 }
 
 function createWindow(startUrl) {
+  const windowIcon = getWindowIcon();
   mainWindow = new BrowserWindow({
     width: 780,
     height: 410,
@@ -100,10 +117,14 @@ function createWindow(startUrl) {
       enableRemoteModule: true,
       devTools: !isProduction,
     },
-    icon: getWindowIcon(),
+    icon: windowIcon,
     title: 'TGS Launcher',
     backgroundColor: '#060810',
   });
+
+  if (windowIcon) {
+    mainWindow.setIcon(windowIcon);
+  }
 
   mainWindow.loadURL(startUrl);
 
@@ -119,9 +140,6 @@ function createWindow(startUrl) {
 }
 
 app.whenReady().then(async () => {
-  if (process.platform === 'win32') {
-    app.setAppUserModelId('com.tgs.launcher');
-  }
   const startUrl = await resolveStartUrl();
   createWindow(startUrl);
 
