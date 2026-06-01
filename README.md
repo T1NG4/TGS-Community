@@ -3,8 +3,8 @@
 Monorepo do ecossistema **TGS** (FiveM), incluindo:
 
 - **TGS Launcher (Hub)**: instala/atualiza/executa apps do ecossistema
-- **Pack Menager**: criação/exportação de packs (resources FiveM)
-- **Mod Menager**: catálogo de mods + autenticação
+- **Pack Manager**: criação/exportação de packs (resources FiveM)
+- **Mod Manager**: catálogo de mods + autenticação
 - **TGS Site**: landing page estática (store)
 - **Vault Obsidian**: `Notas/` + canvases de fluxo
 

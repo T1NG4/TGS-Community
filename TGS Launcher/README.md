@@ -2,8 +2,8 @@
 
 Hub desktop (Electron) do ecossistema TGS, responsável por **instalar/atualizar/executar**:
 
-- Pack Menager
-- Mod Menager
+- Pack Manager
+- Mod Manager
 
 ## Documentação
 

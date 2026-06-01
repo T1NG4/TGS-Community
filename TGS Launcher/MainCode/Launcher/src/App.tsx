@@ -94,7 +94,7 @@ const THEMES = {
     doneHover: "linear-gradient(90deg, #00cdb5, #00ffdd)",
     doneGlow: "rgba(0,229,204,0.4)",
     // mode label
-    modeLabel: "Pack Menager",
+    modeLabel: "Pack Manager",
     modeSub: "245 MB",
     // banner
     banner: "./images/banner-dark.jpg",
@@ -150,7 +150,7 @@ const THEMES = {
     doneGradient: "linear-gradient(90deg, #7c5cbf, #9b7fdb)",
     doneHover: "linear-gradient(90deg, #6a4aad, #8a6ec9)",
     doneGlow: "rgba(124,92,191,0.35)",
-    modeLabel: "Mod Menager",
+    modeLabel: "Mod Manager",
     modeSub: "120 MB",
     banner: "./images/banner-light.jpg",
     nameAccent: "#000000",
@@ -232,20 +232,20 @@ const THEMES = {
 
 const STEPS_DARK = [
   "Verificando requisitos do sistema...",
-  "Baixando TGS Pack Menager...",
+  "Baixando TGS Pack Manager...",
   "Extraindo pacotes de dados...",
   "Registrando módulos...",
   "Configurando banco de dados local...",
-  "Finalizando instalação do Pack Menager...",
+  "Finalizando instalação do Pack Manager...",
 ];
 
 const STEPS_LIGHT = [
   "Verificando requisitos do sistema...",
-  "Baixando TGS Mod Menager...",
+  "Baixando TGS Mod Manager...",
   "Extraindo catálogo de mods...",
   "Indexando biblioteca de mods...",
   "Configurando interface do catálogo...",
-  "Finalizando instalação do Mod Menager...",
+  "Finalizando instalação do Mod Manager...",
 ];
 
 const STEPS_CODE = [
@@ -304,7 +304,7 @@ export default function App() {
     mode === "dark" ? "packManager" : mode === "light" ? "modManager" : "codeManager";
 
   const getAppLabel = () =>
-    mode === "dark" ? "Pack Menager" : mode === "light" ? "Mod Menager" : "TGS CODE";
+    mode === "dark" ? "Pack Manager" : mode === "light" ? "Mod Manager" : "TGS CODE";
   const STEPS = mode === "dark" ? STEPS_DARK : mode === "light" ? STEPS_LIGHT : STEPS_CODE;
   const isRunning = phase === "installing";
   const isDone = phase === "done";
@@ -330,7 +330,7 @@ export default function App() {
 
   useEffect(() => {
     const appType = mode === "dark" ? "packManager" : mode === "light" ? "modManager" : "codeManager";
-    const label = mode === "dark" ? "Pack Menager" : mode === "light" ? "Mod Menager" : "Code Manager";
+    const label = mode === "dark" ? "Pack Manager" : mode === "light" ? "Mod Manager" : "Code Manager";
     trackHubScreen(appType, label);
   }, [mode]);
 
