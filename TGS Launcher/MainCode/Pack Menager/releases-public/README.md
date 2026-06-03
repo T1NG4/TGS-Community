@@ -1,106 +1,63 @@
-# TGS Pack Manager — Public releases
-
-Official **releases** and user documentation for the **TGS FiveM Pack Manager**.
+# TGS Pack Manager — Releases & documentation
 
 > **Languages:** [English](#english) · [Português (Brasil)](#português-brasil)
 
-> Source code: [T1NG4/TGS-pack-manager](https://github.com/T1NG4/TGS-pack-manager).  
-> This repository publishes portable installers, `latest.yml` (auto-update), and documentation opened from the app footer (**TGS_Pack_Docs** / **GitHub**).
+Official downloads and **user guides** for the TGS FiveM Pack Manager.
+
+📖 **[DOCUMENTATION.md](./DOCUMENTATION.md)** (English) · **[DOCUMENTACAO.md](./DOCUMENTACAO.md)** (PT-BR)
 
 ---
 
 ## English
 
-### Downloads
+### Download
 
-| Version | File | Link |
-|---------|------|------|
-| **Latest** | `TGS-Pack-Manager-Portable.exe` | [Releases](https://github.com/T1NG4/TGS-pack-manager-releases/releases/latest) |
+Get the latest build from **[Releases](https://github.com/T1NG4/TGS-pack-manager-releases/releases/latest)**.
 
-### Recommended installation
+### How to install
 
-1. Install or update **[TGS Launcher](https://github.com/T1NG4/TGS-launcher-releases/releases/latest)**.
-2. In the Launcher, choose **Pack Manager** and click **Install** or **Update**.
-3. Use **Run App** — the Launcher only opens the latest version.
+1. Install **[TGS Launcher](https://github.com/T1NG4/TGS-launcher-releases/releases/latest)**.
+2. Select **Pack Manager** → **Install**.
+3. Open the app with **Run App** (TGS apps are used through the Launcher).
 
-Portable path: `<install folder>\data\apps\packManager\`
+### What is Pack Manager?
 
-### Full documentation
+A Windows app to create **FiveM vehicle packs** (cars, sounds, wheels) and export folders ready for your server **resources**.
 
-📖 **[DOCUMENTATION.md](./DOCUMENTATION.md)** — user guide (install, packs, export, updates, FAQ)
-
-Also available in [Português (Brasil)](./DOCUMENTACAO.md).
-
-### What is TGS Pack Manager?
-
-Desktop app (Windows) to create and export **FiveM vehicle packs** with TGS structure:
-
-- Vehicles, brands, meta XML, sounds, and wheels
-- Smart upload (drag & drop)
-- Automatic export to `output/`
-- **TGS Launcher** integration (install hub and updates)
-
-### Updates
-
-| Channel | How it works |
-|---------|--------------|
-| **Launcher** | Checks GitHub version and requires update before opening the app |
-| **In-app** | `electron-updater` + `latest.yml` on this repo (when published on the release) |
+Full walkthrough: **[DOCUMENTATION.md](./DOCUMENTATION.md)**
 
 ### Support
 
-- **Install / update issues:** use TGS Launcher and check the folder in **Change folder**.
-- **Export / ads issues:** see [DOCUMENTATION.md § Exporting packs](./DOCUMENTATION.md#exporting-packs).
-- **Older releases:** [version list](https://github.com/T1NG4/TGS-pack-manager-releases/releases).
+- Guide: [DOCUMENTATION.md](./DOCUMENTATION.md)
+- [TGS Community site](https://tgs.gamer.gd/pack-manager/)
+- [Discord](https://discord.gg/cYv7W4XCXv)
 
 ---
 
 ## Português (Brasil)
 
-Repositório oficial de **releases** e documentação do **TGS FiveM Pack Manager**.
+### Download
 
-### Downloads
+Última versão em **[Releases](https://github.com/T1NG4/TGS-pack-manager-releases/releases/latest)**.
 
-| Versão | Arquivo | Link |
-|--------|---------|------|
-| **Última** | `TGS-Pack-Manager-Portable.exe` | [Releases](https://github.com/T1NG4/TGS-pack-manager-releases/releases/latest) |
+### Como instalar
 
-### Instalação recomendada
+1. Instale o **[TGS Launcher](https://github.com/T1NG4/TGS-launcher-releases/releases/latest)**.
+2. Escolha **Pack Manager** → **Instalar**.
+3. Abra com **Executar App** (os apps TGS são usados pelo Launcher).
 
-1. Instale ou atualize o **[TGS Launcher](https://github.com/T1NG4/TGS-launcher-releases/releases/latest)**.
-2. No Launcher, escolha **Pack Manager** e clique em **Instalar** ou **Atualizar**.
-3. Use **Executar App** — o Launcher só abre a versão mais recente.
+### O que é o Pack Manager?
 
-O portable fica em: `<pasta de instalação>\data\apps\packManager\`
+App Windows para criar **packs de veículos FiveM** (carros, sons, rodas) e exportar pastas prontas para o **resources** do servidor.
 
-### Documentação completa
-
-📖 **[DOCUMENTACAO.md](./DOCUMENTACAO.md)** — guia do usuário (instalação, packs, exportação, atualizações, FAQ)
-
-Também disponível em [English](./DOCUMENTATION.md).
-
-### O que é o TGS Pack Manager?
-
-Aplicação desktop (Windows) para criar e exportar **packs de veículos FiveM** com estrutura TGS:
-
-- Veículos, marcas, meta XML, sons e rodas
-- Upload inteligente (drag & drop)
-- Exportação automática para `output/`
-- Integração com o **TGS Launcher** (hub de instalação e updates)
-
-### Atualizações
-
-| Canal | Como funciona |
-|-------|----------------|
-| **Launcher** | Verifica a versão no GitHub e obriga a atualizar antes de abrir o app |
-| **Dentro do app** | `electron-updater` + `latest.yml` neste repositório (quando publicado na release) |
+Passo a passo completo: **[DOCUMENTACAO.md](./DOCUMENTACAO.md)**
 
 ### Suporte
 
-- Problemas com **instalação / update**: use o TGS Launcher e confira a pasta em **Alterar pasta**.
-- Problemas com **exportação / ads**: veja [DOCUMENTACAO.md § Exportação](./DOCUMENTACAO.md#exportação-de-packs).
-- **Releases antigas**: [lista de versões](https://github.com/T1NG4/TGS-pack-manager-releases/releases).
+- Guia: [DOCUMENTACAO.md](./DOCUMENTACAO.md)
+- [Site TGS Community](https://tgs.gamer.gd/pt/pack-manager/)
+- [Discord](https://discord.gg/cYv7W4XCXv)
 
 ---
 
-**TGS** · FiveM Pack Manager · [Docs EN](./DOCUMENTATION.md) · [Docs PT-BR](./DOCUMENTACAO.md) · [Downloads](https://github.com/T1NG4/TGS-pack-manager-releases/releases)
+**TGS** · [Docs EN](./DOCUMENTATION.md) · [Docs PT-BR](./DOCUMENTACAO.md) · [Downloads](https://github.com/T1NG4/TGS-pack-manager-releases/releases)

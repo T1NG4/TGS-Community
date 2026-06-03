@@ -1,172 +1,154 @@
 # TGS Pack Manager — User Guide
 
-Public documentation for the **TGS FiveM Pack Manager**.  
-Releases repository: [T1NG4/TGS-pack-manager-releases](https://github.com/T1NG4/TGS-pack-manager-releases)
-
 > **Languages:** [English](./DOCUMENTATION.md) · [Português (Brasil)](./DOCUMENTACAO.md)
 
 ---
 
 ## Table of contents
 
-1. [Overview](#overview)
-2. [Requirements](#requirements)
-3. [Installation and first run](#installation-and-first-run)
-4. [Updates](#updates)
-5. [Main interface](#main-interface)
-6. [Creating and managing packs](#creating-and-managing-packs)
-7. [Exporting packs](#exporting-packs)
-8. [Output folder](#output-folder)
-9. [FAQ](#faq)
-10. [Useful links](#useful-links)
+1. [How it works](#how-it-works)
+2. [What you need](#what-you-need)
+3. [Install and open the app](#install-and-open-the-app)
+4. [Using Pack Manager step by step](#using-pack-manager-step-by-step)
+5. [The main tabs](#the-main-tabs)
+6. [Export your pack to the server](#export-your-pack-to-the-server)
+7. [Updates](#updates)
+8. [FAQ](#faq)
+9. [Useful links](#useful-links)
 
 ---
 
-## Overview
+## How it works
 
-**TGS Pack Manager** automates car pack creation for **FiveM** servers using the TGS-optimized structure:
+**TGS Pack Manager** helps you build **vehicle packs for FiveM** without organizing folders and files by hand.
 
-| Exported resource | Contents |
-|-------------------|----------|
-| **VehiclesPack** | Models, textures, handling, vehicles.meta |
-| **SoundsPack** | Engine audio (`.awc`, manifests) |
-| **WheelsPack** | Custom wheels, `carcols.meta`, tuning |
+In practice:
 
-The app must be launched through **TGS Launcher** (security token). Opening the `.exe` directly without the Launcher shows access denied on the installed build.
+1. You **create a pack** and give it a name.
+2. You add **brands** and **vehicles**, and upload the car files (drag & drop or file picker).
+3. You set up **engine sounds** and **wheels** when needed.
+4. You click **Export Pack** and the app generates ready-made folders for your server.
+5. You copy those folders into your FiveM server **resources** and start using the pack.
+
+Each export can include:
+
+| Part | What it is for |
+|------|----------------|
+| **Vehicles** | Cars, models, and vehicle settings |
+| **Sounds** | Custom engine audio |
+| **Wheels** | Custom wheels and tuning |
+
+> **Important:** TGS apps (including Pack Manager) must be opened through the **TGS Launcher** — use **Run App** after installing.
 
 ---
 
-## Requirements
+## What you need
 
-- **Windows 10/11** (64-bit)
-- **~500 MB** free in the install folder (+ space for exported packs)
+- **Windows 10 or 11**
 - **TGS Launcher** installed ([download](https://github.com/T1NG4/TGS-launcher-releases/releases/latest))
-- Internet connection to install, update, and load sponsorship config during export
+- Enough disk space for the app and the packs you export
+- Internet to install, update, and export (when sponsorship is enabled)
 
 ---
 
-## Installation and first run
-
-### Step by step
+## Install and open the app
 
 1. Open **TGS Launcher**.
-2. Select **Pack Manager** mode (dark theme).
-3. Set the install folder with **Change folder** (e.g. `C:\TGS`).
-4. Click **Install** and wait for the portable download.
-5. When **Run App** appears, click to open Pack Manager.
+2. Select **Pack Manager**.
+3. Choose where to install with **Change folder** if you want a custom location.
+4. Click **Install** and wait for it to finish.
+5. Click **Run App** to open Pack Manager.
 
-### Where files are stored
+Always open the app from the Launcher — do not run the portable file on its own.
 
-```
-<chosen folder>/
-  data/
-    apps/
-      packManager/
-        TGS-Pack-Manager-Portable.exe
-        version.json
-```
+---
 
-The `output/` folder (generated packs) lives next to the app runtime according to the **Config** tab settings.
+## Using Pack Manager step by step
+
+### 1. Create a pack
+
+On the **Packs** tab, click **Create pack**, choose a name, and confirm. That pack is your workspace for one server project (or one collection of cars).
+
+### 2. Add brands and vehicles
+
+- Open the pack and go to **Brands** to organize manufacturers or groups.
+- Add **vehicles** under each brand.
+- Upload files by **drag & drop** or the file button.
+
+### 3. Adjust sound and wheels (optional)
+
+- **Sound** — link or configure engine audio for the pack.
+- **Wheels** — manage shared wheels used by several vehicles.
+
+### 4. Export
+
+- Open the pack and click **Export Pack**.
+- If asked, complete the **sponsorship step** (supports the project), then confirm export.
+- When finished, the app shows where the exported folders are. You can change the output location in **Config** (*Packs directory*).
+
+### 5. Use on your FiveM server
+
+Copy the exported folders into your server’s **resources** directory and add them to your `server.cfg` like any other resource.
+
+---
+
+## The main tabs
+
+| Tab | What you do here |
+|-----|------------------|
+| **Packs** | See all packs, create new ones, open one to work on |
+| **Brands** | Brands and vehicles inside the current pack |
+| **Wheels** | Wheels shared across vehicles |
+| **Sound** | Engine sound settings |
+| **Logs** | Recent actions and messages if something fails |
+| **Config** | Language, where exports are saved, other preferences |
+
+In the footer you can open **this guide** (TGS_Pack_Docs) or the **releases page** on GitHub.
+
+---
+
+## Export your pack to the server
+
+After export you get separate folders for **vehicles**, **sounds**, and **wheels** (when you configured them). They are already organized for FiveM — you only need to copy them to the server.
+
+**Tip:** Export again after changing vehicles or meta so the server always has the latest version.
+
+If export fails:
+
+- Check your internet connection and try **Retry**.
+- Update Pack Manager through the **Launcher** if you are on an old version.
+- Make sure the pack has the required files for the vehicles you added.
 
 ---
 
 ## Updates
 
-### Via Launcher (recommended)
+The easiest way:
 
-- The Launcher compares the installed version (`version.json`) with the latest release in this repository.
-- If a newer version exists, **you cannot open** the app until you click **Update**.
-- **Close Pack Manager** before updating (the `.exe` must not be in use).
+1. Open **TGS Launcher**.
+2. If **Update** appears for Pack Manager, close the app completely first.
+3. Click **Update** in the Launcher, then **Run App** again.
 
-### Inside the app
-
-- With `latest.yml` on the release, the app can notify about updates and restart after download.
-- When in doubt, always use the **Launcher** to ensure the correct version.
-
-### Manual download
-
-1. Open [Releases](https://github.com/T1NG4/TGS-pack-manager-releases/releases/latest).
-2. Download `TGS-Pack-Manager-Portable.exe`.
-3. Replace the file in `data\apps\packManager\` (app closed).
-
----
-
-## Main interface
-
-| Tab | Purpose |
-|-----|---------|
-| **Packs** | List, create, and edit packs |
-| **Brands** | Brands within the current pack |
-| **Wheels** | Shared wheels / carcols |
-| **Sound** | Audio settings |
-| **Logs** | Operation diagnostics |
-| **Config** | Language, packs folder, preferences |
-
-**Footer**
-
-- Connection / update indicator (version vs GitHub)
-- **TGS_Pack_Docs** — opens this guide in the browser
-- **GitHub** — opens this public repository (releases + documentation)
-
----
-
-## Creating and managing packs
-
-1. **Create pack** — name and TGS base structure.
-2. Add **brands** and **vehicles**.
-3. Upload files (`.yft`, `.ytd`, `.meta`, etc.) via drag & drop or file picker.
-4. Use the built-in meta XML editor when needed.
-5. Configure sound and wheels in the dedicated tabs.
-
-Work data stays in local staging until export.
-
----
-
-## Exporting packs
-
-1. Open the desired pack.
-2. Click **Export Pack**.
-3. **Sponsorship (ads):** before export, you may need to watch a full ad (supports the project).
-   - If you see an error loading ads, check your internet connection and try **Retry**.
-   - Remote config managed by TGS (`TGS-ads`).
-4. After completing the ad, confirm **Export Pack**.
-5. Resources are generated in `output/` (Vehicles, Sounds, Wheels).
-
----
-
-## Output folder
-
-- Configurable in the **Config** tab (*Packs directory*).
-- Typical structure after export:
-
-```
-output/
-  <pack-name>/
-    TGS-VehiclesPack/
-    TGS-SoundsPack/
-    TGS-WheelsPack/
-```
-
-Copy these folders into your FiveM server `resources` directory.
+The Launcher keeps Pack Manager on the latest version. You can also check [Releases](https://github.com/T1NG4/TGS-pack-manager-releases/releases/latest) for release notes.
 
 ---
 
 ## FAQ
 
-**The app won't open from the Launcher**  
-Check that installation finished and no update is pending. Review the Launcher log (**View log**).
+**Pack Manager does not open**  
+Install or update it from the TGS Launcher. If **Update** is showing, update first, then use **Run App**.
 
-**Update error — file in use**  
-Fully close Pack Manager and try again.
+**I closed the app but update says the file is in use**  
+Fully close Pack Manager (including from the taskbar) and try again.
 
-**Export blocked — “Could not load ads”**  
-Update to the latest version (v2.0.4+). Requires internet on the first export after opening the modal.
+**Export stuck or “Could not load ads”**  
+Check your internet, click **Retry**, and make sure you are on the latest version via the Launcher.
 
-**Access denied when opening the .exe alone**  
-Always use **TGS Launcher** → Run App.
+**Can I open the app without the Launcher?**  
+No. Use **TGS Launcher** → **Run App**.
 
-**Where is the source code?**  
-[github.com/T1NG4/TGS-pack-manager](https://github.com/T1NG4/TGS-pack-manager)
+**Where do I get help?**  
+[TGS Community Discord](https://discord.gg/cYv7W4XCXv) · [tgs.gamer.gd/pack-manager/](https://tgs.gamer.gd/pack-manager/)
 
 ---
 
@@ -174,13 +156,12 @@ Always use **TGS Launcher** → Run App.
 
 | Resource | URL |
 |----------|-----|
-| Releases (download) | https://github.com/T1NG4/TGS-pack-manager-releases/releases |
+| TGS Launcher (install apps) | https://github.com/T1NG4/TGS-launcher-releases/releases/latest |
+| Pack Manager releases | https://github.com/T1NG4/TGS-pack-manager-releases/releases |
 | Documentation (English) | https://github.com/T1NG4/TGS-pack-manager-releases/blob/main/DOCUMENTATION.md |
 | Documentation (PT-BR) | https://github.com/T1NG4/TGS-pack-manager-releases/blob/main/DOCUMENTACAO.md |
-| TGS Launcher | https://github.com/T1NG4/TGS-launcher-releases/releases |
-| Pack Manager source | https://github.com/T1NG4/TGS-pack-manager |
 | TGS Community site | https://tgs.gamer.gd/pack-manager/ |
 
 ---
 
-*Last documentation update: aligned with release **v2.1.0**.*
+*User guide for TGS Pack Manager.*
