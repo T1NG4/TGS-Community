@@ -20,7 +20,7 @@ import { AdGateModal } from '../../ads/AdGateModal';
 import { isValidAdConfig, readCachedConfig } from '../../ads/config';
 import {
   openExternalLink,
-  PACK_MANAGER_PUBLIC_DOCS_URL,
+  getPackManagerPublicDocsUrl,
   PACK_MANAGER_RELEASES_REPO_URL,
 } from '../../constants/publicLinks';
 import { initGa4 } from '../../analytics/ga4';
@@ -2497,7 +2497,7 @@ const PackManagerApp: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => openExternalLink(PACK_MANAGER_PUBLIC_DOCS_URL)}
+              onClick={() => openExternalLink(getPackManagerPublicDocsUrl(language))}
               className="hover:text-zinc-300 transition-colors bg-transparent border-0 p-0 cursor-pointer font-mono text-xs text-zinc-500"
             >
               TGS_Pack_Docs

@@ -1,7 +1,9 @@
-# TGS Pack Manager — Guia do utilizador
+# TGS Pack Manager — Guia do usuário
 
 Documentação pública do **TGS FiveM Pack Manager**.  
 Repositório de releases: [T1NG4/TGS-pack-manager-releases](https://github.com/T1NG4/TGS-pack-manager-releases)
+
+> **Idiomas:** [English](./DOCUMENTATION.md) · [Português (Brasil)](./DOCUMENTACAO.md)
 
 ---
 
@@ -12,7 +14,7 @@ Repositório de releases: [T1NG4/TGS-pack-manager-releases](https://github.com/T
 3. [Instalação e primeiro uso](#instalação-e-primeiro-uso)
 4. [Atualizações](#atualizações)
 5. [Interface principal](#interface-principal)
-6. [Criar e gerir packs](#criar-e-gerir-packs)
+6. [Criar e gerenciar packs](#criar-e-gerenciar-packs)
 7. [Exportação de packs](#exportação-de-packs)
 8. [Pasta de saída](#pasta-de-saída)
 9. [FAQ](#faq)
@@ -39,7 +41,7 @@ O app deve ser iniciado pelo **TGS Launcher** (token de segurança). Abrir o `.e
 - **Windows 10/11** (64-bit)
 - **~500 MB** livres na pasta de instalação (+ espaço para packs exportados)
 - **TGS Launcher** instalado ([download](https://github.com/T1NG4/TGS-launcher-releases/releases/latest))
-- Ligação à internet para instalar, atualizar e carregar configuração de patrocínios na exportação
+- Conexão com a internet para instalar, atualizar e carregar configuração de patrocínios na exportação
 
 ---
 
@@ -53,7 +55,7 @@ O app deve ser iniciado pelo **TGS Launcher** (token de segurança). Abrir o `.e
 4. Clique em **Instalar** e aguarde o download do portable.
 5. Quando aparecer **Executar App**, clique para abrir o Pack Manager.
 
-### Onde ficam os ficheiros
+### Onde ficam os arquivos
 
 ```
 <pasta escolhida>/
@@ -84,8 +86,8 @@ A pasta `output/` (packs gerados) fica junto ao runtime do app conforme a config
 ### Baixar manualmente
 
 1. Abra [Releases](https://github.com/T1NG4/TGS-pack-manager-releases/releases/latest).
-2. Descarregue `TGS-Pack-Manager-Portable.exe`.
-3. Substitua o ficheiro na pasta `data\apps\packManager\` (app fechado).
+2. Baixe `TGS-Pack-Manager-Portable.exe`.
+3. Substitua o arquivo na pasta `data\apps\packManager\` (app fechado).
 
 ---
 
@@ -95,24 +97,24 @@ A pasta `output/` (packs gerados) fica junto ao runtime do app conforme a config
 |-----|--------|
 | **Packs** | Listar, criar e editar packs |
 | **Brands** | Marcas dentro do pack atual |
-| **Wheels** | Rodas partilhadas / carcols |
+| **Wheels** | Rodas compartilhadas / carcols |
 | **Sound** | Configurações de áudio |
 | **Logs** | Diagnóstico de operações |
 | **Config** | Idioma, pasta de packs, preferências |
 
 **Rodapé**
 
-- Indicador de ligação / update (versão vs GitHub)
+- Indicador de conexão / update (versão vs GitHub)
 - **TGS_Pack_Docs** — abre este guia no navegador
 - **GitHub** — abre a página pública deste repositório (releases + documentação)
 
 ---
 
-## Criar e gerir packs
+## Criar e gerenciar packs
 
 1. **Create pack** — nome e estrutura base TGS.
 2. Adicione **brands** e **vehicles**.
-3. Faça upload de ficheiros (`.yft`, `.ytd`, `.meta`, etc.) por drag & drop ou seletor.
+3. Envie arquivos (`.yft`, `.ytd`, `.meta`, etc.) por drag & drop ou seletor.
 4. Use o editor de meta XML integrado quando necessário.
 5. Configure som e rodas nas abas dedicadas.
 
@@ -125,8 +127,8 @@ Os dados de trabalho ficam em staging local até exportar.
 1. Abra o pack desejado.
 2. Clique em **Export Pack**.
 3. **Patrocínio (ads):** antes do export, pode ser necessário ver um anúncio completo (suporta o projeto).
-   - Se aparecer erro ao carregar ads, verifique internet e tente **Retry**.
-   - Configuração remota gerida pela TGS (`TGS-ads`).
+   - Se aparecer erro ao carregar ads, verifique a internet e tente **Retry**.
+   - Configuração remota gerenciada pela TGS (`TGS-ads`).
 4. Após concluir o anúncio, confirme **Export Pack**.
 5. Os recursos são gerados em `output/` (Vehicles, Sounds, Wheels).
 
@@ -145,7 +147,7 @@ output/
     TGS-WheelsPack/
 ```
 
-Copie estas pastas para o `resources` do seu servidor FiveM.
+Copie essas pastas para o `resources` do seu servidor FiveM.
 
 ---
 
@@ -154,11 +156,11 @@ Copie estas pastas para o `resources` do seu servidor FiveM.
 **O app não abre pelo Launcher**  
 Verifique se a instalação terminou e se não há update pendente. Confira o log no Launcher (**Ver log**).
 
-**Erro ao atualizar — ficheiro em uso**  
+**Erro ao atualizar — arquivo em uso**  
 Feche completamente o Pack Manager e tente de novo.
 
 **Export bloqueado — “Could not load ads”**  
-Atualize para a versão mais recente (v2.0.4+). Requer ligação à internet na primeira exportação após abrir o modal.
+Atualize para a versão mais recente (v2.0.4+). Requer conexão com a internet na primeira exportação após abrir o modal.
 
 **Acesso negado ao abrir o .exe sozinho**  
 Use sempre o **TGS Launcher** → Executar App.
@@ -173,10 +175,12 @@ Use sempre o **TGS Launcher** → Executar App.
 | Recurso | URL |
 |---------|-----|
 | Releases (download) | https://github.com/T1NG4/TGS-pack-manager-releases/releases |
-| Documentação (este ficheiro) | https://github.com/T1NG4/TGS-pack-manager-releases/blob/main/DOCUMENTACAO.md |
+| Documentação (English) | https://github.com/T1NG4/TGS-pack-manager-releases/blob/main/DOCUMENTATION.md |
+| Documentação (PT-BR) | https://github.com/T1NG4/TGS-pack-manager-releases/blob/main/DOCUMENTACAO.md |
 | TGS Launcher | https://github.com/T1NG4/TGS-launcher-releases/releases |
 | Código-fonte Pack Manager | https://github.com/T1NG4/TGS-pack-manager |
+| Site TGS Community | https://tgs.gamer.gd/pt/pack-manager/ |
 
 ---
 
-*Última atualização da documentação: alinhada com a release **v2.0.12**.*
+*Última atualização da documentação: alinhada com a release **v2.1.0**.*

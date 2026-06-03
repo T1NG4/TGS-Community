@@ -26,9 +26,10 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git clone "https://x-access-token:${GH_TOKEN}@github.com/T1NG4/TGS-pack-manager-releases.git" releases-repo
           cp releases-public/README.md releases-repo/README.md
+          cp releases-public/DOCUMENTATION.md releases-repo/DOCUMENTATION.md
           cp releases-public/DOCUMENTACAO.md releases-repo/DOCUMENTACAO.md
           cd releases-repo
-          git add README.md DOCUMENTACAO.md
+          git add README.md DOCUMENTATION.md DOCUMENTACAO.md
           if git diff --staged --quiet; then
             echo "No doc changes to push"
             exit 0
